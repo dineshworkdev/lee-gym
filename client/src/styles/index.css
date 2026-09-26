@@ -1,0 +1,18 @@
+/* Lee Gym — Global CSS entry point */
+
+/* Design tokens must come FIRST (before Tailwind) */
+@import './variables.css';
+
+/* Tailwind base layers */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Tailwind component overrides & utilities ─────────────── */
+@layer utilities {
+  /* Prevent horizontal overflow globally */
+  .no-overflow {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+}

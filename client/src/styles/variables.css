@@ -1,0 +1,117 @@
+/*
+  Lee Gym — CSS Design Tokens & Base Styles
+  Brand identity: Yellow primary, Charcoal/Slate, Red accent, Warm background
+*/
+
+/* ─── Custom Properties ─────────────────────────────────────── */
+:root {
+  /* Brand Colors */
+  --color-yellow:        #F4C400;
+  --color-yellow-light:  #FFE866;
+  --color-yellow-dark:   #D4A900;
+  --color-charcoal:      #252A2E;
+  --color-charcoal-light:#2E343A;
+  --color-slate:         #4B555D;
+  --color-red:           #A83D3D;
+  --color-warm-bg:       #F7F5EF;
+  --color-warm-50:       #F9F8F4;
+  --color-white:         #FFFFFF;
+  --color-success:       #2F7D4A;
+
+  /* Typography */
+  --font-display: 'Bebas Neue', 'Impact', 'Arial Black', sans-serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+
+  /* Spacing scale */
+  --space-xs:   0.25rem;
+  --space-sm:   0.5rem;
+  --space-md:   1rem;
+  --space-lg:   1.5rem;
+  --space-xl:   2rem;
+  --space-2xl:  3rem;
+  --space-3xl:  5rem;
+
+  /* Border radius */
+  --radius-sm:  0.25rem;
+  --radius-md:  0.5rem;
+  --radius-lg:  1rem;
+  --radius-xl:  1.5rem;
+  --radius-full:9999px;
+
+  /* Shadows */
+  --shadow-sm:  0 1px 3px rgba(37,42,46,0.08), 0 1px 2px rgba(37,42,46,0.06);
+  --shadow-md:  0 4px 16px rgba(37,42,46,0.10), 0 2px 6px rgba(37,42,46,0.08);
+  --shadow-lg:  0 10px 40px rgba(37,42,46,0.14), 0 4px 12px rgba(37,42,46,0.08);
+  --shadow-yellow: 0 4px 24px rgba(244,196,0,0.35);
+
+  /* Transitions */
+  --transition-fast:   150ms ease;
+  --transition-base:   250ms ease;
+  --transition-slow:   400ms ease;
+
+  /* Navbar */
+  --navbar-height: 72px;
+}
+
+/* ─── Reset & Base ───────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--font-body);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  background-color: var(--color-warm-bg);
+  color: var(--color-charcoal);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ─── Typography ─────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  line-height: 1;
+  color: var(--color-charcoal);
+  letter-spacing: -0.01em;
+}
+
+p, span, a, li, button, input, label {
+  font-family: var(--font-body);
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 6px; }
+::-webkit-scrollbar-track  { background: var(--color-warm-bg); }
+::-webkit-scrollbar-thumb  { background: var(--color-slate); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-charcoal); }
+
+/* ─── Focus Ring ─────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-yellow);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* ─── Selection ──────────────────────────────────────────────── */
+::selection {
+  background: var(--color-yellow);
+  color: var(--color-charcoal);
+}
+
+/* ─── Image defaults ─────────────────────────────────────────── */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}

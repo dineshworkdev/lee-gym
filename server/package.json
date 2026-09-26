@@ -1,0 +1,32 @@
+{
+  "name": "lee-gym-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Lee Gym backend API (Express + MongoDB). Architecture foundation only — no business logic implemented yet.",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "mongoose": "^8.6.3",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5",
+    "express-rate-limit": "^7.4.0",
+    "zod": "^3.23.8",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "eslint": "^9.10.0",
+    "@eslint/js": "^9.10.0",
+    "globals": "^15.9.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
