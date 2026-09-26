@@ -7,7 +7,6 @@ const NAV_LINKS = [
   { label: 'Home',       to: '/' },
   { label: 'About',      to: '/about' },
   { label: 'Programs',   to: '/programs' },
-  { label: 'Trainers',   to: '/trainers' },
   { label: 'Membership', to: '/membership' },
   { label: 'Gallery',    to: '/gallery' },
   { label: 'Contact',    to: '/contact' },
@@ -16,8 +15,9 @@ const NAV_LINKS = [
 /**
  * Navbar — Exact Match to Reference Design
  * Left: Bold Dumbbell icon + bold LEE (#252A2E) GYM (#F4C400)
- * Center: Home (with yellow underline), About, Programs, Trainers, Membership, Gallery, Contact
- * Right: Divider line | Split "JOIN NOW [→]" button | Hamburger icon
+ * Center (Desktop): Home (with yellow underline), About, Programs, Membership, Gallery, Contact
+ * Right (Desktop): Divider line | Split "JOIN NOW [→]" button
+ * Right (Mobile): Hamburger icon only (☰) — NO JOIN NOW button on mobile navbar
  * Clean cream/off-white background (#FBF8F2), no glassmorphism, no blur, no transparent floating navbar.
  */
 function Navbar() {
@@ -32,7 +32,7 @@ function Navbar() {
   }, []);
 
   useEffect(() => {
-    const onResize = () => { if (window.innerWidth >= 992) setIsOpen(false); };
+    const onResize = () => { if (window.innerWidth >= 1024) setIsOpen(false); };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
@@ -119,14 +119,14 @@ function Navbar() {
             </span>
           </Link>
 
-          {/* ── 2. Navigation Links ─────────────────────────────────── */}
+          {/* ── 2. Navigation Links (Desktop Only) ─────────────────── */}
           <nav
             id="navbar-links"
             aria-label="Main Navigation"
             className="hidden lg:flex"
             style={{
               alignItems: 'center',
-              gap: '1.9rem',
+              gap: '2.1rem',
               margin: '0 auto',
             }}
           >
@@ -180,7 +180,7 @@ function Navbar() {
               gap: '1.25rem',
             }}
           >
-            {/* Divider Line */}
+            {/* Divider Line (Desktop only) */}
             <div
               className="hidden lg:block"
               style={{
@@ -190,12 +190,12 @@ function Navbar() {
               }}
             />
 
-            {/* Split "JOIN NOW [→]" CTA Button */}
+            {/* Split "JOIN NOW [→]" CTA Button (Desktop only — removed on mobile) */}
             <Link
               to="/membership"
               id="navbar-join-btn"
+              className="hidden lg:inline-flex"
               style={{
-                display: 'inline-flex',
                 alignItems: 'stretch',
                 textDecoration: 'none',
                 borderRadius: '2px',
@@ -247,10 +247,11 @@ function Navbar() {
               </span>
             </Link>
 
-            {/* Hamburger Menu Toggle (Three Horizontal Lines) */}
+            {/* Hamburger Menu Toggle (Mobile only — clearly visible at top-right) */}
             <button
               id="navbar-hamburger-btn"
               type="button"
+              className="flex lg:hidden"
               aria-label={isOpen ? 'Close menu' : 'Open menu'}
               onClick={() => setIsOpen((v) => !v)}
               style={{
@@ -258,7 +259,6 @@ function Navbar() {
                 border: 'none',
                 padding: '0.4rem',
                 cursor: 'pointer',
-                display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -268,12 +268,12 @@ function Navbar() {
               }}
             >
               {isOpen ? (
-                <X size={24} color="#252A2E" />
+                <X size={26} color="#252A2E" />
               ) : (
                 <>
-                  <span style={{ width: '22px', height: '2.5px', backgroundColor: '#252A2E', display: 'block', borderRadius: '1px' }} />
-                  <span style={{ width: '22px', height: '2.5px', backgroundColor: '#252A2E', display: 'block', borderRadius: '1px' }} />
-                  <span style={{ width: '22px', height: '2.5px', backgroundColor: '#252A2E', display: 'block', borderRadius: '1px' }} />
+                  <span style={{ width: '24px', height: '2.5px', backgroundColor: '#252A2E', display: 'block', borderRadius: '1px' }} />
+                  <span style={{ width: '24px', height: '2.5px', backgroundColor: '#252A2E', display: 'block', borderRadius: '1px' }} />
+                  <span style={{ width: '24px', height: '2.5px', backgroundColor: '#252A2E', display: 'block', borderRadius: '1px' }} />
                 </>
               )}
             </button>

@@ -13,7 +13,6 @@ function Footer() {
     { label: 'Home', to: '/' },
     { label: 'About', to: '/about' },
     { label: 'Programs', to: '/programs' },
-    { label: 'Trainers', to: '/trainers' },
     { label: 'Membership', to: '/membership' },
     { label: 'Gallery', to: '/gallery' },
     { label: 'Contact', to: '/contact' },

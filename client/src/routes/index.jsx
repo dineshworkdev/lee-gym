@@ -6,7 +6,6 @@ import AdminLayout from '../layouts/AdminLayout.jsx';
 import Home from '../pages/public/Home.jsx';
 import About from '../pages/public/About.jsx';
 import Programs from '../pages/public/Programs.jsx';
-import Trainers from '../pages/public/Trainers.jsx';
 import Membership from '../pages/public/Membership.jsx';
 import Gallery from '../pages/public/Gallery.jsx';
 import Contact from '../pages/public/Contact.jsx';
@@ -32,7 +31,6 @@ function AppRoutes() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/programs" element={<Programs />} />
-        <Route path="/trainers" element={<Trainers />} />
         <Route path="/membership" element={<Membership />} />
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/contact" element={<Contact />} />
