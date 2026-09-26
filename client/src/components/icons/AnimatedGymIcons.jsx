@@ -60,7 +60,7 @@ export function AnimatedArrow({ size = 18, color = 'currentColor', isHovered, cl
 }
 
 // 3. Animated Olympic Barbell (loaded with calibrated bumper plates)
-export function AnimatedBarbell({ size = 28, color = 'var(--color-yellow)', className = '' }) {
+export function AnimatedBarbell({ size = 28, color = 'var(--color-yellow)', isHovered, className = '' }) {
   return (
     <motion.svg
       width={size}
@@ -68,7 +68,9 @@ export function AnimatedBarbell({ size = 28, color = 'var(--color-yellow)', clas
       viewBox="0 0 28 28"
       fill="none"
       className={className}
-      whileHover={{ scale: 1.08 }}
+      animate={isHovered ? { x: [-2, 3, 0], scale: 1.06 } : { x: 0, scale: 1 }}
+      whileHover={{ scale: 1.08, x: 2 }}
+      transition={{ type: 'spring', stiffness: 450, damping: 20 }}
       style={{ display: 'inline-block', verticalAlign: 'middle' }}
     >
       {/* Bar */}
@@ -90,7 +92,7 @@ export function AnimatedBarbell({ size = 28, color = 'var(--color-yellow)', clas
 }
 
 // 4. Animated Flame / Energy (flame pulses with athletic vitality)
-export function AnimatedFlame({ size = 22, color = 'var(--color-yellow)', className = '' }) {
+export function AnimatedFlame({ size = 22, color = 'var(--color-yellow)', isHovered, className = '' }) {
   return (
     <motion.svg
       width={size}
@@ -98,15 +100,9 @@ export function AnimatedFlame({ size = 22, color = 'var(--color-yellow)', classN
       viewBox="0 0 24 24"
       fill="none"
       className={className}
-      animate={{
-        scale: [1, 1.12, 1],
-        rotate: [-2, 2, -2],
-      }}
-      transition={{
-        duration: 1.6,
-        repeat: Infinity,
-        ease: 'easeInOut',
-      }}
+      animate={isHovered ? { scale: [1, 1.15, 1.08], y: -2 } : { scale: 1, y: 0 }}
+      whileHover={{ scale: 1.15, y: -2 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
       style={{ display: 'inline-block', verticalAlign: 'middle' }}
     >
       <path
@@ -152,7 +148,7 @@ export function AnimatedCheck({ size = 18, color = 'var(--color-yellow)', classN
 }
 
 // 6. Animated Weight Plate (rotates slowly or spins on hover)
-export function AnimatedWeightPlate({ size = 24, color = 'var(--color-yellow)', className = '' }) {
+export function AnimatedWeightPlate({ size = 24, color = 'var(--color-yellow)', isHovered, className = '' }) {
   return (
     <motion.svg
       width={size}
@@ -160,8 +156,9 @@ export function AnimatedWeightPlate({ size = 24, color = 'var(--color-yellow)', 
       viewBox="0 0 24 24"
       fill="none"
       className={className}
+      animate={isHovered ? { rotate: 90 } : { rotate: 0 }}
       whileHover={{ rotate: 180 }}
-      transition={{ duration: 0.6, ease: 'easeInOut' }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       style={{ display: 'inline-block', verticalAlign: 'middle' }}
     >
       <circle cx="12" cy="12" r="10" stroke={color} strokeWidth="2.5" />

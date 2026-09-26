@@ -34,8 +34,11 @@ function PageHero({
     >
       {/* Background Ghost Watermark */}
       {watermark && (
-        <span
+        <motion.span
           aria-hidden="true"
+          initial={{ opacity: shouldReduce ? 0.04 : 0, x: shouldReduce ? 0 : 20 }}
+          animate={{ opacity: 0.04, x: 0 }}
+          transition={{ duration: 0.6 }}
           style={{
             position: 'absolute',
             right: '-1%',
@@ -51,12 +54,15 @@ function PageHero({
           }}
         >
           {watermark}
-        </span>
+        </motion.span>
       )}
 
       {/* Speed Stripe Accent on the right */}
-      <div
+      <motion.div
         aria-hidden="true"
+        initial={{ opacity: shouldReduce ? 0.35 : 0, x: shouldReduce ? 0 : 30 }}
+        animate={{ opacity: 0.35, x: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
         style={{
           position: 'absolute',
           right: '5%',
@@ -66,13 +72,12 @@ function PageHero({
           gap: '12px',
           transform: 'skewX(-24deg)',
           pointerEvents: 'none',
-          opacity: 0.35,
           zIndex: 0,
         }}
       >
         <div style={{ width: '12px', height: '100%', backgroundColor: 'var(--color-yellow, #F4C400)' }} />
         <div style={{ width: '24px', height: '100%', backgroundColor: 'var(--color-yellow, #F4C400)' }} />
-      </div>
+      </motion.div>
 
       <div
         style={{
@@ -134,7 +139,7 @@ function PageHero({
           <motion.div
             initial={{ opacity: shouldReduce ? 1 : 0, x: shouldReduce ? 0 : -15 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -166,12 +171,11 @@ function PageHero({
         )}
 
         {/* Headline */}
-        <motion.div
-          initial={{ opacity: shouldReduce ? 1 : 0, y: shouldReduce ? 0 : 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.05 }}
-        >
-          <h1
+        <div style={{ overflow: 'hidden' }}>
+          <motion.h1
+            initial={{ opacity: shouldReduce ? 1 : 0, y: shouldReduce ? 0 : '100%' }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
             style={{
               fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
               fontSize: 'clamp(3rem, 7.5vw, 6.5rem)',
@@ -187,15 +191,15 @@ function PageHero({
                 {highlight}
               </span>
             )}
-          </h1>
-        </motion.div>
+          </motion.h1>
+        </div>
 
         {/* Description */}
         {description && (
           <motion.p
             initial={{ opacity: shouldReduce ? 1 : 0, y: shouldReduce ? 0 : 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.15 }}
+            transition={{ duration: 0.45, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
             style={{
               fontFamily: 'var(--font-body, "Inter", sans-serif)',
               fontSize: 'clamp(0.95rem, 1.4vw, 1.15rem)',

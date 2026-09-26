@@ -172,7 +172,10 @@ function Contact() {
               </p>
 
               {formSubmitted ? (
-                <div
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                   style={{
                     backgroundColor: 'rgba(47, 125, 74, 0.1)',
                     border: '1px solid rgba(47, 125, 74, 0.25)',
@@ -181,7 +184,10 @@ function Contact() {
                     textAlign: 'center',
                   }}
                 >
-                  <div
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 25, delay: 0.1 }}
                     style={{
                       width: '48px',
                       height: '48px',
@@ -194,15 +200,26 @@ function Contact() {
                       color: 'var(--color-white)',
                     }}
                   >
-                    <Check size={24} />
-                  </div>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <motion.path
+                        d="M5 13L9.5 17.5L19 7"
+                        stroke="#FFFFFF"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ duration: 0.45, ease: 'easeOut', delay: 0.2 }}
+                      />
+                    </svg>
+                  </motion.div>
                   <h4 style={{ fontFamily: 'var(--font-display)', fontSize: '1.6rem', color: 'var(--color-charcoal)', margin: '0 0 0.5rem 0' }}>
                     MESSAGE RECEIVED
                   </h4>
                   <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.9rem', color: 'var(--color-slate)', margin: 0 }}>
                     Thank you. We will get back to you shortly.
                   </p>
-                </div>
+                </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                   <div>
@@ -352,8 +369,10 @@ function Contact() {
                     />
                   </div>
 
-                  <button
+                  <motion.button
                     type="submit"
+                    whileHover={shouldReduce ? {} : { y: -2 }}
+                    whileTap={{ scale: 0.97 }}
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
@@ -375,7 +394,7 @@ function Contact() {
                   >
                     <span>Submit Inquiry</span>
                     <Send size={15} />
-                  </button>
+                  </motion.button>
                 </form>
               )}
             </div>

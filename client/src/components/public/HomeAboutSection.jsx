@@ -46,10 +46,11 @@ function HomeAboutSection() {
         >
           {/* Left: Graphic Identity Card */}
           <motion.div
-            initial={{ opacity: shouldReduce ? 1 : 0, y: shouldReduce ? 0 : 20 }}
+            initial={{ opacity: shouldReduce ? 1 : 0, y: shouldReduce ? 0 : 25 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.5 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+            whileHover={shouldReduce ? {} : { y: -4, boxShadow: '0 12px 32px rgba(37, 42, 46, 0.16)' }}
             style={{
               backgroundColor: 'var(--color-charcoal)',
               color: 'var(--color-white)',
@@ -60,6 +61,7 @@ function HomeAboutSection() {
               justifyContent: 'space-between',
               boxShadow: 'var(--shadow-md)',
               borderLeft: '5px solid var(--color-yellow)',
+              transition: 'box-shadow 200ms ease',
             }}
           >
             <div>
@@ -153,7 +155,10 @@ function HomeAboutSection() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.35rem',
+                  transition: 'gap 150ms ease',
                 }}
+                onMouseEnter={(e) => { e.currentTarget.style.gap = '0.55rem'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.gap = '0.35rem'; }}
               >
                 <span>Read More</span>
                 <ArrowRight size={14} />
@@ -163,9 +168,14 @@ function HomeAboutSection() {
 
           {/* Right: Brand Values Stack */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', justifyContent: 'center' }}>
-            {BRAND_VALUES.map((val) => (
-              <div
+            {BRAND_VALUES.map((val, idx) => (
+              <motion.div
                 key={val.number}
+                initial={{ opacity: shouldReduce ? 1 : 0, x: shouldReduce ? 0 : 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.45, delay: shouldReduce ? 0 : idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={shouldReduce ? {} : { x: 5, borderColor: 'var(--color-yellow)', boxShadow: '0 6px 20px rgba(37,42,46,0.08)' }}
                 style={{
                   backgroundColor: 'var(--color-white)',
                   border: '1px solid rgba(37,42,46,0.1)',
@@ -174,6 +184,7 @@ function HomeAboutSection() {
                   display: 'flex',
                   alignItems: 'flex-start',
                   gap: '1rem',
+                  transition: 'border-color 160ms ease, box-shadow 160ms ease',
                 }}
               >
                 <span
@@ -210,7 +221,7 @@ function HomeAboutSection() {
                     {val.description}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>

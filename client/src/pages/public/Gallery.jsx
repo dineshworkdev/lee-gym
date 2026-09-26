@@ -67,9 +67,11 @@ function Gallery() {
             {categories.map((cat) => {
               const active = filter === cat;
               return (
-                <button
+                <motion.button
                   key={cat}
                   onClick={() => setFilter(cat)}
+                  whileHover={shouldReduce ? {} : { y: -1 }}
+                  whileTap={{ scale: 0.96 }}
                   style={{
                     padding: '0.6rem 1.25rem',
                     borderRadius: '2px',
@@ -87,7 +89,7 @@ function Gallery() {
                   }}
                 >
                   {cat}
-                </button>
+                </motion.button>
               );
             })}
           </div>
@@ -108,6 +110,8 @@ function Gallery() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.35, delay: shouldReduce ? 0 : idx * 0.05 }}
+                whileHover={shouldReduce ? {} : { y: -6, boxShadow: '0 14px 32px rgba(0,0,0,0.35)' }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setActiveModalItem(item)}
                 style={{
                   backgroundColor: 'var(--color-charcoal)',
@@ -123,15 +127,7 @@ function Gallery() {
                   padding: '2rem',
                   borderTop: `4px solid ${item.colorAccent}`,
                   boxShadow: 'var(--shadow-sm)',
-                  transition: 'transform 200ms ease, box-shadow 200ms ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                  transition: 'border-color 200ms ease, box-shadow 200ms ease',
                 }}
               >
                 {/* Background decorative texture pattern */}

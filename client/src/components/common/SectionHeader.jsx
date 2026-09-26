@@ -78,40 +78,42 @@ function SectionHeader({
           </motion.div>
         )}
 
-        <motion.h2
-          initial={{ opacity: shouldReduce ? 1 : 0, y: shouldReduce ? 0 : 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-50px' }}
-          transition={{ duration: 0.5, delay: shouldReduce ? 0 : 0.08 }}
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(2.4rem, 5.5vw, 4.2rem)',
-            lineHeight: 0.95,
-            letterSpacing: '0.01em',
-            color: 'var(--color-charcoal)',
-            margin: 0,
-          }}
-        >
-          {title}{' '}
-          {highlight && (
-            <span
-              style={{
-                color: 'var(--color-yellow)',
-                position: 'relative',
-                display: 'inline-block',
-              }}
-            >
-              {highlight}
-            </span>
-          )}
-        </motion.h2>
+        <div style={{ overflow: 'hidden' }}>
+          <motion.h2
+            initial={{ opacity: shouldReduce ? 1 : 0, y: shouldReduce ? 0 : 36 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.55, delay: shouldReduce ? 0 : 0.06, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(2.4rem, 5.5vw, 4.2rem)',
+              lineHeight: 0.95,
+              letterSpacing: '0.01em',
+              color: 'var(--color-charcoal)',
+              margin: 0,
+            }}
+          >
+            {title}{' '}
+            {highlight && (
+              <span
+                style={{
+                  color: 'var(--color-yellow)',
+                  position: 'relative',
+                  display: 'inline-block',
+                }}
+              >
+                {highlight}
+              </span>
+            )}
+          </motion.h2>
+        </div>
 
         {description && (
           <motion.p
-            initial={{ opacity: shouldReduce ? 1 : 0, y: shouldReduce ? 0 : 12 }}
+            initial={{ opacity: shouldReduce ? 1 : 0, y: shouldReduce ? 0 : 16 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.5, delay: shouldReduce ? 0 : 0.15 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.5, delay: shouldReduce ? 0 : 0.14, ease: [0.16, 1, 0.3, 1] }}
             style={{
               fontFamily: 'var(--font-body)',
               fontSize: 'clamp(0.95rem, 1.2vw, 1.1rem)',
@@ -128,10 +130,12 @@ function SectionHeader({
 
       {linkTo && linkText && (
         <motion.div
-          initial={{ opacity: shouldReduce ? 1 : 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: '-50px' }}
-          transition={{ duration: 0.4, delay: 0.2 }}
+          initial={{ opacity: shouldReduce ? 1 : 0, y: shouldReduce ? 0 : 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-40px' }}
+          transition={{ duration: 0.45, delay: shouldReduce ? 0 : 0.18 }}
+          whileHover={shouldReduce ? {} : { y: -2 }}
+          whileTap={shouldReduce ? {} : { scale: 0.97 }}
         >
           <Link
             to={linkTo}
@@ -150,17 +154,18 @@ function SectionHeader({
               border: '1.5px solid rgba(37,42,46,0.18)',
               borderRadius: '2px',
               backgroundColor: 'var(--color-white)',
-              transition: 'all 200ms ease',
+              transition: 'background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease',
+              boxShadow: 'var(--shadow-sm)',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = 'var(--color-yellow)';
               e.currentTarget.style.borderColor = 'var(--color-yellow)';
-              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 6px 18px rgba(244, 196, 0, 0.35)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = 'var(--color-white)';
               e.currentTarget.style.borderColor = 'rgba(37,42,46,0.18)';
-              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
             }}
           >
             <span>{linkText}</span>

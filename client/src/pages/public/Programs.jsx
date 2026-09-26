@@ -7,6 +7,96 @@ import { PROGRAMS } from '../../data/gymData';
 
 const ICONS = [AnimatedBarbell, AnimatedFlame, AnimatedWeightPlate, AnimatedDumbbell];
 
+function ProgramCard({ prog, index, shouldReduce }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const IconComponent = ICONS[index % ICONS.length];
+
+  return (
+    <motion.div
+      initial={{ opacity: shouldReduce ? 1 : 0, y: shouldReduce ? 0 : 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.4, delay: shouldReduce ? 0 : index * 0.06, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={shouldReduce ? {} : { y: -6, borderColor: 'rgba(37,42,46,0.22)', boxShadow: '0 12px 28px rgba(37,42,46,0.08)' }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      style={{
+        backgroundColor: 'var(--color-white)',
+        border: '1px solid rgba(37,42,46,0.1)',
+        borderRadius: '3px',
+        padding: 'clamp(1.75rem, 3vw, 2.5rem)',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        boxShadow: 'var(--shadow-sm)',
+        borderTop: '4px solid var(--color-yellow)',
+        minHeight: '280px',
+        transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+      }}
+    >
+      <div>
+        <div style={{ marginBottom: '1.25rem' }}>
+          <IconComponent size={32} color="var(--color-charcoal)" isHovered={isHovered} />
+        </div>
+
+        <h3
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 'clamp(2rem, 3.2vw, 2.6rem)',
+            lineHeight: 0.96,
+            color: 'var(--color-charcoal)',
+            margin: '0 0 0.75rem 0',
+          }}
+        >
+          {prog.name}
+        </h3>
+
+        <p
+          style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '0.9rem',
+            lineHeight: 1.6,
+            color: 'var(--color-slate)',
+            margin: 0,
+          }}
+        >
+          {prog.shortDesc}
+        </p>
+      </div>
+
+      <div style={{ marginTop: '2rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(37,42,46,0.08)' }}>
+        <motion.div whileTap={{ scale: 0.97 }}>
+          <Link
+            to="/membership"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: isHovered ? '0.75rem' : '0.5rem',
+              fontFamily: 'var(--font-body)',
+              fontSize: '0.82rem',
+              fontWeight: 800,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              color: 'var(--color-charcoal)',
+              textDecoration: 'none',
+              padding: '0.75rem 1.4rem',
+              backgroundColor: 'var(--color-yellow)',
+              borderRadius: '2px',
+              width: '100%',
+              justifyContent: 'center',
+              boxSizing: 'border-box',
+              transition: 'gap 0.2s ease',
+            }}
+          >
+            <span>Get Started</span>
+            <AnimatedArrow size={16} />
+          </Link>
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+}
+
 function Programs() {
   const [filter, setFilter] = useState('All');
   const shouldReduce = useReducedMotion();
@@ -49,9 +139,11 @@ function Programs() {
             {categories.map((cat) => {
               const active = filter === cat;
               return (
-                <button
+                <motion.button
                   key={cat}
                   onClick={() => setFilter(cat)}
+                  whileHover={shouldReduce ? {} : { y: -1 }}
+                  whileTap={{ scale: 0.96 }}
                   style={{
                     padding: '0.6rem 1.2rem',
                     borderRadius: '2px',
@@ -69,7 +161,7 @@ function Programs() {
                   }}
                 >
                   {cat === 'All' ? 'All Programs' : cat}
-                </button>
+                </motion.button>
               );
             })}
           </div>
@@ -83,87 +175,14 @@ function Programs() {
               marginBottom: '4rem',
             }}
           >
-            {filteredPrograms.map((prog, index) => {
-              const IconComponent = ICONS[index % ICONS.length];
-              return (
-                <motion.div
-                  key={prog.id}
-                  initial={{ opacity: shouldReduce ? 1 : 0, y: shouldReduce ? 0 : 15 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.35, delay: shouldReduce ? 0 : index * 0.05 }}
-                  whileHover={{ y: -4 }}
-                  style={{
-                    backgroundColor: 'var(--color-white)',
-                    border: '1px solid rgba(37,42,46,0.1)',
-                    borderRadius: '3px',
-                    padding: 'clamp(1.75rem, 3vw, 2.5rem)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    boxShadow: 'var(--shadow-sm)',
-                    borderTop: '4px solid var(--color-yellow)',
-                    minHeight: '280px',
-                  }}
-                >
-                  <div>
-                    <div style={{ marginBottom: '1.25rem' }}>
-                      <IconComponent size={32} color="var(--color-charcoal)" />
-                    </div>
-
-                    <h3
-                      style={{
-                        fontFamily: 'var(--font-display)',
-                        fontSize: 'clamp(2rem, 3.2vw, 2.6rem)',
-                        lineHeight: 0.96,
-                        color: 'var(--color-charcoal)',
-                        margin: '0 0 0.75rem 0',
-                      }}
-                    >
-                      {prog.name}
-                    </h3>
-
-                    <p
-                      style={{
-                        fontFamily: 'var(--font-body)',
-                        fontSize: '0.9rem',
-                        lineHeight: 1.6,
-                        color: 'var(--color-slate)',
-                        margin: 0,
-                      }}
-                    >
-                      {prog.shortDesc}
-                    </p>
-                  </div>
-
-                  <div style={{ marginTop: '2rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(37,42,46,0.08)' }}>
-                    <Link
-                      to="/membership"
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        fontFamily: 'var(--font-body)',
-                        fontSize: '0.82rem',
-                        fontWeight: 800,
-                        letterSpacing: '0.08em',
-                        textTransform: 'uppercase',
-                        color: 'var(--color-charcoal)',
-                        textDecoration: 'none',
-                        padding: '0.75rem 1.4rem',
-                        backgroundColor: 'var(--color-yellow)',
-                        borderRadius: '2px',
-                        width: '100%',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <span>Get Started</span>
-                      <AnimatedArrow size={16} />
-                    </Link>
-                  </div>
-                </motion.div>
-              );
-            })}
+            {filteredPrograms.map((prog, index) => (
+              <ProgramCard
+                key={prog.id}
+                prog={prog}
+                index={index}
+                shouldReduce={shouldReduce}
+              />
+            ))}
           </div>
         </div>
       </section>

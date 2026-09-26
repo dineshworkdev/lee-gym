@@ -1,7 +1,112 @@
+import { useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { AnimatedArrow } from '../icons/AnimatedGymIcons';
 import { MEMBERSHIP_PLANS } from '../../data/gymData';
+
+function PlanCard({ plan, idx, shouldReduce }) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <motion.div
+      initial={{ opacity: shouldReduce ? 1 : 0, y: shouldReduce ? 0 : 25 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.45, delay: shouldReduce ? 0 : idx * 0.08, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={shouldReduce ? {} : { y: -6, borderColor: 'rgba(37,42,46,0.22)', boxShadow: '0 12px 28px rgba(37,42,46,0.08)' }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      style={{
+        backgroundColor: 'var(--color-white)',
+        border: '1px solid rgba(37,42,46,0.1)',
+        borderRadius: '4px',
+        padding: 'clamp(1.75rem, 3.5vw, 2.5rem)',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        boxShadow: 'var(--shadow-sm)',
+        borderTop: '4px solid var(--color-yellow)',
+        minHeight: '260px',
+        transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+      }}
+    >
+      <div>
+        <span
+          style={{
+            backgroundColor: 'var(--color-warm-bg)',
+            color: 'var(--color-charcoal)',
+            fontFamily: 'var(--font-body)',
+            fontSize: '0.72rem',
+            fontWeight: 800,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            padding: '0.25rem 0.6rem',
+            borderRadius: '2px',
+            display: 'inline-block',
+            marginBottom: '0.75rem',
+          }}
+        >
+          {plan.badge}
+        </span>
+
+        <h3
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 'clamp(2rem, 3.2vw, 2.5rem)',
+            lineHeight: 1,
+            color: 'var(--color-charcoal)',
+            margin: '0 0 0.5rem 0',
+          }}
+        >
+          {plan.name}
+        </h3>
+
+        <p
+          style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '0.9rem',
+            lineHeight: 1.55,
+            color: 'var(--color-slate)',
+            margin: 0,
+          }}
+        >
+          {plan.description}
+        </p>
+      </div>
+
+      <div style={{ marginTop: '2rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(37,42,46,0.08)' }}>
+        <p
+          style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '0.84rem',
+            color: 'var(--color-slate)',
+            margin: '0 0 1rem 0',
+            fontStyle: 'italic',
+          }}
+        >
+          Contact the gym for membership options.
+        </p>
+        <Link
+          to="/membership"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: isHovered ? '0.65rem' : '0.45rem',
+            fontFamily: 'var(--font-body)',
+            fontSize: '0.82rem',
+            fontWeight: 700,
+            color: 'var(--color-charcoal)',
+            textDecoration: 'none',
+            transition: 'gap 0.2s ease',
+          }}
+        >
+          <span>Inquire now</span>
+          <AnimatedArrow size={14} color="var(--color-charcoal)" />
+        </Link>
+      </div>
+    </motion.div>
+  );
+}
 
 /**
  * VisualMembershipSection — Clean Membership Overview
@@ -10,6 +115,7 @@ import { MEMBERSHIP_PLANS } from '../../data/gymData';
  */
 function VisualMembershipSection() {
   const shouldReduce = useReducedMotion();
+  const [btnHover, setBtnHover] = useState(false);
 
   return (
     <section
@@ -38,7 +144,13 @@ function VisualMembershipSection() {
           }}
         >
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <motion.div
+              initial={{ opacity: shouldReduce ? 1 : 0, x: shouldReduce ? 0 : -10 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.35 }}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}
+            >
               <span style={{ width: '20px', height: '3px', backgroundColor: 'var(--color-yellow)' }} />
               <span
                 style={{
@@ -52,68 +164,85 @@ function VisualMembershipSection() {
               >
                 Membership
               </span>
+            </motion.div>
+
+            <div style={{ overflow: 'hidden' }}>
+              <motion.h2
+                initial={{ opacity: shouldReduce ? 1 : 0, y: shouldReduce ? 0 : '100%' }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 'clamp(2.5rem, 5.5vw, 4.2rem)',
+                  lineHeight: 0.92,
+                  color: 'var(--color-charcoal)',
+                  margin: 0,
+                }}
+              >
+                TRAINING ACCESS.
+              </motion.h2>
             </div>
-            <h2
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(2.5rem, 5.5vw, 4.2rem)',
-                lineHeight: 0.92,
-                color: 'var(--color-charcoal)',
-                margin: 0,
-              }}
-            >
-              TRAINING ACCESS.
-            </h2>
           </div>
 
-          <Link
-            to="/membership"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'stretch',
-              textDecoration: 'none',
-              borderRadius: '2px',
-              overflow: 'hidden',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-            }}
+          <motion.div
+            whileHover={shouldReduce ? {} : { y: -2 }}
+            whileTap={{ scale: 0.97 }}
+            onHoverStart={() => setBtnHover(true)}
+            onHoverEnd={() => setBtnHover(false)}
           >
-            <span
+            <Link
+              to="/membership"
               style={{
-                backgroundColor: 'var(--color-yellow)',
-                color: '#1A1D20',
-                fontFamily: 'var(--font-body)',
-                fontSize: '0.84rem',
-                fontWeight: 800,
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                padding: '0.75rem 1.4rem',
-                display: 'flex',
-                alignItems: 'center',
+                display: 'inline-flex',
+                alignItems: 'stretch',
+                textDecoration: 'none',
+                borderRadius: '2px',
+                overflow: 'hidden',
+                boxShadow: btnHover ? '0 6px 18px rgba(0,0,0,0.18)' : '0 2px 10px rgba(0,0,0,0.1)',
+                transition: 'box-shadow 0.2s ease',
               }}
             >
-              JOIN NOW
-            </span>
-            <span
-              style={{
-                backgroundColor: '#1A1D20',
-                color: '#FFFFFF',
-                padding: '0.75rem 1rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path
-                  d="M2.5 8H13.5M8.5 3L13.5 8L8.5 13"
-                  stroke="currentColor"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </span>
-          </Link>
+              <span
+                style={{
+                  backgroundColor: 'var(--color-yellow)',
+                  color: '#1A1D20',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '0.84rem',
+                  fontWeight: 800,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  padding: '0.75rem 1.4rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                JOIN NOW
+              </span>
+              <motion.span
+                animate={btnHover ? { x: 2 } : { x: 0 }}
+                transition={{ duration: 0.2 }}
+                style={{
+                  backgroundColor: '#1A1D20',
+                  color: '#FFFFFF',
+                  padding: '0.75rem 1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path
+                    d="M2.5 8H13.5M8.5 3L13.5 8L8.5 13"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </motion.span>
+            </Link>
+          </motion.div>
         </div>
 
         {/* 3 Clean Membership Cards */}
@@ -125,99 +254,12 @@ function VisualMembershipSection() {
           }}
         >
           {MEMBERSHIP_PLANS.map((plan, idx) => (
-            <motion.div
+            <PlanCard
               key={plan.id}
-              initial={{ opacity: shouldReduce ? 1 : 0, y: shouldReduce ? 0 : 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: shouldReduce ? 0 : idx * 0.08 }}
-              style={{
-                backgroundColor: 'var(--color-white)',
-                border: '1px solid rgba(37,42,46,0.1)',
-                borderRadius: '4px',
-                padding: 'clamp(1.75rem, 3.5vw, 2.5rem)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                boxShadow: 'var(--shadow-sm)',
-                borderTop: '4px solid var(--color-yellow)',
-                minHeight: '260px',
-              }}
-            >
-              <div>
-                <span
-                  style={{
-                    backgroundColor: 'var(--color-warm-bg)',
-                    color: 'var(--color-charcoal)',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: '0.72rem',
-                    fontWeight: 800,
-                    letterSpacing: '0.12em',
-                    textTransform: 'uppercase',
-                    padding: '0.25rem 0.6rem',
-                    borderRadius: '2px',
-                    display: 'inline-block',
-                    marginBottom: '0.75rem',
-                  }}
-                >
-                  {plan.badge}
-                </span>
-
-                <h3
-                  style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: 'clamp(2rem, 3.2vw, 2.5rem)',
-                    lineHeight: 1,
-                    color: 'var(--color-charcoal)',
-                    margin: '0 0 0.5rem 0',
-                  }}
-                >
-                  {plan.name}
-                </h3>
-
-                <p
-                  style={{
-                    fontFamily: 'var(--font-body)',
-                    fontSize: '0.9rem',
-                    lineHeight: 1.55,
-                    color: 'var(--color-slate)',
-                    margin: 0,
-                  }}
-                >
-                  {plan.description}
-                </p>
-              </div>
-
-              <div style={{ marginTop: '2rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(37,42,46,0.08)' }}>
-                <p
-                  style={{
-                    fontFamily: 'var(--font-body)',
-                    fontSize: '0.84rem',
-                    color: 'var(--color-slate)',
-                    margin: '0 0 1rem 0',
-                    fontStyle: 'italic',
-                  }}
-                >
-                  Contact the gym for membership options.
-                </p>
-                <Link
-                  to="/membership"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.45rem',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: '0.82rem',
-                    fontWeight: 700,
-                    color: 'var(--color-charcoal)',
-                    textDecoration: 'none',
-                  }}
-                >
-                  <span>Inquire now</span>
-                  <AnimatedArrow size={14} color="var(--color-charcoal)" />
-                </Link>
-              </div>
-            </motion.div>
+              plan={plan}
+              idx={idx}
+              shouldReduce={shouldReduce}
+            />
           ))}
         </div>
       </div>

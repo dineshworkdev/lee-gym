@@ -1,28 +1,24 @@
+import { useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { Link } from 'react-router-dom';
 
 /**
- * Hero — Lee Gym Hero Implementation
+ * Hero — Lee Gym Hero Implementation + Premium Motion
  *
  * Artwork Asset Rule:
  * - Desktop / Laptop / Tablet Landscape: /images/hero/hero-main.png
  * - Mobile / Portrait: /images/hero/hero-mobile.png
- * Both images already contain the complete visual artwork (dumbbell, yellow diagonal shapes,
- * cream background, shadows, dot grids, curved lines, decorative geometry).
  *
- * Mobile Hierarchy:
- * NAVBAR
- * ↓
- * HEADLINE (TRAIN HARD. LIVE STRONG. - scaled comfortably)
- * ↓
- * SHORT SUPPORTING TEXT (BUILT FOR SERIOUS TRAINING.)
- * ↓
- * JOIN NOW CTA (Split rectangular [ JOIN NOW ] [ → ])
- * ↓
- * DUMBBELL / HERO ARTWORK (Large, visually strong in the lower section, zero overlap)
+ * Motion:
+ * - Controlled line-by-line masked reveals
+ * - Directional spring thrust on CTA arrows
+ * - Physical press/compression feedback on click
+ * - Athletic rhythmic pulse on the scroll indicator
  */
 function Hero() {
   const shouldReduce = useReducedMotion();
+  const [ctaHover, setCtaHover] = useState(false);
+  const [mobileCtaHover, setMobileCtaHover] = useState(false);
 
   // Desktop animation variants
   const containerVariants = {
@@ -31,18 +27,41 @@ function Hero() {
       opacity: 1,
       transition: {
         staggerChildren: shouldReduce ? 0 : 0.12,
-        delayChildren: shouldReduce ? 0 : 0.05,
+        delayChildren: shouldReduce ? 0 : 0.06,
       },
     },
   };
 
   const lineVariants = {
-    hidden: { opacity: 0, y: shouldReduce ? 0 : 28 },
+    hidden: { opacity: 0, y: shouldReduce ? 0 : 32 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: shouldReduce ? 0.1 : 0.65,
+        duration: shouldReduce ? 0.05 : 0.65,
+        ease: [0.16, 1, 0.3, 1],
+      },
+    },
+  };
+
+  const mobileContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: shouldReduce ? 0 : 0.08,
+        delayChildren: shouldReduce ? 0 : 0.04,
+      },
+    },
+  };
+
+  const mobileItemVariants = {
+    hidden: { opacity: 0, y: shouldReduce ? 0 : 18 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: shouldReduce ? 0.05 : 0.5,
         ease: [0.16, 1, 0.3, 1],
       },
     },
@@ -84,11 +103,14 @@ function Hero() {
             zIndex: 1,
           }}
         >
-          <img
+          <motion.img
             src="/images/hero/hero-main.png"
             alt=""
             loading="eager"
             fetchPriority="high"
+            initial={{ opacity: shouldReduce ? 1 : 0.7 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
             style={{
               width: '100%',
               height: '100%',
@@ -99,9 +121,12 @@ function Hero() {
         </picture>
 
         {/* Desktop Left Vertical Index (01 / 02 / 03) */}
-        <div
+        <motion.div
           className="hidden xl:flex"
           aria-hidden="true"
+          initial={{ opacity: 0, x: -15 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
           style={{
             position: 'absolute',
             left: 'clamp(1.25rem, 2.8vw, 3rem)',
@@ -160,7 +185,7 @@ function Hero() {
               03
             </span>
           </div>
-        </div>
+        </motion.div>
 
         {/* Desktop Content Block */}
         <div
@@ -205,64 +230,70 @@ function Hero() {
                 flexDirection: 'column',
               }}
             >
-              <motion.span
-                variants={lineVariants}
-                style={{
-                  color: '#252A2E',
-                  display: 'block',
-                  WebkitTextStroke: '1.2px #252A2E',
-                }}
-              >
-                TRAIN
-              </motion.span>
-
-              <motion.span
-                variants={lineVariants}
-                style={{
-                  color: '#252A2E',
-                  display: 'inline-flex',
-                  alignItems: 'baseline',
-                  WebkitTextStroke: '1.2px #252A2E',
-                }}
-              >
-                HARD
-                <span
-                  aria-hidden="true"
+              <div style={{ overflow: 'hidden' }}>
+                <motion.span
+                  variants={lineVariants}
                   style={{
-                    display: 'inline-block',
-                    width: '0.13em',
-                    height: '0.13em',
-                    backgroundColor: '#F4C400',
-                    marginLeft: '0.07em',
-                    verticalAlign: 'baseline',
-                    WebkitTextStroke: '0',
+                    color: '#252A2E',
+                    display: 'block',
+                    WebkitTextStroke: '1.2px #252A2E',
                   }}
-                />
-              </motion.span>
+                >
+                  TRAIN
+                </motion.span>
+              </div>
 
-              <motion.span
-                variants={lineVariants}
-                style={{
-                  color: '#F4C400',
-                  display: 'inline-flex',
-                  alignItems: 'baseline',
-                  WebkitTextStroke: '1.2px #F4C400',
-                }}
-              >
-                LIVE STRONG
-                <span
-                  aria-hidden="true"
+              <div style={{ overflow: 'hidden' }}>
+                <motion.span
+                  variants={lineVariants}
                   style={{
-                    display: 'inline-block',
-                    width: '0.13em',
-                    height: '0.13em',
-                    backgroundColor: '#F4C400',
-                    marginLeft: '0.07em',
-                    verticalAlign: 'baseline',
-                    WebkitTextStroke: '0',
+                    color: '#252A2E',
+                    display: 'inline-flex',
+                    alignItems: 'baseline',
+                    WebkitTextStroke: '1.2px #252A2E',
                   }}
-                />
-              </motion.span>
+                >
+                  HARD
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      display: 'inline-block',
+                      width: '0.13em',
+                      height: '0.13em',
+                      backgroundColor: '#F4C400',
+                      marginLeft: '0.07em',
+                      verticalAlign: 'baseline',
+                      WebkitTextStroke: '0',
+                    }}
+                  />
+                </motion.span>
+              </div>
+
+              <div style={{ overflow: 'hidden' }}>
+                <motion.span
+                  variants={lineVariants}
+                  style={{
+                    color: '#F4C400',
+                    display: 'inline-flex',
+                    alignItems: 'baseline',
+                    WebkitTextStroke: '1.2px #F4C400',
+                  }}
+                >
+                  LIVE STRONG
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      display: 'inline-block',
+                      width: '0.13em',
+                      height: '0.13em',
+                      backgroundColor: '#F4C400',
+                      marginLeft: '0.07em',
+                      verticalAlign: 'baseline',
+                      WebkitTextStroke: '0',
+                    }}
+                  />
+                </motion.span>
+              </div>
             </h1>
 
             {/* Desktop Supporting Text */}
@@ -283,77 +314,81 @@ function Hero() {
               BUILT FOR PEOPLE WHO TAKE TRAINING SERIOUSLY.
             </motion.p>
 
-            {/* Desktop CTA Button */}
+            {/* Desktop CTA Button with Physical Feedback & Directional Arrow */}
             <motion.div
               variants={lineVariants}
               style={{
                 marginTop: 'clamp(1.6rem, 2.8vw, 2.4rem)',
               }}
             >
-              <Link
-                to="/membership"
-                id="hero-desktop-join-btn"
+              <motion.div
+                whileHover={shouldReduce ? {} : { y: -2, boxShadow: '0 8px 24px rgba(244, 196, 0, 0.45)' }}
+                whileTap={shouldReduce ? {} : { scale: 0.97 }}
+                onHoverStart={() => setCtaHover(true)}
+                onHoverEnd={() => setCtaHover(false)}
                 style={{
                   display: 'inline-flex',
-                  alignItems: 'stretch',
-                  textDecoration: 'none',
                   borderRadius: '2px',
                   overflow: 'hidden',
                   boxShadow: '0 4px 14px rgba(37, 42, 46, 0.12)',
-                  transition: 'transform 160ms ease, box-shadow 160ms ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(244, 196, 0, 0.45)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 4px 14px rgba(37, 42, 46, 0.12)';
+                  transition: 'box-shadow 180ms ease',
                 }}
               >
-                <span
+                <Link
+                  to="/membership"
+                  id="hero-desktop-join-btn"
                   style={{
-                    backgroundColor: '#F4C400',
-                    color: '#252A2E',
-                    fontFamily: 'var(--font-body, "Inter", sans-serif)',
-                    fontSize: '0.92rem',
-                    fontWeight: 800,
-                    letterSpacing: '0.12em',
-                    textTransform: 'uppercase',
-                    padding: 'clamp(0.85rem, 1.2vw, 1.05rem) clamp(1.6rem, 2.2vw, 2.4rem)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    display: 'inline-flex',
+                    alignItems: 'stretch',
+                    textDecoration: 'none',
                   }}
                 >
-                  JOIN NOW
-                </span>
-                <span
-                  style={{
-                    backgroundColor: '#252A2E',
-                    color: '#FFFFFF',
-                    padding: 'clamp(0.85rem, 1.2vw, 1.05rem) clamp(1.1rem, 1.5vw, 1.5rem)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
+                  <span
+                    style={{
+                      backgroundColor: '#F4C400',
+                      color: '#252A2E',
+                      fontFamily: 'var(--font-body, "Inter", sans-serif)',
+                      fontSize: '0.92rem',
+                      fontWeight: 800,
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                      padding: 'clamp(0.85rem, 1.2vw, 1.05rem) clamp(1.6rem, 2.2vw, 2.4rem)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
                   >
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                    <polyline points="12 5 19 12 12 19" />
-                  </svg>
-                </span>
-              </Link>
+                    JOIN NOW
+                  </span>
+                  <span
+                    style={{
+                      backgroundColor: '#252A2E',
+                      color: '#FFFFFF',
+                      padding: 'clamp(0.85rem, 1.2vw, 1.05rem) clamp(1.1rem, 1.5vw, 1.5rem)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <motion.svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                      animate={ctaHover && !shouldReduce ? { x: 4 } : { x: 0 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                    >
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </motion.svg>
+                  </span>
+                </Link>
+              </motion.div>
             </motion.div>
           </motion.div>
         </div>
@@ -399,7 +434,7 @@ function Hero() {
             </span>
           </div>
 
-          {/* Bottom Center: Scroll Down */}
+          {/* Bottom Center: Scroll Down Mouse Icon with Athletic Pulse */}
           <div
             style={{
               display: 'flex',
@@ -421,9 +456,12 @@ function Hero() {
                 display: 'flex',
                 justifyContent: 'center',
                 paddingTop: '5px',
+                position: 'relative',
               }}
             >
-              <div
+              <motion.div
+                animate={shouldReduce ? {} : { y: [0, 8, 0], opacity: [1, 0.35, 1] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
                 style={{
                   width: '2px',
                   height: '6px',
@@ -487,7 +525,10 @@ function Hero() {
         }}
       >
         {/* Mobile Content Block: Clearly ABOVE Dumbbell */}
-        <div
+        <motion.div
+          variants={mobileContainerVariants}
+          initial="hidden"
+          animate="visible"
           style={{
             paddingLeft: 'clamp(1.25rem, 5vw, 2.5rem)',
             paddingRight: 'clamp(1.25rem, 5vw, 2.5rem)',
@@ -498,7 +539,7 @@ function Hero() {
             position: 'relative',
           }}
         >
-          {/* Mobile Headline: TRAIN / HARD. / LIVE STRONG. (Bold, punchy, but scaled down) */}
+          {/* Mobile Headline: TRAIN / HARD. / LIVE STRONG. */}
           <h1
             aria-label="TRAIN HARD. LIVE STRONG."
             style={{
@@ -514,68 +555,75 @@ function Hero() {
               flexDirection: 'column',
             }}
           >
-            {/* Line 1: TRAIN */}
-            <span
-              style={{
-                color: '#252A2E',
-                display: 'block',
-                WebkitTextStroke: '0.8px #252A2E',
-              }}
-            >
-              TRAIN
-            </span>
-
-            {/* Line 2: HARD. */}
-            <span
-              style={{
-                color: '#252A2E',
-                display: 'inline-flex',
-                alignItems: 'baseline',
-                WebkitTextStroke: '0.8px #252A2E',
-              }}
-            >
-              HARD
-              <span
-                aria-hidden="true"
+            <div style={{ overflow: 'hidden' }}>
+              <motion.span
+                variants={mobileItemVariants}
                 style={{
-                  display: 'inline-block',
-                  width: '0.125em',
-                  height: '0.125em',
-                  backgroundColor: '#F4C400',
-                  marginLeft: '0.07em',
-                  verticalAlign: 'baseline',
-                  WebkitTextStroke: '0',
+                  color: '#252A2E',
+                  display: 'block',
+                  WebkitTextStroke: '0.8px #252A2E',
                 }}
-              />
-            </span>
+              >
+                TRAIN
+              </motion.span>
+            </div>
 
-            {/* Line 3: LIVE STRONG. */}
-            <span
-              style={{
-                color: '#F4C400',
-                display: 'inline-flex',
-                alignItems: 'baseline',
-                WebkitTextStroke: '0.8px #F4C400',
-              }}
-            >
-              LIVE STRONG
-              <span
-                aria-hidden="true"
+            <div style={{ overflow: 'hidden' }}>
+              <motion.span
+                variants={mobileItemVariants}
                 style={{
-                  display: 'inline-block',
-                  width: '0.125em',
-                  height: '0.125em',
-                  backgroundColor: '#F4C400',
-                  marginLeft: '0.07em',
-                  verticalAlign: 'baseline',
-                  WebkitTextStroke: '0',
+                  color: '#252A2E',
+                  display: 'inline-flex',
+                  alignItems: 'baseline',
+                  WebkitTextStroke: '0.8px #252A2E',
                 }}
-              />
-            </span>
+              >
+                HARD
+                <span
+                  aria-hidden="true"
+                  style={{
+                    display: 'inline-block',
+                    width: '0.125em',
+                    height: '0.125em',
+                    backgroundColor: '#F4C400',
+                    marginLeft: '0.07em',
+                    verticalAlign: 'baseline',
+                    WebkitTextStroke: '0',
+                  }}
+                />
+              </motion.span>
+            </div>
+
+            <div style={{ overflow: 'hidden' }}>
+              <motion.span
+                variants={mobileItemVariants}
+                style={{
+                  color: '#F4C400',
+                  display: 'inline-flex',
+                  alignItems: 'baseline',
+                  WebkitTextStroke: '0.8px #F4C400',
+                }}
+              >
+                LIVE STRONG
+                <span
+                  aria-hidden="true"
+                  style={{
+                    display: 'inline-block',
+                    width: '0.125em',
+                    height: '0.125em',
+                    backgroundColor: '#F4C400',
+                    marginLeft: '0.07em',
+                    verticalAlign: 'baseline',
+                    WebkitTextStroke: '0',
+                  }}
+                />
+              </motion.span>
+            </div>
           </h1>
 
           {/* Shortened Supporting Text on Mobile: BUILT FOR SERIOUS TRAINING. */}
-          <p
+          <motion.p
+            variants={mobileItemVariants}
             style={{
               fontFamily: 'var(--font-body, "Inter", sans-serif)',
               fontSize: 'clamp(0.72rem, 3.2vw, 0.82rem)',
@@ -589,71 +637,86 @@ function Hero() {
             }}
           >
             BUILT FOR SERIOUS TRAINING.
-          </p>
+          </motion.p>
 
           {/* Single Mobile CTA Button: Rectangular [ JOIN NOW ] [ → ] */}
-          <div style={{ marginTop: '1.25rem', marginBottom: '0.75rem' }}>
-            <Link
-              to="/membership"
-              id="hero-mobile-join-btn"
+          <motion.div
+            variants={mobileItemVariants}
+            style={{ marginTop: '1.25rem', marginBottom: '0.75rem' }}
+          >
+            <motion.div
+              whileTap={shouldReduce ? {} : { scale: 0.97 }}
+              onHoverStart={() => setMobileCtaHover(true)}
+              onHoverEnd={() => setMobileCtaHover(false)}
               style={{
                 display: 'inline-flex',
-                alignItems: 'stretch',
-                textDecoration: 'none',
                 borderRadius: '2px',
                 overflow: 'hidden',
                 boxShadow: '0 4px 14px rgba(37, 42, 46, 0.12)',
               }}
             >
-              {/* Yellow Left Side */}
-              <span
+              <Link
+                to="/membership"
+                id="hero-mobile-join-btn"
                 style={{
-                  backgroundColor: '#F4C400',
-                  color: '#252A2E',
-                  fontFamily: 'var(--font-body, "Inter", sans-serif)',
-                  fontSize: '0.82rem',
-                  fontWeight: 800,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  padding: '0.82rem 1.6rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  display: 'inline-flex',
+                  alignItems: 'stretch',
+                  textDecoration: 'none',
                 }}
               >
-                JOIN NOW
-              </span>
-
-              {/* Dark Arrow Block */}
-              <span
-                style={{
-                  backgroundColor: '#252A2E',
-                  color: '#FFFFFF',
-                  padding: '0.82rem 1.15rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
+                {/* Yellow Left Side */}
+                <span
+                  style={{
+                    backgroundColor: '#F4C400',
+                    color: '#252A2E',
+                    fontFamily: 'var(--font-body, "Inter", sans-serif)',
+                    fontSize: '0.82rem',
+                    fontWeight: 800,
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    padding: '0.82rem 1.6rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
                 >
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                  <polyline points="12 5 19 12 12 19" />
-                </svg>
-              </span>
-            </Link>
-          </div>
-        </div>
+                  JOIN NOW
+                </span>
 
+                {/* Dark Arrow Block */}
+                <span
+                  style={{
+                    backgroundColor: '#252A2E',
+                    color: '#FFFFFF',
+                    padding: '0.82rem 1.15rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <motion.svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                    animate={mobileCtaHover && !shouldReduce ? { x: 3 } : { x: 0 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                  >
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                  </motion.svg>
+                </span>
+              </Link>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+
+        {/* Mobile Dumbbell / Hero Artwork: In Lower Portion with Obvious Separation */}
         <div
           style={{
             position: 'relative',
@@ -663,11 +726,14 @@ function Hero() {
             lineHeight: 0,
           }}
         >
-          <img
+          <motion.img
             src="/images/hero/hero-mobile.png"
             alt="Lee Gym dumbbell training equipment"
             loading="eager"
             fetchPriority="high"
+            initial={{ opacity: shouldReduce ? 1 : 0.8 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6 }}
             style={{
               width: '100%',
               height: 'auto',

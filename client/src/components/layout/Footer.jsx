@@ -1,13 +1,17 @@
+import { useState } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { GYM_INFO } from '../../data/gymData';
 
 /**
  * Footer — Clean, Focused Footer
  * Retains: LEE GYM branding, navigation links, operating hours, and copyright.
- * Removed: giant promotional trial forms, duplicate marketing CTAs, and unnecessary feature links.
+ * Retains exact layout and visual design.
  */
 function Footer() {
   const currentYear = new Date().getFullYear();
+  const shouldReduce = useReducedMotion();
+  const [logoHover, setLogoHover] = useState(false);
 
   const navLinks = [
     { label: 'Home', to: '/' },
@@ -47,6 +51,8 @@ function Footer() {
           <div>
             <Link
               to="/"
+              onMouseEnter={() => setLogoHover(true)}
+              onMouseLeave={() => setLogoHover(false)}
               style={{
                 textDecoration: 'none',
                 display: 'inline-flex',
@@ -56,13 +62,21 @@ function Footer() {
               }}
             >
               {/* Dumbbell Icon */}
-              <svg width="24" height="24" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+              <motion.svg
+                animate={logoHover && !shouldReduce ? { rotate: -8, y: -1 } : { rotate: 0, y: 0 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                width="24"
+                height="24"
+                viewBox="0 0 28 28"
+                fill="none"
+                aria-hidden="true"
+              >
                 <rect x="2" y="8" width="3.5" height="12" rx="1" fill="#F4C400" />
                 <rect x="6.5" y="6" width="2" height="16" rx="0.5" fill="#F4C400" />
                 <rect x="8.5" y="12.5" width="11" height="3" fill="#F4C400" />
                 <rect x="19.5" y="6" width="2" height="16" rx="0.5" fill="#F4C400" />
                 <rect x="22.5" y="8" width="3.5" height="12" rx="1" fill="#F4C400" />
-              </svg>
+              </motion.svg>
 
               <span
                 style={{
@@ -115,20 +129,26 @@ function Footer() {
             >
               {navLinks.map((link) => (
                 <li key={link.to}>
-                  <Link
-                    to={link.to}
-                    style={{
-                      fontFamily: 'var(--font-body, "Inter", sans-serif)',
-                      fontSize: '0.86rem',
-                      color: '#C2CBD1',
-                      textDecoration: 'none',
-                      transition: 'color 150ms ease',
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-yellow, #F4C400)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = '#C2CBD1')}
+                  <motion.div
+                    whileHover={shouldReduce ? {} : { x: 4 }}
+                    transition={{ duration: 0.18 }}
                   >
-                    {link.label}
-                  </Link>
+                    <Link
+                      to={link.to}
+                      style={{
+                        fontFamily: 'var(--font-body, "Inter", sans-serif)',
+                        fontSize: '0.86rem',
+                        color: '#C2CBD1',
+                        textDecoration: 'none',
+                        display: 'inline-block',
+                        transition: 'color 150ms ease',
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-yellow, #F4C400)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = '#C2CBD1')}
+                    >
+                      {link.label}
+                    </Link>
+                  </motion.div>
                 </li>
               ))}
             </ul>
