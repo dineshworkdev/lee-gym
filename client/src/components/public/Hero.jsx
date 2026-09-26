@@ -483,7 +483,7 @@ function Hero() {
         id="hero-mobile"
         className="flex lg:hidden flex-col w-full bg-[#FBF8F2] relative overflow-hidden"
         style={{
-          paddingTop: 'calc(var(--navbar-height, 72px) + 1.25rem)',
+          paddingTop: 'calc(var(--navbar-height, 72px) + 2.25rem)',
         }}
       >
         {/* Mobile Content Block: Clearly ABOVE Dumbbell */}
@@ -654,13 +654,12 @@ function Hero() {
           </div>
         </div>
 
-        {/* Mobile Dumbbell / Hero Artwork: In Lower Portion with Obvious Separation */}
         <div
           style={{
             position: 'relative',
             width: '100%',
             overflow: 'hidden',
-            marginTop: '0.5rem',
+            marginTop: '0.25rem',
             lineHeight: 0,
           }}
         >
@@ -673,8 +672,8 @@ function Hero() {
               width: '100%',
               height: 'auto',
               display: 'block',
-              transform: 'translateY(-22%)',
-              marginBottom: '-22%',
+              transform: 'translateY(-36%)',
+              marginBottom: '-36%',
               pointerEvents: 'none',
               userSelect: 'none',
             }}

@@ -55,9 +55,9 @@ function Navbar() {
           zIndex: 100,
           height: 'var(--navbar-height, 72px)',
           backgroundColor: '#FBF8F2',
-          borderBottom: isScrolled ? '1px solid rgba(37, 42, 46, 0.08)' : 'none',
+          borderBottom: '1px solid rgba(37, 42, 46, 0.07)',
           boxShadow: isScrolled ? '0 4px 16px rgba(37, 42, 46, 0.06)' : 'none',
-          transition: 'box-shadow 200ms ease, border-bottom 200ms ease',
+          transition: 'box-shadow 200ms ease',
         }}
       >
         <div
