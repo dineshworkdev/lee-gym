@@ -9,16 +9,34 @@
  */
 
 export const GYM_INFO = {
-  name: 'Lee Gym',
+  name: 'LEE GYM',
   tagline: 'Train Hard. Live Strong.',
+  shortDescription: 'Gym located in Pappampatti Rd, Pallapalayam, Coimbatore — a serious training facility for focused athletes.',
+  address: '1st floor, Nikki Towers, Pappampatti Rd, Pallapalayam, Coimbatore, 641402',
+  phone: '+91 62387 69097',
+  whatsapp: '+91 62387 69097',
+  whatsappLink: 'https://wa.me/916238769097',
+  email: 'leegym.website@gmail.com',
+  googleMaps: 'https://maps.app.goo.gl/iina11oynzzfMLvQ8?g_st=ac',
+  googleMapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1956.3!2d77.0!3d11.0!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTHCsDA!5e0!3m2!1sen!2sin!4v1!5m2!1sen!2sin',
+  // Each entry: days, sessions (array of {open, close}), closed flag
   hours: [
-    { days: 'Monday – Friday', open: '05:30 AM', close: '10:00 PM' },
-    { days: 'Saturday', open: '07:00 AM', close: '08:00 PM' },
-    { days: 'Sunday', open: '08:00 AM', close: '04:00 PM' },
+    {
+      days: 'Monday – Saturday',
+      sessions: [
+        { label: 'Morning', open: '05:30 AM', close: '11:00 AM' },
+        { label: 'Evening', open: '04:30 PM', close: '10:00 PM' },
+      ],
+      closed: false,
+    },
+    {
+      days: 'Sunday',
+      sessions: [],
+      closed: true,
+    },
   ],
   socials: [
-    { name: 'Instagram', handle: '@leegym', url: 'https://instagram.com' },
-    { name: 'YouTube', handle: 'LeeGym', url: 'https://youtube.com' },
+    { name: 'Instagram', handle: '@leegympallapalayam', url: 'https://instagram.com/leegympallapalayam' },
   ],
 };
 
