@@ -1,7 +1,7 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 import PublicLayout from '../layouts/PublicLayout.jsx';
-import AdminLayout from '../layouts/AdminLayout.jsx';
+import OwnerLayout from '../layouts/OwnerLayout.jsx';
 
 import Home from '../pages/public/Home.jsx';
 import About from '../pages/public/About.jsx';
@@ -10,23 +10,18 @@ import Membership from '../pages/public/Membership.jsx';
 import Gallery from '../pages/public/Gallery.jsx';
 import Contact from '../pages/public/Contact.jsx';
 
-import Login from '../pages/Login.jsx';
+// Dedicated Owner Portal Pages
+import Login from '../pages/owner/Login.jsx';
+import Dashboard from '../pages/owner/Dashboard.jsx';
+import Members from '../pages/owner/Members.jsx';
+import MemberDetail from '../pages/owner/MemberDetail.jsx';
+import MemberNew from '../pages/owner/MemberNew.jsx';
+import Plans from '../pages/owner/Plans.jsx';
 
-import Dashboard from '../pages/admin/Dashboard.jsx';
-import Members from '../pages/admin/Members.jsx';
-import MemberDetail from '../pages/admin/MemberDetail.jsx';
-import MemberNew from '../pages/admin/MemberNew.jsx';
-import Payments from '../pages/admin/Payments.jsx';
-import Plans from '../pages/admin/Plans.jsx';
-import Notifications from '../pages/admin/Notifications.jsx';
-import Settings from '../pages/admin/Settings.jsx';
-
-// Routing architecture placeholder.
-// Route protection/authentication logic is not implemented yet.
 function AppRoutes() {
   return (
     <Routes>
-      {/* Public routes */}
+      {/* ── Public Routes (Untouched) ──────────────────────────────── */}
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
@@ -36,20 +31,30 @@ function AppRoutes() {
         <Route path="/contact" element={<Contact />} />
       </Route>
 
-      {/* Auth route */}
-      <Route path="/login" element={<Login />} />
+      {/* ── Auth Routes ────────────────────────────────────────────── */}
+      <Route path="/owner/login" element={<Login />} />
+      <Route path="/login" element={<Navigate to="/owner/login" replace />} />
 
-      {/* Admin routes */}
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<Dashboard />} />
+      {/* ── Dedicated Owner Workspace ──────────────────────────────── */}
+      <Route path="/owner" element={<OwnerLayout />}>
+        <Route index element={<Navigate to="/owner/dashboard" replace />} />
+        <Route path="dashboard" element={<Dashboard />} />
         <Route path="members" element={<Members />} />
         <Route path="members/new" element={<MemberNew />} />
         <Route path="members/:id" element={<MemberDetail />} />
-        <Route path="payments" element={<Payments />} />
         <Route path="plans" element={<Plans />} />
-        <Route path="notifications" element={<Notifications />} />
-        <Route path="settings" element={<Settings />} />
       </Route>
+
+      {/* ── Backward Compatibility / Admin Aliases ─────────────────── */}
+      <Route path="/admin" element={<Navigate to="/owner/dashboard" replace />} />
+      <Route path="/admin/dashboard" element={<Navigate to="/owner/dashboard" replace />} />
+      <Route path="/admin/members" element={<Navigate to="/owner/members" replace />} />
+      <Route path="/admin/members/new" element={<Navigate to="/owner/members/new" replace />} />
+      <Route path="/admin/members/:id" element={<Navigate to="/owner/members" replace />} />
+      <Route path="/admin/plans" element={<Navigate to="/owner/plans" replace />} />
+
+      {/* Catch-all fallback */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

@@ -437,6 +437,76 @@ function Navbar() {
                   </NavLink>
                 </motion.div>
               ))}
+
+              {/* OWNER LOGIN — Discrete owner entry point */}
+              <motion.div
+                variants={{
+                  open: { opacity: 1, x: 0, transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] } },
+                  closed: { opacity: 0, x: -14, transition: { duration: 0.18 } },
+                }}
+              >
+                <NavLink
+                  to="/owner/login"
+                  onClick={() => setIsOpen(false)}
+                  style={{ textDecoration: 'none' }}
+                >
+                  {({ isActive }) => (
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '0.65rem 0',
+                        borderTop: '1px dashed rgba(37, 42, 46, 0.18)',
+                        marginTop: '0.5rem',
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
+                          fontSize: '1.75rem',
+                          letterSpacing: '0.04em',
+                          color: isActive ? '#F4C400' : '#4B555D',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.65rem',
+                        }}
+                      >
+                        {isActive && (
+                          <span
+                            style={{
+                              width: '5px',
+                              height: '20px',
+                              backgroundColor: '#F4C400',
+                              display: 'inline-block',
+                              borderRadius: '1px',
+                            }}
+                          />
+                        )}
+                        OWNER LOGIN
+                      </span>
+
+                      {isActive && (
+                        <span
+                          style={{
+                            fontFamily: 'var(--font-body, "Inter", sans-serif)',
+                            fontSize: '0.7rem',
+                            fontWeight: 800,
+                            letterSpacing: '0.12em',
+                            color: '#252A2E',
+                            backgroundColor: 'var(--color-yellow, #F4C400)',
+                            padding: '0.2rem 0.55rem',
+                            borderRadius: '2px',
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          ACTIVE
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </NavLink>
+              </motion.div>
             </motion.div>
           </motion.div>
         )}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import AppRoutes from './routes/index.jsx';
 import LeeGymLoadingScreen from './components/LeeGymLoadingScreen.jsx';
+import { OwnerGymProvider } from './context/OwnerGymContext.jsx';
 
 // Only show the loading screen once per browser session
 const SESSION_KEY = 'lee-gym-intro-seen';
@@ -28,11 +29,11 @@ function App() {
   };
 
   return (
-    <>
+    <OwnerGymProvider>
       {/* Site always renders underneath — no white flash when loader exits */}
       <AppRoutes />
       {showLoader && <LeeGymLoadingScreen onDone={handleLoadDone} />}
-    </>
+    </OwnerGymProvider>
   );
 }
 
