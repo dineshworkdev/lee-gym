@@ -14,10 +14,11 @@ const NAV_LINKS = [
 ];
 
 /**
- * Navbar — Exact Match to Reference Image
- * Left: Dumbbell icon + LEE (black) GYM (yellow)
- * Center: Home, About, Programs, Trainers, Membership, Gallery, Contact
+ * Navbar — Exact Match to Reference Design
+ * Left: Bold Dumbbell icon + bold LEE (#252A2E) GYM (#F4C400)
+ * Center: Home (with yellow underline), About, Programs, Trainers, Membership, Gallery, Contact
  * Right: Divider line | Split "JOIN NOW [→]" button | Hamburger icon
+ * Clean cream/off-white background (#FBF8F2), no glassmorphism, no blur, no transparent floating navbar.
  */
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -53,10 +54,10 @@ function Navbar() {
           right: 0,
           zIndex: 100,
           height: 'var(--navbar-height, 72px)',
-          backgroundColor: '#FFFFFF',
-          borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
-          boxShadow: isScrolled ? '0 2px 14px rgba(0,0,0,0.06)' : 'none',
-          transition: 'box-shadow 200ms ease',
+          backgroundColor: '#FBF8F2',
+          borderBottom: isScrolled ? '1px solid rgba(37, 42, 46, 0.08)' : 'none',
+          boxShadow: isScrolled ? '0 4px 16px rgba(37, 42, 46, 0.06)' : 'none',
+          transition: 'box-shadow 200ms ease, border-bottom 200ms ease',
         }}
       >
         <div
@@ -70,7 +71,7 @@ function Navbar() {
             justifyContent: 'space-between',
           }}
         >
-          {/* ── 1. Logo (Dumbbell + LEE GYM) ───────────────────────── */}
+          {/* ── 1. Logo (Bold Dumbbell + LEE GYM) ────────────────────── */}
           <Link
             to="/"
             id="navbar-logo"
@@ -84,34 +85,36 @@ function Navbar() {
             }}
             onClick={() => setIsOpen(false)}
           >
-            {/* Dumbbell SVG matching reference */}
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            {/* Bold Dumbbell SVG matching reference */}
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
               {/* Left Outer Plate */}
-              <rect x="2" y="8" width="3.5" height="12" rx="1" fill="#1A1D20" />
+              <rect x="2" y="9" width="4" height="14" rx="1.5" fill="#252A2E" />
               {/* Left Inner Plate */}
-              <rect x="6.5" y="6" width="2" height="16" rx="0.5" fill="#1A1D20" />
+              <rect x="7.5" y="7" width="3" height="18" rx="1" fill="#252A2E" />
               {/* Center Bar */}
-              <rect x="8.5" y="12.5" width="11" height="3" fill="#1A1D20" />
+              <rect x="10.5" y="14" width="11" height="4" rx="0.5" fill="#252A2E" />
               {/* Right Inner Plate */}
-              <rect x="19.5" y="6" width="2" height="16" rx="0.5" fill="#1A1D20" />
+              <rect x="21.5" y="7" width="3" height="18" rx="1" fill="#252A2E" />
               {/* Right Outer Plate */}
-              <rect x="22.5" y="8" width="3.5" height="12" rx="1" fill="#1A1D20" />
+              <rect x="26" y="9" width="4" height="14" rx="1.5" fill="#252A2E" />
             </svg>
 
-            {/* Wordmark */}
+            {/* Wordmark: Heavy & condensed */}
             <span
               style={{
-                fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                fontSize: '1.9rem',
+                fontFamily: 'var(--font-display, "Bebas Neue", "Impact", sans-serif)',
+                fontSize: '2.2rem',
+                fontWeight: 900,
+                WebkitTextStroke: '0.4px currentColor',
                 lineHeight: 1,
                 letterSpacing: '0.04em',
-                color: '#1A1D20',
+                color: '#252A2E',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.25rem',
               }}
             >
-              <span>LEE</span>
+              <span style={{ color: '#252A2E' }}>LEE</span>
               <span style={{ color: 'var(--color-yellow, #F4C400)' }}>GYM</span>
             </span>
           </Link>
@@ -123,7 +126,7 @@ function Navbar() {
             className="hidden lg:flex"
             style={{
               alignItems: 'center',
-              gap: '1.8rem',
+              gap: '1.9rem',
               margin: '0 auto',
             }}
           >
@@ -141,9 +144,9 @@ function Navbar() {
                       display: 'inline-block',
                       padding: '0.5rem 0',
                       fontFamily: 'var(--font-body, "Inter", sans-serif)',
-                      fontSize: '0.88rem',
+                      fontSize: '0.92rem',
                       fontWeight: isActive ? 700 : 500,
-                      color: isActive ? '#1A1D20' : '#4B555D',
+                      color: isActive ? '#252A2E' : '#4B555D',
                       transition: 'color 150ms ease',
                     }}
                   >
@@ -156,7 +159,7 @@ function Navbar() {
                           bottom: 0,
                           left: 0,
                           right: 0,
-                          height: '2.5px',
+                          height: '3px',
                           backgroundColor: 'var(--color-yellow, #F4C400)',
                           borderRadius: '1px',
                         }}
@@ -182,12 +185,12 @@ function Navbar() {
               className="hidden lg:block"
               style={{
                 width: '1px',
-                height: '32px',
-                backgroundColor: 'rgba(0, 0, 0, 0.12)',
+                height: '30px',
+                backgroundColor: 'rgba(37, 42, 46, 0.16)',
               }}
             />
 
-            {/* Split "JOIN NOW [→]" CTA Button (Exact Reference Match) */}
+            {/* Split "JOIN NOW [→]" CTA Button */}
             <Link
               to="/membership"
               id="navbar-join-btn"
@@ -197,7 +200,7 @@ function Navbar() {
                 textDecoration: 'none',
                 borderRadius: '2px',
                 overflow: 'hidden',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                boxShadow: '0 2px 8px rgba(37, 42, 46, 0.08)',
                 transition: 'transform 150ms ease, box-shadow 150ms ease',
               }}
               onMouseEnter={(e) => {
@@ -206,20 +209,20 @@ function Navbar() {
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(37, 42, 46, 0.08)';
               }}
             >
               {/* Yellow Left Side */}
               <span
                 style={{
                   backgroundColor: 'var(--color-yellow, #F4C400)',
-                  color: '#1A1D20',
+                  color: '#252A2E',
                   fontFamily: 'var(--font-body, "Inter", sans-serif)',
-                  fontSize: '0.82rem',
+                  fontSize: '0.85rem',
                   fontWeight: 800,
                   letterSpacing: '0.1em',
                   textTransform: 'uppercase',
-                  padding: '0.7rem 1.35rem',
+                  padding: '0.72rem 1.35rem',
                   display: 'flex',
                   alignItems: 'center',
                 }}
@@ -227,12 +230,12 @@ function Navbar() {
                 JOIN NOW
               </span>
 
-              {/* Black Right Side with White Arrow */}
+              {/* Dark Right Side with Arrow */}
               <span
                 style={{
-                  backgroundColor: '#1A1D20',
+                  backgroundColor: '#252A2E',
                   color: '#FFFFFF',
-                  padding: '0.7rem 0.95rem',
+                  padding: '0.72rem 0.95rem',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -265,12 +268,12 @@ function Navbar() {
               }}
             >
               {isOpen ? (
-                <X size={24} color="#1A1D20" />
+                <X size={24} color="#252A2E" />
               ) : (
                 <>
-                  <span style={{ width: '22px', height: '2px', backgroundColor: '#1A1D20', display: 'block', borderRadius: '1px' }} />
-                  <span style={{ width: '22px', height: '2px', backgroundColor: '#1A1D20', display: 'block', borderRadius: '1px' }} />
-                  <span style={{ width: '22px', height: '2px', backgroundColor: '#1A1D20', display: 'block', borderRadius: '1px' }} />
+                  <span style={{ width: '22px', height: '2.5px', backgroundColor: '#252A2E', display: 'block', borderRadius: '1px' }} />
+                  <span style={{ width: '22px', height: '2.5px', backgroundColor: '#252A2E', display: 'block', borderRadius: '1px' }} />
+                  <span style={{ width: '22px', height: '2.5px', backgroundColor: '#252A2E', display: 'block', borderRadius: '1px' }} />
                 </>
               )}
             </button>
@@ -292,11 +295,11 @@ function Navbar() {
               top: 'var(--navbar-height, 72px)',
               left: 0,
               right: 0,
-              backgroundColor: '#FFFFFF',
+              backgroundColor: '#FBF8F2',
               borderBottom: '2px solid var(--color-yellow, #F4C400)',
               padding: '1.5rem',
               zIndex: 99,
-              boxShadow: '0 10px 30px rgba(0,0,0,0.12)',
+              boxShadow: '0 10px 30px rgba(37, 42, 46, 0.12)',
             }}
           >
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -309,11 +312,11 @@ function Navbar() {
                     fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
                     fontSize: '1.75rem',
                     letterSpacing: '0.04em',
-                    color: '#1A1D20',
+                    color: '#252A2E',
                     textDecoration: 'none',
                     display: 'block',
                     padding: '0.4rem 0',
-                    borderBottom: '1px solid rgba(0,0,0,0.06)',
+                    borderBottom: '1px solid rgba(37, 42, 46, 0.08)',
                   }}
                 >
                   {link.label}
