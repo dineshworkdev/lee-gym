@@ -22,10 +22,18 @@ export default function MemberNew() {
   const { plans, addPlan, addMember, getNextMemberId } = useOwnerGym();
 
   // Generated Member ID
-  const [memberId] = useState(() => getNextMemberId());
+  const [memberId, setMemberId] = useState(() => getNextMemberId());
 
   // Step state: 1: Basic, 2: Details, 3: Membership, 4: Payment, 5: Success
   const [currentStep, setCurrentStep] = useState(1);
+
+  // Photo file state
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoError, setPhotoError] = useState('');
+
+  // Submitting state
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   // Form State
   const [formData, setFormData] = useState({
@@ -45,7 +53,7 @@ export default function MemberNew() {
     planId: plans[0]?.id || 'plan-1',
     // Step 4: Payment
     admissionAmount: '500',
-    amountCollected: '1300',
+    amountCollected: '1500',
     paymentMode: 'Cash',
     sendInvoice: true,
   });
@@ -64,7 +72,7 @@ export default function MemberNew() {
   const selectedPlan = plans.find((p) => p.id === formData.planId) || plans[0] || {
     id: 'plan-1',
     name: 'Monthly',
-    price: 800,
+    price: 1000,
     durationDays: 30,
   };
 
@@ -94,10 +102,22 @@ export default function MemberNew() {
     return Object.keys(errs).length === 0;
   };
 
-  // Photo upload mock handler
+  // Photo upload handler with validation
   const handlePhotoUpload = (e) => {
+    setPhotoError('');
     const file = e.target.files?.[0];
     if (file) {
+      const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+      if (!validTypes.includes(file.type)) {
+        setPhotoError('Please select a valid image (JPEG, PNG, or WEBP).');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setPhotoError('Photo size must be less than 5MB.');
+        return;
+      }
+
+      setPhotoFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData((prev) => ({ ...prev, photo: reader.result }));
@@ -106,8 +126,8 @@ export default function MemberNew() {
     }
   };
 
-  // Save New Plan Modal
-  const handleSaveNewPlan = (e) => {
+  // Save New Plan Modal (async - calls Firestore via context)
+  const handleSaveNewPlan = async (e) => {
     e.preventDefault();
     if (!newPlanName.trim()) {
       setPlanModalError('Plan name is required');
@@ -122,57 +142,73 @@ export default function MemberNew() {
       return;
     }
 
-    const createdPlan = addPlan({
-      name: newPlanName,
-      price: newPlanPrice,
-      durationDays: newPlanDuration,
-    });
+    try {
+      const createdPlan = await addPlan({
+        name: newPlanName,
+        price: newPlanPrice,
+        durationDays: newPlanDuration,
+      });
 
-    // Auto select newly created plan
-    setFormData((prev) => ({
-      ...prev,
-      planId: createdPlan.id,
-      amountCollected: String(admissionNum + createdPlan.price),
-    }));
+      // Auto select newly created plan
+      setFormData((prev) => ({
+        ...prev,
+        planId: createdPlan.id,
+        amountCollected: String(admissionNum + createdPlan.price),
+      }));
 
-    setShowAddPlanModal(false);
-    setNewPlanName('');
-    setNewPlanPrice('');
-    setNewPlanDuration('30');
-    setPlanModalError('');
+      setShowAddPlanModal(false);
+      setNewPlanName('');
+      setNewPlanPrice('');
+      setNewPlanDuration('30');
+      setPlanModalError('');
+    } catch (err) {
+      console.error('Failed to create plan:', err);
+      setPlanModalError(err.message || 'Failed to create plan. Please try again.');
+    }
   };
 
-  // Submit Final Member Form
-  const handleSubmitMember = (e) => {
+  // Submit Final Member Form to Firestore
+  const handleSubmitMember = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
 
-    const newMemberPayload = {
-      id: memberId,
-      name: formData.name.trim(),
-      mobile: formData.mobile.trim(),
-      gender: formData.gender,
-      dobOrAge: formData.dobOrAge.trim(),
-      height: formData.height.trim(),
-      weight: formData.weight.trim(),
-      address: formData.address.trim(),
-      photo: formData.photo,
-      planId: selectedPlan.id,
-      planName: selectedPlan.name,
-      joiningDate: formData.joiningDate,
-      expiryDate: expiryDate,
-      paymentDate: formData.paymentDate,
-      admissionAmount: admissionNum,
-      planAmount: planPriceNum,
-      amountPayable: amountPayable,
-      amountCollected: amountCollectedNum,
-      amountDue: dueAmount,
-      paymentMode: formData.paymentMode,
-      sendInvoice: formData.sendInvoice,
-    };
+    setIsSubmitting(true);
+    setSubmitError('');
 
-    const saved = addMember(newMemberPayload);
-    setCreatedMember(saved);
-    setCurrentStep(5); // Show Success Screen
+    try {
+      const newMemberPayload = {
+        memberId: memberId,
+        id: memberId,
+        name: formData.name.trim(),
+        mobile: formData.mobile.trim(),
+        gender: formData.gender,
+        dobOrAge: formData.dobOrAge.trim(),
+        height: formData.height.trim(),
+        weight: formData.weight.trim(),
+        address: formData.address.trim(),
+        planId: selectedPlan.id,
+        planName: selectedPlan.name,
+        joiningDate: formData.joiningDate,
+        expiryDate: expiryDate,
+        paymentDate: formData.paymentDate,
+        admissionAmount: admissionNum,
+        planAmount: planPriceNum,
+        amountPayable: amountPayable,
+        amountCollected: amountCollectedNum,
+        dueAmount: dueAmount,
+        paymentMode: formData.paymentMode,
+        sendInvoice: formData.sendInvoice,
+      };
+
+      const saved = await addMember(newMemberPayload, photoFile);
+      setCreatedMember(saved);
+      setCurrentStep(5); // Show Success Screen
+    } catch (err) {
+      console.error('Failed to save member in Firestore:', err);
+      setSubmitError(err.message || 'Failed to save member. Please verify data and try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const stepsList = [
@@ -373,8 +409,8 @@ export default function MemberNew() {
                       onChange={handlePhotoUpload}
                       style={{ display: 'none' }}
                     />
-                    <div style={{ fontSize: '0.72rem', color: '#4B555D', marginTop: '0.25rem' }}>
-                      Optional PNG, JPG up to 5MB
+                    <div style={{ fontSize: '0.72rem', color: photoError ? '#A83D3D' : '#4B555D', marginTop: '0.25rem', fontWeight: photoError ? 700 : 400 }}>
+                      {photoError || 'Optional PNG, JPG up to 5MB'}
                     </div>
                   </div>
                 </div>
@@ -763,10 +799,13 @@ export default function MemberNew() {
                         key={p.id}
                         id={`plan-card-${p.id}`}
                         onClick={() => {
+                          const isMonthly = p.name.toLowerCase().includes('monthly');
+                          const adm = isMonthly ? 500 : (p.admissionFee || 0);
                           setFormData((prev) => ({
                             ...prev,
                             planId: p.id,
-                            amountCollected: String(admissionNum + p.price),
+                            admissionAmount: String(adm),
+                            amountCollected: String(adm + p.price),
                           }));
                         }}
                         style={{
@@ -1114,10 +1153,28 @@ export default function MemberNew() {
                 </label>
               </div>
 
+              {/* Submit Error Banner */}
+              {submitError && (
+                <div
+                  style={{
+                    backgroundColor: '#FDF2F2',
+                    borderLeft: '4px solid #A83D3D',
+                    padding: '0.75rem 1rem',
+                    marginBottom: '1rem',
+                    fontSize: '0.85rem',
+                    color: '#A83D3D',
+                    fontWeight: 600,
+                  }}
+                >
+                  {submitError}
+                </div>
+              )}
+
               {/* Action Buttons: Back & Final Add Member */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
                 <button
                   type="button"
+                  disabled={isSubmitting}
                   onClick={() => setCurrentStep(3)}
                   style={{
                     display: 'inline-flex',
@@ -1130,7 +1187,8 @@ export default function MemberNew() {
                     fontWeight: 700,
                     fontSize: '0.88rem',
                     textTransform: 'uppercase',
-                    cursor: 'pointer',
+                    cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                    opacity: isSubmitting ? 0.7 : 1,
                   }}
                 >
                   <ArrowLeft size={16} />
@@ -1140,6 +1198,7 @@ export default function MemberNew() {
                 <button
                   id="final-add-member-btn"
                   type="submit"
+                  disabled={isSubmitting}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -1152,12 +1211,13 @@ export default function MemberNew() {
                     fontSize: '0.95rem',
                     letterSpacing: '0.08em',
                     textTransform: 'uppercase',
-                    cursor: 'pointer',
-                    boxShadow: '4px 4px 0px #252A2E',
+                    cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                    boxShadow: isSubmitting ? 'none' : '4px 4px 0px #252A2E',
+                    opacity: isSubmitting ? 0.8 : 1,
                   }}
                 >
                   <CheckCircle2 size={18} />
-                  <span>ADD MEMBER</span>
+                  <span>{isSubmitting ? 'SAVING TO FIRESTORE...' : 'ADD MEMBER'}</span>
                 </button>
               </div>
             </form>
@@ -1198,7 +1258,7 @@ export default function MemberNew() {
               MEMBER ADDED
             </h2>
             <p style={{ color: '#4B555D', fontSize: '0.9rem', margin: '0.35rem 0 1.75rem' }}>
-              Registration complete and recorded in mock state.
+              Registration complete and member details have been recorded.
             </p>
 
             {/* Member Summary Receipt Card */}
@@ -1331,6 +1391,52 @@ export default function MemberNew() {
                 }}
               >
                 <span>BACK TO DASHBOARD</span>
+              </button>
+
+              <button
+                type="button"
+                id="success-add-another-btn"
+                onClick={() => {
+                  setFormData({
+                    photo: null,
+                    name: '',
+                    mobile: '',
+                    gender: 'Male',
+                    dobOrAge: '',
+                    height: '',
+                    weight: '',
+                    address: '',
+                    joiningDate: CURRENT_DATE_STR,
+                    paymentDate: CURRENT_DATE_STR,
+                    planId: plans[0]?.id || 'plan-1',
+                    admissionAmount: '500',
+                    amountCollected: '1500',
+                    paymentMode: 'Cash',
+                    sendInvoice: true,
+                  });
+                  setPhotoFile(null);
+                  setPhotoError('');
+                  setCreatedMember(null);
+                  setSubmitError('');
+                  setMemberId(getNextMemberId());
+                  setCurrentStep(1);
+                }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  backgroundColor: '#FFFFFF',
+                  color: '#252A2E',
+                  border: '2px solid #252A2E',
+                  padding: '0.8rem 1.6rem',
+                  fontWeight: 800,
+                  fontSize: '0.88rem',
+                  textTransform: 'uppercase',
+                  cursor: 'pointer',
+                  boxShadow: '3px 3px 0px #252A2E',
+                }}
+              >
+                <span>+ ADD ANOTHER MEMBER</span>
               </button>
             </div>
           </div>

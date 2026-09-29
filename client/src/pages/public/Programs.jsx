@@ -101,7 +101,7 @@ function Programs() {
   const [filter, setFilter] = useState('All');
   const shouldReduce = useReducedMotion();
 
-  const categories = ['All', 'Strength', 'Conditioning', 'Lifting', 'Mobility'];
+  const categories = ['All', 'Strength', 'Conditioning', 'Weights', 'Movement'];
 
   const filteredPrograms = filter === 'All'
     ? PROGRAMS
@@ -111,9 +111,9 @@ function Programs() {
     <div style={{ backgroundColor: 'var(--color-warm-bg)', minHeight: '100vh' }}>
       <PageHero
         badge="TRAINING DISCIPLINES"
-        title="STRUCTURED COACHING."
-        highlight="MEASURABLE RESULTS."
-        description="Barbell lifting, high-intensity turf conditioning, Olympic weightlifting, and mobility restoration. Coach-led and focused on progress."
+        title="STRUCTURED TRAINING."
+        highlight="CONSISTENT PROGRESS."
+        description="Strength training, conditioning, free weights, and movement routines for members focused on health and fitness."
         breadcrumbs={[{ label: 'Programs' }]}
       />
 

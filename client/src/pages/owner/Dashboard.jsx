@@ -7,13 +7,10 @@ import {
   AlertTriangle,
   Clock,
   CheckCircle2,
-  XCircle,
-  TrendingUp,
   ArrowRight,
   CreditCard,
   ChevronRight,
-  Phone,
-  X
+  X,
 } from 'lucide-react';
 import { useOwnerGym, formatDate } from '../../context/OwnerGymContext.jsx';
 
@@ -35,7 +32,7 @@ export default function Dashboard() {
       id: 'due',
       label: 'DUE MEMBERS',
       value: dashboardMetrics.dueMembers,
-      sublabel: 'Payment balance pending',
+      sublabel: 'Payment or renewal required',
       filter: 'due',
       color: '#A83D3D',
       borderColor: '#A83D3D',
@@ -74,17 +71,6 @@ export default function Dashboard() {
       borderColor: '#2F7D4A',
       bgLight: '#F2F9F4',
       icon: CheckCircle2,
-    },
-    {
-      id: 'expired',
-      label: 'EXPIRED MEMBERS',
-      value: dashboardMetrics.expiredMembers,
-      sublabel: 'Membership ended',
-      filter: 'expired',
-      color: '#4B555D',
-      borderColor: '#4B555D',
-      bgLight: '#F3F4F6',
-      icon: XCircle,
     },
     {
       id: 'total',
@@ -213,7 +199,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── 6 IMPORTANT MEMBERSHIP METRICS ──────────────────────────── */}
+      {/* ── KEY MEMBERSHIP METRICS ──────────────────────────────────── */}
       <section style={{ marginBottom: '3rem' }}>
         <div
           style={{

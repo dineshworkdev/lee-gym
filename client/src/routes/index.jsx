@@ -34,6 +34,7 @@ function AppRoutes() {
       {/* ── Auth Routes ────────────────────────────────────────────── */}
       <Route path="/owner/login" element={<Login />} />
       <Route path="/login" element={<Navigate to="/owner/login" replace />} />
+      <Route path="/admin/login" element={<Navigate to="/owner/login" replace />} />
 
       {/* ── Dedicated Owner Workspace ──────────────────────────────── */}
       <Route path="/owner" element={<OwnerLayout />}>

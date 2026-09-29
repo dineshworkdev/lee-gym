@@ -55,29 +55,6 @@ function HomeCTASection() {
             margin: '0 auto',
           }}
         >
-          <motion.div
-            initial={{ opacity: shouldReduce ? 1 : 0, scale: shouldReduce ? 1 : 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4 }}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              backgroundColor: 'var(--color-charcoal)',
-              color: 'var(--color-yellow)',
-              padding: '0.4rem 0.9rem',
-              borderRadius: '999px',
-              fontSize: '0.72rem',
-              fontWeight: 800,
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              marginBottom: '1.25rem',
-            }}
-          >
-            <Sparkles size={14} />
-            <span>First Workout Complimentary</span>
-          </motion.div>
 
           <motion.h2
             initial={{ opacity: shouldReduce ? 1 : 0, y: shouldReduce ? 0 : 20 }}
@@ -93,7 +70,8 @@ function HomeCTASection() {
               margin: '0 0 1.25rem 0',
             }}
           >
-            YOUR STRONGEST SELF IS WAITING ON OUR TURF.
+            YOUR STRONGEST SELF IS
+            {' '}<span style={{ display: 'block' }}>WAITING FOR YOU.</span>
           </motion.h2>
 
           <motion.p
@@ -111,8 +89,7 @@ function HomeCTASection() {
               opacity: 0.9,
             }}
           >
-            Stop waiting for Monday. Come in, meet our coaches, test out the calibrated barbells,
-            and experience what a real strength community feels like.
+            Visit Lee Gym on Pappampatti Rd, Pallapalayam — and start training with purpose.
           </motion.p>
 
           <motion.div
@@ -157,7 +134,7 @@ function HomeCTASection() {
                 e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
-              <span>Get Your 1-Day Trial Pass</span>
+              <span>Join Now</span>
               <ArrowRight size={16} color="var(--color-yellow)" />
             </Link>
 

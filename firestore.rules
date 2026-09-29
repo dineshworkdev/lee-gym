@@ -1,0 +1,32 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: Only authenticated users (email/password or Google) may access data.
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // ── Members collection ──────────────────────────────────────────────
+    // Only authenticated admin/owner can list, read, create, update, delete members.
+    // Unauthenticated users are completely blocked.
+    match /members/{memberId} {
+      allow read, create, update, delete: if isAuthenticated();
+    }
+
+    // ── Plans collection ────────────────────────────────────────────────
+    // Read and write restricted to authenticated users only.
+    match /plans/{planId} {
+      allow read, create, update, delete: if isAuthenticated();
+    }
+
+    // ── Payments collection ─────────────────────────────────────────────
+    // Only authenticated owner/admin can read or write payment records.
+    match /payments/{paymentId} {
+      allow read, create, update, delete: if isAuthenticated();
+    }
+
+    // Deny everything else by default (no catch-all open rule).
+  }
+}

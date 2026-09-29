@@ -126,7 +126,7 @@ function HeroContent() {
           margin: 0,
         }}
       >
-        12 Olympic Platforms · 30m Sled Turf · Calibrated Rogue Iron
+        Strength · Fitness · Community
       </motion.p>
     </div>
   );

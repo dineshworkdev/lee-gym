@@ -2,22 +2,22 @@ import { motion, useReducedMotion } from 'motion/react';
 import { useCountUp } from '../../hooks/useCountUp';
 import { useRef } from 'react';
 import { useInView } from 'motion/react';
-import { AnimatedDumbbell, AnimatedFlame, AnimatedBarbell } from '../icons/AnimatedGymIcons';
+import { AnimatedFlame } from '../icons/AnimatedGymIcons';
 
 /**
- * AthleticManifestoSection — Big visual statement + massive athletic numbers.
- * Replaces generic SaaS cards with a bold, high-contrast, physical composition.
+ * AthleticManifestoSection — Big visual statement + verified operational stats.
+ * Real, verifiable facts only: sessions/day, plans, operating days, years open.
  */
 function AthleticManifestoSection() {
   const shouldReduce = useReducedMotion();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-60px' });
 
-  // Numbers count up when scrolled into view
-  const count1 = useCountUp(12, 1200, isInView && !shouldReduce);
-  const count2 = useCountUp(30, 1400, isInView && !shouldReduce);
-  const count3 = useCountUp(150, 1600, isInView && !shouldReduce);
-  const count4 = useCountUp(10, 1100, isInView && !shouldReduce);
+  // Real, verified operational facts for Lee Gym
+  const count1 = useCountUp(2, 1200, isInView && !shouldReduce);   // 2 daily training sessions
+  const count2 = useCountUp(4, 1400, isInView && !shouldReduce);   // 4 membership plans
+  const count3 = useCountUp(6, 1600, isInView && !shouldReduce);   // 6 days per week (Mon–Sat)
+  const count4 = useCountUp(10, 1100, isInView && !shouldReduce);  // 10+ years local gym
 
   return (
     <section
@@ -32,7 +32,7 @@ function AthleticManifestoSection() {
         borderBottom: '3px solid var(--color-yellow)',
       }}
     >
-      {/* Background architectural watermarks */}
+      {/* Background architectural watermark */}
       <div
         aria-hidden="true"
         style={{
@@ -107,11 +107,11 @@ function AthleticManifestoSection() {
               margin: 0,
             }}
           >
-            Calibrated plates · Zero fluff · Real coaching on every platform
+            Free weights · Open floor · Disciplined effort, every session
           </p>
         </div>
 
-        {/* 4 Massive Numbers Embedded Into Composition (No Generic Cards!) */}
+        {/* 4 Stat Blocks — Real, Verified Operational Facts Only */}
         <div
           style={{
             display: 'grid',
@@ -121,7 +121,7 @@ function AthleticManifestoSection() {
             paddingTop: '2.5rem',
           }}
         >
-          {/* Stat 1 */}
+          {/* Stat 1: 2 Daily Training Sessions */}
           <div>
             <div
               style={{
@@ -132,7 +132,7 @@ function AthleticManifestoSection() {
                 marginBottom: '0.35rem',
               }}
             >
-              {shouldReduce ? 12 : count1}
+              {shouldReduce ? 2 : count1}
             </div>
             <div
               style={{
@@ -143,14 +143,14 @@ function AthleticManifestoSection() {
                 lineHeight: 1,
               }}
             >
-              OLYMPIC PLATFORMS
+              DAILY SESSIONS
             </div>
             <div style={{ fontSize: '0.78rem', color: '#7E8B95', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: '0.25rem' }}>
-              Eleiko Calibrated Steel
+              Morning &amp; Evening
             </div>
           </div>
 
-          {/* Stat 2 */}
+          {/* Stat 2: 4 Membership Plans */}
           <div>
             <div
               style={{
@@ -161,7 +161,7 @@ function AthleticManifestoSection() {
                 marginBottom: '0.35rem',
               }}
             >
-              {shouldReduce ? 30 : count2}M
+              {shouldReduce ? 4 : count2}
             </div>
             <div
               style={{
@@ -172,14 +172,14 @@ function AthleticManifestoSection() {
                 lineHeight: 1,
               }}
             >
-              HIGH-SPEED TURF
+              MEMBERSHIP PLANS
             </div>
             <div style={{ fontSize: '0.78rem', color: '#7E8B95', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: '0.25rem' }}>
-              Sleds & Sprints
+              Monthly to Annual
             </div>
           </div>
 
-          {/* Stat 3 */}
+          {/* Stat 3: 6 Days/Week (Mon–Sat) */}
           <div>
             <div
               style={{
@@ -190,8 +190,7 @@ function AthleticManifestoSection() {
                 marginBottom: '0.35rem',
               }}
             >
-              {shouldReduce ? 150 : count3}
-              <span style={{ fontSize: '0.5em', marginLeft: '0.1em' }}>LBS</span>
+              {shouldReduce ? 6 : count3}
             </div>
             <div
               style={{
@@ -202,14 +201,14 @@ function AthleticManifestoSection() {
                 lineHeight: 1,
               }}
             >
-              HEAVY DUMBBELL WALL
+              DAYS PER WEEK
             </div>
             <div style={{ fontSize: '0.78rem', color: '#7E8B95', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: '0.25rem' }}>
-              Solid Urethane
+              Mon – Sat
             </div>
           </div>
 
-          {/* Stat 4 */}
+          {/* Stat 4: 10+ Years Established */}
           <div>
             <div
               style={{
@@ -234,7 +233,7 @@ function AthleticManifestoSection() {
               YEARS ESTABLISHED
             </div>
             <div style={{ fontSize: '0.78rem', color: '#7E8B95', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: '0.25rem' }}>
-              Independent & Local
+              Independent &amp; Local
             </div>
           </div>
         </div>

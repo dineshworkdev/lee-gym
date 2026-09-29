@@ -1,48 +1,112 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Eye, EyeOff, Lock, Mail, ArrowRight, ShieldCheck, Dumbbell } from 'lucide-react';
 import { useOwnerGym } from '../../context/OwnerGymContext.jsx';
 
+function getFriendlyAuthErrorMessage(error) {
+  if (!error) return 'An error occurred during authentication.';
+  const code = error.code || '';
+  switch (code) {
+    case 'auth/invalid-credential':
+    case 'auth/wrong-password':
+    case 'auth/user-not-found':
+      return 'Invalid email or password. Please verify your credentials.';
+    case 'auth/invalid-email':
+      return 'Please enter a valid email address.';
+    case 'auth/user-disabled':
+      return 'This account has been disabled. Please contact system support.';
+    case 'auth/too-many-requests':
+      return 'Access temporarily blocked due to repeated failed attempts. Please try again later.';
+    case 'auth/network-request-failed':
+      return 'Network connection error. Please check your internet connection.';
+    case 'auth/popup-closed-by-user':
+    case 'auth/cancelled-popup-request':
+      return ''; // User intentionally closed or cancelled popup
+    case 'auth/popup-blocked':
+      return 'Google sign-in popup was blocked by your browser. Please allow popups for this site.';
+    case 'auth/unauthorized-domain':
+      return 'Domain not authorized for OAuth in Firebase Console. Please verify authorized domains.';
+    default:
+      return error.message || 'Authentication failed. Please try again.';
+  }
+}
+
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useOwnerGym();
+  const location = useLocation();
+  const { login, loginWithGoogle, isAuthenticated, authLoading } = useOwnerGym();
 
-  const [email, setEmail] = useState('owner@leegym.com');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  // If already authenticated, redirect to admin dashboard or destination
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      const destination = location.state?.from?.pathname || '/owner/dashboard';
+      navigate(destination, { replace: true });
+    }
+  }, [isAuthenticated, authLoading, navigate, location]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isLoading || isGoogleLoading) return;
     setError('');
 
-    if (!email.trim()) {
+    const cleanEmail = email.trim();
+    const cleanPassword = password.trim();
+
+    if (!cleanEmail) {
       setError('Please enter your email or username');
       return;
     }
-    if (!password.trim()) {
+    if (!cleanPassword) {
       setError('Please enter your password');
       return;
     }
 
     setIsLoading(true);
 
-    // Simulate realistic fast authentication latency
-    setTimeout(() => {
-      const res = login(email, password);
-      setIsLoading(false);
-      if (res.success) {
-        navigate('/owner/dashboard');
-      } else {
-        setError(res.message || 'Invalid credentials. Please try again.');
+    try {
+      await login(cleanEmail, cleanPassword);
+      const destination = location.state?.from?.pathname || '/owner/dashboard';
+      navigate(destination, { replace: true });
+    } catch (err) {
+      console.error('Firebase Email sign-in failed:', err);
+      const friendlyMessage = getFriendlyAuthErrorMessage(err);
+      if (friendlyMessage) {
+        setError(friendlyMessage);
       }
-    }, 450);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDemoFill = () => {
-    setEmail('owner@leegym.com');
-    setPassword('admin123');
+  const handleGoogleSignIn = async () => {
+    if (isLoading || isGoogleLoading) return;
+    setError('');
+    setIsGoogleLoading(true);
+
+    try {
+      await loginWithGoogle();
+      const destination = location.state?.from?.pathname || '/owner/dashboard';
+      navigate(destination, { replace: true });
+    } catch (err) {
+      console.error('Firebase Google sign-in failed:', err);
+      const friendlyMessage = getFriendlyAuthErrorMessage(err);
+      if (friendlyMessage) {
+        setError(friendlyMessage);
+      }
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
+
+  const handleAutoFillEmail = () => {
+    setEmail('leegym.website@gmail.com');
     setError('');
   };
 
@@ -152,6 +216,7 @@ export default function Login() {
               fontSize: '0.85rem',
               color: '#A83D3D',
               fontWeight: 600,
+              lineHeight: 1.4,
             }}
           >
             {error}
@@ -197,6 +262,8 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="owner@leegym.com"
+                disabled={isLoading || isGoogleLoading}
+                autoComplete="email"
                 style={{
                   width: '100%',
                   padding: '0.75rem 0.85rem 0.75rem 2.6rem',
@@ -249,6 +316,8 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
+                disabled={isLoading || isGoogleLoading}
+                autoComplete="current-password"
                 style={{
                   width: '100%',
                   padding: '0.75rem 2.6rem 0.75rem 2.6rem',
@@ -288,7 +357,7 @@ export default function Login() {
           <button
             id="login-submit-btn"
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || isGoogleLoading}
             style={{
               backgroundColor: '#F4C400',
               color: '#252A2E',
@@ -299,18 +368,20 @@ export default function Login() {
               textTransform: 'uppercase',
               padding: '0.9rem 1.5rem',
               border: '2px solid #252A2E',
-              boxShadow: '3px 3px 0px #252A2E',
-              cursor: isLoading ? 'not-allowed' : 'pointer',
+              boxShadow: (isLoading || isGoogleLoading) ? 'none' : '3px 3px 0px #252A2E',
+              transform: (isLoading || isGoogleLoading) ? 'translate(2px, 2px)' : 'none',
+              cursor: (isLoading || isGoogleLoading) ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '0.5rem',
               marginTop: '0.5rem',
               transition: 'transform 120ms ease, box-shadow 120ms ease',
+              opacity: (isLoading || isGoogleLoading) ? 0.8 : 1,
             }}
           >
             {isLoading ? (
-              <span>VERIFYING...</span>
+              <span>AUTHENTICATING...</span>
             ) : (
               <>
                 <span>LOGIN</span>
@@ -318,9 +389,80 @@ export default function Login() {
               </>
             )}
           </button>
+
+          {/* Optional Divider & Google Auth Button */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              margin: '0.25rem 0',
+              gap: '0.75rem',
+            }}
+          >
+            <div style={{ flex: 1, height: '1px', backgroundColor: 'rgba(37, 42, 46, 0.2)' }} />
+            <span
+              style={{
+                fontFamily: 'var(--font-body, "Inter", sans-serif)',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                color: '#8B949E',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}
+            >
+              OR
+            </span>
+            <div style={{ flex: 1, height: '1px', backgroundColor: 'rgba(37, 42, 46, 0.2)' }} />
+          </div>
+
+          <button
+            id="google-login-btn"
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={isLoading || isGoogleLoading}
+            style={{
+              backgroundColor: '#FFFFFF',
+              color: '#252A2E',
+              fontFamily: 'var(--font-body, "Inter", sans-serif)',
+              fontSize: '0.88rem',
+              fontWeight: 700,
+              letterSpacing: '0.04em',
+              padding: '0.75rem 1.25rem',
+              border: '2px solid #252A2E',
+              boxShadow: (isLoading || isGoogleLoading) ? 'none' : '3px 3px 0px #252A2E',
+              transform: (isLoading || isGoogleLoading) ? 'translate(2px, 2px)' : 'none',
+              cursor: (isLoading || isGoogleLoading) ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.65rem',
+              transition: 'transform 120ms ease, box-shadow 120ms ease',
+              opacity: (isLoading || isGoogleLoading) ? 0.75 : 1,
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+              <path
+                fill="#4285F4"
+                d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.36 24 12 24z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.17 0 9.99 0 12s.45 3.83 1.25 5.42l4.03-3.15z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.36 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+              />
+            </svg>
+            <span>{isGoogleLoading ? 'CONNECTING GOOGLE...' : 'CONTINUE WITH GOOGLE'}</span>
+          </button>
         </form>
 
-        {/* Demo Fill Helper */}
+        {/* Auth Info & Quick Fill */}
         <div
           style={{
             marginTop: '1.5rem',
@@ -336,11 +478,11 @@ export default function Login() {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
             <ShieldCheck size={14} color="#2F7D4A" />
-            <span>Frontend Preview Mode</span>
+            <span>Firebase Authentication</span>
           </div>
           <button
             type="button"
-            onClick={handleDemoFill}
+            onClick={handleAutoFillEmail}
             style={{
               background: 'none',
               border: 'none',
@@ -351,7 +493,7 @@ export default function Login() {
               fontSize: '0.78rem',
             }}
           >
-            Auto-fill Test Login
+            Fill Admin Email
           </button>
         </div>
 
@@ -373,3 +515,4 @@ export default function Login() {
     </div>
   );
 }
+

@@ -74,8 +74,8 @@ function VisualGalleryStrip() {
                   margin: 0,
                 }}
               >
-                INSIDE THE WAREHOUSE.{' '}
-                <span style={{ color: 'var(--color-yellow)' }}>NO BULLSHIT.</span>
+                INSIDE THE GYM.{' '}
+                <span style={{ color: 'var(--color-yellow)' }}>SERIOUS TRAINING.</span>
               </motion.h2>
             </div>
           </div>

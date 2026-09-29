@@ -30,7 +30,7 @@ function HomeAboutSection() {
           tag="ABOUT LEE GYM"
           title="BUILT FOR DISCIPLINED"
           highlight="TRAINING."
-          description="Lee Gym is an authentic local facility where raw effort meets structured coaching. Designed for lifters and athletes seeking measurable progress."
+          description="Lee Gym is an authentic local facility in Pallapalayam, Coimbatore — equipped with free weights, barbells, and dedicated workout areas for focused, consistent training."
           linkTo="/about"
           linkText="Learn More"
         />
@@ -109,7 +109,7 @@ function HomeAboutSection() {
                 }}
               >
                 REAL EQUIPMENT.{' '}
-                <span style={{ color: 'var(--color-yellow)' }}>DEDICATED COACHING.</span>
+                <span style={{ color: 'var(--color-yellow)' }}>DEDICATED TRAINING.</span>
               </h3>
 
               <p
@@ -121,7 +121,7 @@ function HomeAboutSection() {
                   margin: 0,
                 }}
               >
-                We maintain our lifting platforms, calibrated steel plates, and indoor athletic turf for athletes who value focus and consistency. No distractions, just honest progress.
+                We provide free weights, barbell equipment, and dedicated workout zones for people who value focus and consistency. No distractions, just honest progress.
               </p>
             </div>
 

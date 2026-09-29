@@ -2,6 +2,7 @@ import { motion, useReducedMotion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import PageHero from '../../components/common/PageHero';
 import { AnimatedArrow } from '../../components/icons/AnimatedGymIcons';
+import AthleticManifestoSection from '../../components/public/AthleticManifestoSection';
 import { BRAND_VALUES } from '../../data/gymData';
 
 function About() {
@@ -13,7 +14,7 @@ function About() {
         badge="ABOUT LEE GYM"
         title="BUILT WITH PURPOSE &"
         highlight="DISCIPLINED EFFORT."
-        description="Lee Gym is an authentic training facility where lifters and athletes build strength through consistent, coach-guided progression."
+        description="Gym located in Pappampatti Rd, Pallapalayam — dedicated to strength, fitness, and disciplined training."
         breadcrumbs={[{ label: 'About' }]}
       />
 
@@ -65,7 +66,7 @@ function About() {
                   margin: '0 0 2rem 0',
                 }}
               >
-                Lee Gym is built around the essentials of athletic progression: hardwood lifting platforms, calibrated steel plates, heavy dumbbells, and high-density turf for conditioning. Our space is organized to support focused, uninterrupted effort.
+                Lee Gym is built around the essentials of disciplined training: free weights, dumbbells, barbells, and open workout spaces. Our gym is organized to support focused, uninterrupted effort.
               </p>
 
               <motion.div
@@ -181,6 +182,9 @@ function About() {
           </div>
         </div>
       </section>
+
+      {/* Operational Manifesto & Key Stats */}
+      <AthleticManifestoSection />
     </div>
   );
 }

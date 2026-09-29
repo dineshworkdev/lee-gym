@@ -7,13 +7,13 @@ import { motion } from 'motion/react';
 function MarqueeStrip({
   items = [
     'TRAIN HARD',
-    '30M SLED TURF',
-    '12 OLYMPIC PLATFORMS',
-    'CALIBRATED STEEL',
+    'FREE WEIGHTS',
+    'BARBELLS & DUMBBELLS',
     'LIVE STRONG',
-    '150 LB DUMBBELLS',
+    'OPEN WORKOUT FLOOR',
+    'MON – SAT',
     'ZERO GIMMICKS',
-    'COLD PLUNGE BAY',
+    'PALLAPALAYAM COIMBATORE',
   ],
   bg = 'var(--color-yellow)',
   color = 'var(--color-charcoal)',

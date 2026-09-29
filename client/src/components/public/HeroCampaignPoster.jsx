@@ -117,7 +117,7 @@ function HeroCampaignPoster({ isMobile = false }) {
             display: 'inline-block',
           }}
         >
-          12 Olympic Platforms · 30m Sled Turf · Calibrated Steel
+          Free Weights · Barbells · Dedicated Workout Space
         </p>
       </motion.div>
 

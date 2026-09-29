@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink, Outlet, useNavigate, Link } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Users,
@@ -15,12 +15,63 @@ import { useOwnerGym } from '../context/OwnerGymContext.jsx';
 
 export default function OwnerLayout() {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
-  const { logout, ownerProfile } = useOwnerGym();
+  const { logout, ownerProfile, isAuthenticated, authLoading } = useOwnerGym();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/owner/login');
+  if (authLoading) {
+    return (
+      <div
+        style={{
+          minHeight: '100vh',
+          backgroundColor: '#F7F5EF',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontFamily: 'var(--font-body, "Inter", sans-serif)',
+          color: '#252A2E',
+        }}
+      >
+        <div
+          style={{
+            width: '54px',
+            height: '54px',
+            backgroundColor: '#252A2E',
+            color: '#F4C400',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '1rem',
+            boxShadow: '4px 4px 0px #252A2E',
+          }}
+        >
+          <Dumbbell size={28} />
+        </div>
+        <div
+          style={{
+            fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
+            fontSize: '1.6rem',
+            letterSpacing: '0.04em',
+          }}
+        >
+          VERIFYING ACCESS...
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/owner/login" state={{ from: location }} replace />;
+  }
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
+    navigate('/owner/login', { replace: true });
   };
 
   const navItems = [

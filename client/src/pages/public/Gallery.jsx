@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
-import { X, ChevronLeft, ChevronRight, Eye, Sparkles, Dumbbell } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import PageHero from '../../components/common/PageHero';
 import { GALLERY_ITEMS } from '../../data/gymData';
 
@@ -9,7 +9,7 @@ function Gallery() {
   const [activeModalItem, setActiveModalItem] = useState(null);
   const shouldReduce = useReducedMotion();
 
-  const categories = ['All', 'Facility', 'Strength', 'Conditioning', 'Lifting', 'Community'];
+  const categories = ['All', 'Facility', 'Strength', 'Conditioning', 'Community'];
 
   const filteredItems = filter === 'All'
     ? GALLERY_ITEMS
@@ -41,7 +41,7 @@ function Gallery() {
         badge="FACILITY & COMMUNITY"
         title="THE VISUAL HEARTBEAT OF"
         highlight="LEE GYM."
-        description="Raw industrial character, clean architectural yellow columns, competition-standard calibrated plates, and an atmosphere forged by true athletic effort."
+        description="Inside Lee Gym: dedicated training areas, signature yellow accents, free weights, and a focused workout environment."
         breadcrumbs={[{ label: 'Gallery' }]}
       />
 
@@ -162,7 +162,7 @@ function Gallery() {
                       borderRadius: '2px',
                     }}
                   >
-                    {item.tag}
+                    {item.category}
                   </span>
                   <Eye size={16} color="rgba(255,255,255,0.4)" />
                 </div>
@@ -194,28 +194,18 @@ function Gallery() {
                   </p>
                 </div>
 
-                {/* Bottom Stats Meta */}
+                {/* Bottom Meta */}
                 <div
                   style={{
                     position: 'relative',
                     zIndex: 1,
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between',
+                    justifyContent: 'flex-end',
                     borderTop: '1px solid rgba(255, 255, 255, 0.1)',
                     paddingTop: '0.85rem',
                   }}
                 >
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-body)',
-                      fontSize: '0.75rem',
-                      color: 'var(--color-yellow)',
-                      fontWeight: 600,
-                    }}
-                  >
-                    {item.stats}
-                  </span>
                   <span style={{ fontSize: '0.72rem', color: '#7E8B95', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                     Click to Inspect
                   </span>
@@ -305,7 +295,7 @@ function Gallery() {
                   marginBottom: '1rem',
                 }}
               >
-                {activeModalItem.tag}
+                {activeModalItem.category}
               </span>
 
               <h3
@@ -333,22 +323,7 @@ function Gallery() {
                 {activeModalItem.caption}
               </p>
 
-              <div
-                style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  padding: '1rem 1.25rem',
-                  borderRadius: '3px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  marginBottom: '2rem',
-                }}
-              >
-                <span style={{ fontSize: '0.85rem', color: '#A0AAB2' }}>Facility Benchmark:</span>
-                <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-yellow)' }}>
-                  {activeModalItem.stats}
-                </span>
-              </div>
+
 
               {/* Prev / Next controls */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

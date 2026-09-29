@@ -20,7 +20,7 @@ function PlanCard({ plan, idx, shouldReduce }) {
         backgroundColor: 'var(--color-white)',
         border: '1px solid rgba(37,42,46,0.1)',
         borderRadius: '4px',
-        padding: 'clamp(1.75rem, 3.5vw, 2.5rem)',
+        padding: 'clamp(1.5rem, 3vw, 2.25rem)',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
@@ -31,61 +31,99 @@ function PlanCard({ plan, idx, shouldReduce }) {
       }}
     >
       <div>
-        <span
-          style={{
-            backgroundColor: 'var(--color-warm-bg)',
-            color: 'var(--color-charcoal)',
-            fontFamily: 'var(--font-body)',
-            fontSize: '0.72rem',
-            fontWeight: 800,
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            padding: '0.25rem 0.6rem',
-            borderRadius: '2px',
-            display: 'inline-block',
-            marginBottom: '0.75rem',
-          }}
-        >
-          {plan.badge}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem', flexWrap: 'wrap', gap: '0.4rem' }}>
+          <h3
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(1.8rem, 2.8vw, 2.3rem)',
+              lineHeight: 1,
+              color: 'var(--color-charcoal)',
+              margin: 0,
+            }}
+          >
+            {plan.name}
+          </h3>
+          <span
+            style={{
+              backgroundColor: 'var(--color-warm-bg)',
+              color: 'var(--color-charcoal)',
+              fontFamily: 'var(--font-body)',
+              fontSize: '0.7rem',
+              fontWeight: 800,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              padding: '0.2rem 0.5rem',
+              borderRadius: '2px',
+            }}
+          >
+            {plan.duration}
+          </span>
+        </div>
 
-        <h3
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(2rem, 3.2vw, 2.5rem)',
-            lineHeight: 1,
-            color: 'var(--color-charcoal)',
-            margin: '0 0 0.5rem 0',
-          }}
-        >
-          {plan.name}
-        </h3>
+        {/* Real Price */}
+        <div style={{ margin: '0.6rem 0', display: 'flex', alignItems: 'baseline', gap: '0.35rem' }}>
+          <span
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(2.2rem, 3.8vw, 2.8rem)',
+              lineHeight: 1,
+              fontWeight: 900,
+              color: 'var(--color-charcoal)',
+            }}
+          >
+            ₹{plan.price.toLocaleString('en-IN')}
+          </span>
+        </div>
+
+        {/* Admission fee tag */}
+        {plan.admissionFee > 0 ? (
+          <div
+            style={{
+              display: 'inline-block',
+              fontFamily: 'var(--font-body)',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              color: '#A83D3D',
+              backgroundColor: 'rgba(168, 61, 61, 0.08)',
+              padding: '0.2rem 0.5rem',
+              borderRadius: '2px',
+              marginBottom: '0.6rem',
+            }}
+          >
+            Admission fee: ₹{plan.admissionFee}
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'inline-block',
+              fontFamily: 'var(--font-body)',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              color: '#4B555D',
+              backgroundColor: 'rgba(75, 85, 93, 0.08)',
+              padding: '0.2rem 0.5rem',
+              borderRadius: '2px',
+              marginBottom: '0.6rem',
+            }}
+          >
+            ₹0 admission fee
+          </div>
+        )}
 
         <p
           style={{
             fontFamily: 'var(--font-body)',
-            fontSize: '0.9rem',
-            lineHeight: 1.55,
+            fontSize: '0.86rem',
+            lineHeight: 1.5,
             color: 'var(--color-slate)',
-            margin: 0,
+            margin: '0.35rem 0 0 0',
           }}
         >
           {plan.description}
         </p>
       </div>
 
-      <div style={{ marginTop: '2rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(37,42,46,0.08)' }}>
-        <p
-          style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: '0.84rem',
-            color: 'var(--color-slate)',
-            margin: '0 0 1rem 0',
-            fontStyle: 'italic',
-          }}
-        >
-          Contact the gym for membership options.
-        </p>
+      <div style={{ marginTop: '1.75rem', paddingTop: '1rem', borderTop: '1px solid rgba(37,42,46,0.08)' }}>
         <Link
           to="/membership"
           style={{
@@ -100,7 +138,7 @@ function PlanCard({ plan, idx, shouldReduce }) {
             transition: 'gap 0.2s ease',
           }}
         >
-          <span>Inquire now</span>
+          <span>View Plan Details</span>
           <AnimatedArrow size={14} color="var(--color-charcoal)" />
         </Link>
       </div>
@@ -245,11 +283,11 @@ function VisualMembershipSection() {
           </motion.div>
         </div>
 
-        {/* 3 Clean Membership Cards */}
+        {/* 4 Clean Membership Cards */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
             gap: '1.5rem',
           }}
         >

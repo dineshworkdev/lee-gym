@@ -436,6 +436,16 @@ function Hero() {
 
           {/* Bottom Center: Scroll Down Mouse Icon with Athletic Pulse */}
           <div
+            onClick={() => document.getElementById('about-preview')?.scrollIntoView({ behavior: 'smooth' })}
+            role="button"
+            tabIndex={0}
+            aria-label="Scroll down to about section"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                document.getElementById('about-preview')?.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
             style={{
               display: 'flex',
               flexDirection: 'column',
@@ -445,6 +455,8 @@ function Hero() {
               left: '50%',
               transform: 'translateX(-50%)',
               bottom: '-0.25rem',
+              cursor: 'pointer',
+              pointerEvents: 'auto',
             }}
           >
             <div

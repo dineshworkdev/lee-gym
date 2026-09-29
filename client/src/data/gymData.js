@@ -1,25 +1,29 @@
 /**
  * Lee Gym — Verified Public Website Data
  * Authentic local gym identity:
- * - Yellow columns & accents (#F4C400)
- * - Charcoal/slate walls (#252A2E / #4B555D)
- * - Red & black equipment
- * - Green turf conditioning track
- * - Free weights & barbell platforms
+ * - Gym Name: LEE GYM
+ * - Location: 1st floor, Nikki Towers, Pappampatti Rd, Pallapalayam, Coimbatore, 641402
+ * - Phone & WhatsApp: +91 62387 69097
+ * - Email: leegym.website@gmail.com
+ * - Instagram: @leegympallapalayam
+ * - Yellow accents (#F4C400)
+ * - Charcoal & slate (#252A2E / #4B555D)
+ * - Warm background (#F7F5EF)
  */
 
 export const GYM_INFO = {
   name: 'LEE GYM',
   tagline: 'Train Hard. Live Strong.',
-  shortDescription: 'Gym located in Pappampatti Rd, Pallapalayam, Coimbatore — a serious training facility for focused athletes.',
+  description: 'Gym located in Pappampatti Rd Pallapalayam.',
+  shortDescription: 'Gym located in Pappampatti Rd Pallapalayam.',
   address: '1st floor, Nikki Towers, Pappampatti Rd, Pallapalayam, Coimbatore, 641402',
   phone: '+91 62387 69097',
   whatsapp: '+91 62387 69097',
   whatsappLink: 'https://wa.me/916238769097',
   email: 'leegym.website@gmail.com',
+  instagram: '@leegympallapalayam',
   googleMaps: 'https://maps.app.goo.gl/iina11oynzzfMLvQ8?g_st=ac',
   googleMapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1956.3!2d77.0!3d11.0!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTHCsDA!5e0!3m2!1sen!2sin!4v1!5m2!1sen!2sin',
-  // Each entry: days, sessions (array of {open, close}), closed flag
   hours: [
     {
       days: 'Monday – Saturday',
@@ -43,163 +47,158 @@ export const GYM_INFO = {
 export const BRAND_VALUES = [
   {
     number: '01',
-    title: 'Relentless Standards',
-    description: 'Precision barbells, competition bumper plates, and a floor maintained for serious training.',
+    title: 'Structured Training',
+    description: 'Free weights, barbells, and machines arranged for disciplined daily workouts.',
   },
   {
     number: '02',
     title: 'Focused Environment',
-    description: 'Zero clutter and zero distraction. Athletes and coaches working side-by-side with pure discipline.',
+    description: 'A clean, organized space dedicated to consistent athletic effort and personal fitness goals.',
   },
   {
     number: '03',
-    title: 'Coaching First',
-    description: 'Movement instruction and technical guidance designed to build sustainable, lifelong strength.',
+    title: 'Active Guidance',
+    description: 'Practical exercise instruction and support to help members train safely and build strength.',
   },
 ];
 
 export const FACILITY_SPECS = [
   {
-    title: 'Olympic Lifting Platforms',
-    tag: 'Barbell Zone',
-    description: 'Dedicated hardwood lifting platforms with calibrated bumper plates and competition collars.',
-  },
-  {
-    title: 'Indoor Athletic Turf',
-    tag: 'Conditioning Area',
-    description: 'High-density green turf track for weighted sled pushes, sprints, and functional athletic conditioning.',
-  },
-  {
-    title: 'Free Weight Deck',
+    title: 'Free Weight Training Area',
     tag: 'Strength',
-    description: 'Solid urethane dumbbells paired with heavy-duty multi-angle benches and power racks.',
+    description: 'Dumbbells, barbells, and adjustable benches for compound and isolation lifting.',
   },
   {
-    title: 'Recovery Bay',
-    tag: 'Mobility',
-    description: 'Dedicated space for mobility work, active recovery, and post-session restoration.',
+    title: 'Conditioning Floor',
+    tag: 'Fitness',
+    description: 'Open workout floor dedicated to cardio, core conditioning, and functional movement.',
+  },
+  {
+    title: 'Machine & Cable Stations',
+    tag: 'Resistance',
+    description: 'Resistance machines and cable equipment supporting balanced muscular training.',
+  },
+  {
+    title: 'Floor Training Space',
+    tag: 'Workout Space',
+    description: 'Spacious workout layout designed for focused, uninterrupted training sessions.',
   },
 ];
 
 export const PROGRAMS = [
   {
-    id: 'strength-power',
-    name: 'Strength & Powerbuilding',
+    id: 'strength-training',
+    name: 'Strength Training',
     category: 'Strength',
-    shortDesc: 'Structured barbell progression centered on squat, bench press, deadlift, and targeted muscular development.',
+    shortDesc: 'Barbell and dumbbell exercises focused on building fundamental muscular strength and progressive overload.',
   },
   {
-    id: 'conditioning-turf',
-    name: 'Turf & Metabolic Conditioning',
+    id: 'general-fitness',
+    name: 'General Fitness & Conditioning',
     category: 'Conditioning',
-    shortDesc: 'High-output intervals combining weighted sled pushes, ergs, and functional movement.',
+    shortDesc: 'Full-body conditioning and circuit workouts designed to improve overall stamina, endurance, and health.',
   },
   {
-    id: 'olympic-lifting',
-    name: 'Olympic Weightlifting',
-    category: 'Lifting',
-    shortDesc: 'Technical instruction and programming for snatch, clean, and jerk mechanics.',
+    id: 'weight-training',
+    name: 'Free Weight Training',
+    category: 'Weights',
+    shortDesc: 'Self-paced or guided dumbbell, barbell, and bench training for muscle building and physical tone.',
   },
   {
-    id: 'mobility-durability',
-    name: 'Mobility & Durability',
-    category: 'Mobility',
-    shortDesc: 'Joint health, rotational control, and movement restoration to keep you lifting pain-free.',
-  },
-];
-
-export const TRAINERS = [
-  {
-    id: 'marcus-lee',
-    name: 'Marcus Lee',
-    role: 'Head Strength Coach',
-    shortDesc: 'Specializes in barbell mechanics, progressive overload, and athletic development.',
-  },
-  {
-    id: 'sarah-chen',
-    name: 'Sarah Chen',
-    role: 'Conditioning Coach',
-    shortDesc: 'Focuses on pacing, cardiovascular endurance, and high-intensity interval conditioning.',
-  },
-  {
-    id: 'david-miller',
-    name: 'David Miller',
-    role: 'Weightlifting Specialist',
-    shortDesc: 'Coaches snatch and clean & jerk technique, bar trajectory, and explosive power.',
-  },
-  {
-    id: 'elena-vance',
-    name: 'Elena Vance',
-    role: 'Mobility & Longevity Coach',
-    shortDesc: 'Guides movement restoration, active range of motion, and injury-prevention protocols.',
+    id: 'functional-movement',
+    name: 'Movement & Flexibility',
+    category: 'Movement',
+    shortDesc: 'Warm-up routines, core stabilization, and stretching exercises to support healthy daily movement.',
   },
 ];
 
 export const MEMBERSHIP_PLANS = [
   {
-    id: 'day-pass',
-    name: 'Day Pass',
-    badge: 'Drop-In',
-    description: 'Full-day access to the lifting floor, turf track, and recovery area.',
+    id: 'monthly',
+    name: 'Monthly',
+    price: 1000,
+    admissionFee: 500,
+    durationDays: 30,
+    duration: '1 Month',
+    description: 'Monthly gym membership. Admission fee: ₹500 (applicable only to Monthly plan).',
+    admissionNote: 'Admission fee: ₹500',
   },
   {
-    id: 'monthly-access',
-    name: 'Full Facility Access',
-    badge: 'Most Popular',
-    description: 'Complete unrestricted access to all open floor zones and equipment.',
+    id: '3-plus-1',
+    name: '3+1',
+    price: 3500,
+    admissionFee: 0,
+    durationDays: 120,
+    duration: '4 Months (3+1)',
+    description: '3+1 months membership plan. ₹0 admission fee.',
+    admissionNote: '₹0 admission fee',
   },
   {
-    id: 'coaching-access',
-    name: 'Coach-Led Training',
-    badge: 'Coaching',
-    description: 'Full facility access paired with structured programming and coach guidance.',
+    id: '6-months',
+    name: '6 Months',
+    price: 5000,
+    admissionFee: 0,
+    durationDays: 180,
+    duration: '6 Months',
+    description: '6 months membership plan. ₹0 admission fee.',
+    admissionNote: '₹0 admission fee',
+  },
+  {
+    id: '1-year',
+    name: '1 Year',
+    price: 8500,
+    admissionFee: 0,
+    durationDays: 365,
+    duration: '1 Year',
+    description: '1 year membership plan. ₹0 admission fee.',
+    admissionNote: '₹0 admission fee',
   },
 ];
 
 export const GALLERY_ITEMS = [
   {
     id: 1,
-    title: 'Olympic Barbell Platforms',
+    title: 'Training Floor & Barbells',
     category: 'Facility',
-    caption: 'Hardwood lifting platforms fitted with calibrated bumper plates and competition collars.',
+    caption: 'Dedicated workout floor equipped for barbell, dumbbell, and strength routines.',
     aspect: 'wide',
     colorAccent: '#F4C400',
   },
   {
     id: 2,
-    title: 'High-Density Turf Track',
+    title: 'Conditioning Space',
     category: 'Conditioning',
-    caption: 'Indoor green athletic turf designed for weighted sled pushes and sprint drills.',
+    caption: 'Workout floor arranged for functional movement and athletic fitness.',
     aspect: 'tall',
     colorAccent: '#2F7D4A',
   },
   {
     id: 3,
-    title: 'Heavy Free Weight Wall',
+    title: 'Free Weight Section',
     category: 'Strength',
-    caption: 'Solid urethane dumbbells paired with heavy-duty adjustable benches.',
+    caption: 'Dumbbells and workout benches for daily strength training.',
     aspect: 'standard',
     colorAccent: '#252A2E',
   },
   {
     id: 4,
-    title: 'Barbell Technique in Motion',
-    category: 'Lifting',
-    caption: 'Athletes refining bar speed and positioning on the platform.',
+    title: 'Strength Training in Motion',
+    category: 'Strength',
+    caption: 'Members training consistently on the main workout floor.',
     aspect: 'wide',
     colorAccent: '#A83D3D',
   },
   {
     id: 5,
-    title: 'Community Interval Training',
+    title: 'Daily Training Community',
     category: 'Community',
-    caption: 'Members pushing through high-effort conditioning intervals together.',
+    caption: 'Athletic atmosphere focused on daily effort and discipline.',
     aspect: 'tall',
     colorAccent: '#F4C400',
   },
   {
     id: 6,
-    title: 'Architectural Yellow Columns',
+    title: 'Gym Floor & Yellow Columns',
     category: 'Facility',
     caption: 'Signature visual identity: charcoal walls accented with bright yellow structural pillars.',
     aspect: 'standard',

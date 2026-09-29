@@ -32,43 +32,92 @@ function MembershipPlanCard({ plan, index, shouldReduce }) {
       }}
     >
       <div>
-        <span
-          style={{
-            backgroundColor: 'var(--color-warm-bg)',
-            color: 'var(--color-charcoal)',
-            fontFamily: 'var(--font-body)',
-            fontSize: '0.72rem',
-            fontWeight: 800,
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            padding: '0.25rem 0.6rem',
-            borderRadius: '2px',
-            display: 'inline-block',
-            marginBottom: '0.75rem',
-          }}
-        >
-          {plan.badge}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <h3
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(2rem, 3.5vw, 2.6rem)',
+              lineHeight: 1,
+              color: 'var(--color-charcoal)',
+              margin: 0,
+            }}
+          >
+            {plan.name}
+          </h3>
+          <span
+            style={{
+              backgroundColor: 'var(--color-warm-bg)',
+              color: 'var(--color-charcoal)',
+              fontFamily: 'var(--font-body)',
+              fontSize: '0.72rem',
+              fontWeight: 800,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              padding: '0.25rem 0.6rem',
+              borderRadius: '2px',
+            }}
+          >
+            {plan.duration}
+          </span>
+        </div>
 
-        <h3
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(2rem, 3.5vw, 2.6rem)',
-            lineHeight: 1,
-            color: 'var(--color-charcoal)',
-            margin: '0 0 0.5rem 0',
-          }}
-        >
-          {plan.name}
-        </h3>
+        {/* Real Price Display */}
+        <div style={{ margin: '0.75rem 0', display: 'flex', alignItems: 'baseline', gap: '0.35rem' }}>
+          <span
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(2.4rem, 4.5vw, 3.2rem)',
+              lineHeight: 1,
+              fontWeight: 900,
+              color: 'var(--color-charcoal)',
+            }}
+          >
+            ₹{plan.price.toLocaleString('en-IN')}
+          </span>
+        </div>
+
+        {/* Admission fee notice */}
+        {plan.admissionFee > 0 ? (
+          <div
+            style={{
+              display: 'inline-block',
+              fontFamily: 'var(--font-body)',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              color: '#A83D3D',
+              backgroundColor: 'rgba(168, 61, 61, 0.08)',
+              padding: '0.25rem 0.55rem',
+              borderRadius: '2px',
+              marginBottom: '0.75rem',
+            }}
+          >
+            Admission fee: ₹{plan.admissionFee}
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'inline-block',
+              fontFamily: 'var(--font-body)',
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              color: '#4B555D',
+              backgroundColor: 'rgba(75, 85, 93, 0.08)',
+              padding: '0.25rem 0.55rem',
+              borderRadius: '2px',
+              marginBottom: '0.75rem',
+            }}
+          >
+            ₹0 admission fee
+          </div>
+        )}
 
         <p
           style={{
             fontFamily: 'var(--font-body)',
-            fontSize: '0.92rem',
+            fontSize: '0.9rem',
             lineHeight: 1.6,
             color: 'var(--color-slate)',
-            margin: 0,
+            margin: '0.5rem 0 0 0',
           }}
         >
           {plan.description}
@@ -76,18 +125,6 @@ function MembershipPlanCard({ plan, index, shouldReduce }) {
       </div>
 
       <div style={{ marginTop: '2rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(37,42,46,0.08)' }}>
-        <p
-          style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: '0.86rem',
-            color: 'var(--color-slate)',
-            margin: '0 0 1.25rem 0',
-            fontStyle: 'italic',
-          }}
-        >
-          Contact the gym for membership options.
-        </p>
-
         <motion.div whileTap={{ scale: 0.97 }}>
           <Link
             to="/contact"
@@ -127,9 +164,9 @@ function Membership() {
     <div style={{ backgroundColor: 'var(--color-warm-bg)', minHeight: '100vh' }}>
       <PageHero
         badge="TRAINING ACCESS"
-        title="JOIN THE FLOOR."
-        highlight="TRAIN WITH PURPOSE."
-        description="Whether you are dropping in for a single session or looking for ongoing facility access and coaching, our floor is open for serious athletes."
+        title="MEMBERSHIP PLANS."
+        highlight="CLEAR & DIRECT."
+        description="Straightforward membership options for training at Lee Gym in Pappampatti Rd, Pallapalayam. Visit or contact us to join."
         breadcrumbs={[{ label: 'Membership' }]}
       />
 
@@ -145,7 +182,7 @@ function Membership() {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
               gap: '1.5rem',
               marginBottom: '4rem',
             }}
@@ -194,7 +231,7 @@ function Membership() {
                 lineHeight: 1.6,
               }}
             >
-              Visit our facility to tour the lifting platforms, meet the coaches, and discuss the best training access for your goals.
+              Visit our gym located on Pappampatti Rd, Pallapalayam to view the training floor and join a membership plan.
             </p>
             <motion.div
               whileHover={shouldReduce ? {} : { y: -2 }}
