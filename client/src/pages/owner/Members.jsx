@@ -120,24 +120,26 @@ export default function Members() {
           flexWrap: 'wrap',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '1.25rem',
+          gap: '1rem',
           marginBottom: '1.75rem',
+          paddingBottom: '1.25rem',
+          borderBottom: '1px solid rgba(37, 42, 46, 0.08)',
         }}
       >
         <div>
           <h1
             style={{
               fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-              fontSize: 'clamp(2.4rem, 5vw, 3.2rem)',
+              fontSize: 'clamp(2rem, 3.5vw, 2.6rem)',
               letterSpacing: '0.04em',
-              color: '#252A2E',
+              color: 'var(--color-charcoal, #252A2E)',
               margin: 0,
               lineHeight: 1,
             }}
           >
             MEMBERS DIRECTORY
           </h1>
-          <p style={{ fontFamily: 'var(--font-body, "Inter", sans-serif)', fontSize: '0.88rem', color: '#4B555D', margin: '0.35rem 0 0' }}>
+          <p style={{ fontFamily: 'var(--font-body, "Inter", sans-serif)', fontSize: '0.85rem', color: 'var(--color-slate, #4B555D)', margin: '0.3rem 0 0' }}>
             Showing {filteredMembers.length} member{filteredMembers.length !== 1 ? 's' : ''} in {activeFilter.toUpperCase()} view
           </p>
         </div>
@@ -149,23 +151,29 @@ export default function Members() {
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '0.55rem',
-            backgroundColor: '#F4C400',
-            color: '#252A2E',
-            border: '2px solid #252A2E',
-            padding: '0.75rem 1.4rem',
-            fontFamily: 'var(--font-body, "Inter", sans-serif)',
-            fontSize: '0.9rem',
-            fontWeight: 800,
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
+            gap: '0.45rem',
+            backgroundColor: 'var(--color-yellow, #F4C400)',
+            color: 'var(--color-charcoal, #252A2E)',
+            border: '1px solid rgba(212, 169, 0, 0.8)',
+            padding: '0.65rem 1.25rem',
+            borderRadius: '6px',
+            fontSize: '0.85rem',
+            fontWeight: 700,
             textDecoration: 'none',
-            boxShadow: '3px 3px 0px #252A2E',
-            cursor: 'pointer',
+            boxShadow: '0 2px 6px rgba(244, 196, 0, 0.3)',
+            transition: 'all 150ms ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#E5B800';
+            e.currentTarget.style.transform = 'translateY(-1px)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#F4C400';
+            e.currentTarget.style.transform = 'none';
           }}
         >
-          <UserPlus size={18} />
-          <span>+ ADD MEMBER</span>
+          <UserPlus size={16} />
+          <span>Add Member</span>
         </Link>
       </div>
 
@@ -173,10 +181,11 @@ export default function Members() {
       <div
         style={{
           backgroundColor: '#FFFFFF',
-          border: '2px solid #252A2E',
-          boxShadow: '4px 4px 0px #252A2E',
-          padding: '1.25rem',
-          marginBottom: '1.75rem',
+          border: '1px solid rgba(37, 42, 46, 0.08)',
+          borderRadius: '8px',
+          boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
+          padding: '1rem 1.25rem',
+          marginBottom: '1.5rem',
           display: 'flex',
           flexWrap: 'wrap',
           gap: '1rem',
@@ -192,12 +201,12 @@ export default function Members() {
               left: '0.85rem',
               top: '50%',
               transform: 'translateY(-50%)',
-              color: '#4B555D',
+              color: 'var(--color-slate, #4B555D)',
               display: 'flex',
               alignItems: 'center',
             }}
           >
-            <Search size={18} />
+            <Search size={16} />
           </div>
           <input
             id="members-search-input"
@@ -210,14 +219,22 @@ export default function Members() {
             placeholder="Search by name, mobile, or member ID..."
             style={{
               width: '100%',
-              padding: '0.65rem 2.2rem 0.65rem 2.4rem',
-              border: '1.5px solid #252A2E',
+              padding: '0.55rem 2.2rem 0.55rem 2.2rem',
+              border: '1px solid rgba(37, 42, 46, 0.15)',
+              borderRadius: '6px',
               fontFamily: 'var(--font-body, "Inter", sans-serif)',
-              fontSize: '0.9rem',
+              fontSize: '0.88rem',
               color: '#252A2E',
               backgroundColor: '#FAF8F4',
               outline: 'none',
               boxSizing: 'border-box',
+              transition: 'border-color 150ms ease',
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = 'var(--color-yellow, #F4C400)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'rgba(37, 42, 46, 0.15)';
             }}
           />
           {searchQuery && (
@@ -232,31 +249,31 @@ export default function Members() {
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
-                color: '#4B555D',
+                color: 'var(--color-slate, #4B555D)',
                 padding: '0.2rem',
               }}
               aria-label="Clear search"
             >
-              <X size={16} />
+              <X size={15} />
             </button>
           )}
         </div>
 
         {/* Filter Pills */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
           <span
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.35rem',
-              fontSize: '0.78rem',
-              fontWeight: 800,
+              fontSize: '0.75rem',
+              fontWeight: 600,
               textTransform: 'uppercase',
-              color: '#4B555D',
+              color: 'var(--color-slate, #4B555D)',
               marginRight: '0.25rem',
             }}
           >
-            <Filter size={14} />
+            <Filter size={13} />
             <span>Filter:</span>
           </span>
 
@@ -276,28 +293,29 @@ export default function Members() {
                 type="button"
                 onClick={() => handleFilterChange(tab.id)}
                 style={{
-                  padding: '0.45rem 0.8rem',
-                  border: '1.5px solid #252A2E',
+                  padding: '0.4rem 0.75rem',
+                  borderRadius: '6px',
+                  border: isSelected ? '1px solid #252A2E' : '1px solid rgba(37, 42, 46, 0.12)',
                   backgroundColor: isSelected ? '#252A2E' : '#FFFFFF',
-                  color: isSelected ? '#FFFFFF' : '#252A2E',
-                  fontSize: '0.82rem',
-                  fontWeight: 700,
+                  color: isSelected ? '#FFFFFF' : 'var(--color-charcoal, #252A2E)',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
                   cursor: 'pointer',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.35rem',
-                  transition: 'all 100ms ease',
+                  transition: 'all 120ms ease',
                 }}
               >
                 <span>{tab.label}</span>
                 <span
                   style={{
-                    backgroundColor: isSelected ? '#F4C400' : 'rgba(37, 42, 46, 0.1)',
-                    color: '#252A2E',
-                    fontSize: '0.7rem',
-                    fontWeight: 800,
-                    padding: '0.1rem 0.35rem',
-                    borderRadius: '2px',
+                    backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.2)' : 'rgba(37, 42, 46, 0.08)',
+                    color: isSelected ? '#FFFFFF' : 'var(--color-charcoal, #252A2E)',
+                    fontSize: '0.68rem',
+                    fontWeight: 700,
+                    padding: '0.1rem 0.4rem',
+                    borderRadius: '10px',
                   }}
                 >
                   {tab.count}
@@ -313,8 +331,9 @@ export default function Members() {
         className="hidden md:block"
         style={{
           backgroundColor: '#FFFFFF',
-          border: '2px solid #252A2E',
-          boxShadow: '4px 4px 0px #252A2E',
+          border: '1px solid rgba(37, 42, 46, 0.08)',
+          borderRadius: '8px',
+          boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
           overflow: 'hidden',
           marginBottom: '1.5rem',
         }}
@@ -567,9 +586,10 @@ export default function Members() {
               key={member.id}
               style={{
                 backgroundColor: '#FFFFFF',
-                border: '2px solid #252A2E',
-                boxShadow: '3px 3px 0px #252A2E',
-                padding: '1.25rem',
+                border: '1px solid rgba(37, 42, 46, 0.08)',
+                borderRadius: '8px',
+                boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
+                padding: '1.15rem',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>

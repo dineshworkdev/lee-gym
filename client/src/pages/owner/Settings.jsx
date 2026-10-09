@@ -103,79 +103,80 @@ export default function Settings() {
           flexWrap: 'wrap',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '1.25rem',
-          marginBottom: '2rem',
-          paddingBottom: '1.5rem',
-          borderBottom: '2px solid rgba(37, 42, 46, 0.1)',
+          gap: '1rem',
+          marginBottom: '1.75rem',
+          paddingBottom: '1.25rem',
+          borderBottom: '1px solid rgba(37, 42, 46, 0.08)',
         }}
       >
         <div>
           <h1
             style={{
               fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-              fontSize: 'clamp(2.4rem, 5vw, 3.2rem)',
+              fontSize: 'clamp(2rem, 3.5vw, 2.6rem)',
               letterSpacing: '0.04em',
-              color: '#252A2E',
+              color: 'var(--color-charcoal, #252A2E)',
               margin: 0,
               lineHeight: 1,
             }}
           >
             GYM SETTINGS &amp; STAFF
           </h1>
-          <p style={{ fontFamily: 'var(--font-body, "Inter", sans-serif)', fontSize: '0.9rem', color: '#4B555D', margin: '0.4rem 0 0' }}>
+          <p style={{ fontFamily: 'var(--font-body, "Inter", sans-serif)', fontSize: '0.85rem', color: 'var(--color-slate, #4B555D)', margin: '0.3rem 0 0' }}>
             System configuration, staff account provisioning, and access permissions
           </p>
         </div>
 
         {feedbackNotice && (
-          <div style={{ backgroundColor: '#2F7D4A', color: '#FFFFFF', padding: '0.5rem 1rem', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          <div style={{ backgroundColor: 'rgba(47, 125, 74, 0.1)', color: '#2F7D4A', border: '1px solid rgba(47, 125, 74, 0.25)', borderRadius: '6px', padding: '0.5rem 0.85rem', fontWeight: 600, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             <Check size={16} />
             <span>{feedbackNotice}</span>
           </div>
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '2rem', marginBottom: '2.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
         {/* ── GYM BUSINESS PROFILE ───────────────────────────────────── */}
         <div
           style={{
             backgroundColor: '#FFFFFF',
-            border: '2px solid #252A2E',
-            boxShadow: '4px 4px 0px #252A2E',
-            padding: '1.75rem',
+            border: '1px solid rgba(37, 42, 46, 0.08)',
+            borderRadius: '8px',
+            boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
+            padding: '1.5rem',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '2px solid #252A2E', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
-            <Building size={20} color="#252A2E" />
-            <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '1.6rem', margin: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid rgba(37, 42, 46, 0.08)', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
+            <Building size={18} color="var(--color-charcoal, #252A2E)" />
+            <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '1.45rem', margin: 0, color: 'var(--color-charcoal, #252A2E)' }}>
               VERIFIED GYM INFORMATION
             </h3>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.88rem' }}>
             <div>
-              <div style={{ fontSize: '0.72rem', color: '#7A8288', fontWeight: 800, textTransform: 'uppercase' }}>Gym Name</div>
-              <div style={{ fontWeight: 800, fontSize: '1.1rem' }}>{GYM_INFO.name}</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--color-slate, #4B555D)', fontWeight: 600, textTransform: 'uppercase' }}>Gym Name</div>
+              <div style={{ fontWeight: 700, fontSize: '1.05rem', color: '#252A2E' }}>{GYM_INFO.name}</div>
             </div>
 
             <div>
-              <div style={{ fontSize: '0.72rem', color: '#7A8288', fontWeight: 800, textTransform: 'uppercase' }}>Address</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--color-slate, #4B555D)', fontWeight: 600, textTransform: 'uppercase' }}>Address</div>
               <div style={{ color: '#252A2E', lineHeight: 1.4 }}>{GYM_INFO.address}</div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div>
-                <div style={{ fontSize: '0.72rem', color: '#7A8288', fontWeight: 800, textTransform: 'uppercase' }}>Phone</div>
-                <div style={{ fontWeight: 700 }}>{GYM_INFO.phone}</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--color-slate, #4B555D)', fontWeight: 600, textTransform: 'uppercase' }}>Phone</div>
+                <div style={{ fontWeight: 600 }}>{GYM_INFO.phone}</div>
               </div>
               <div>
-                <div style={{ fontSize: '0.72rem', color: '#7A8288', fontWeight: 800, textTransform: 'uppercase' }}>Email</div>
-                <div style={{ fontWeight: 600 }}>{GYM_INFO.email}</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--color-slate, #4B555D)', fontWeight: 600, textTransform: 'uppercase' }}>Email</div>
+                <div style={{ fontWeight: 500, color: 'var(--color-slate, #4B555D)' }}>{GYM_INFO.email}</div>
               </div>
             </div>
 
             <div>
-              <div style={{ fontSize: '0.72rem', color: '#7A8288', fontWeight: 800, textTransform: 'uppercase' }}>Operating Hours</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--color-slate, #4B555D)', fontWeight: 600, textTransform: 'uppercase' }}>Operating Hours</div>
               <div style={{ color: '#252A2E', marginTop: '0.2rem' }}>
                 Mon – Sat: <strong>05:30 AM – 11:00 AM</strong> &amp; <strong>04:30 PM – 10:00 PM</strong>
                 <br />
@@ -189,14 +190,15 @@ export default function Settings() {
         <div
           style={{
             backgroundColor: '#FFFFFF',
-            border: '2px solid #252A2E',
-            boxShadow: '4px 4px 0px #252A2E',
-            padding: '1.75rem',
+            border: '1px solid rgba(37, 42, 46, 0.08)',
+            borderRadius: '8px',
+            boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
+            padding: '1.5rem',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '2px solid #252A2E', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
-            <Shield size={20} color="#252A2E" />
-            <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '1.6rem', margin: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid rgba(37, 42, 46, 0.08)', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
+            <Shield size={18} color="var(--color-charcoal, #252A2E)" />
+            <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '1.45rem', margin: 0, color: 'var(--color-charcoal, #252A2E)' }}>
               ROLE-BASED ACCESS CONTROL (RBAC)
             </h3>
           </div>
@@ -230,12 +232,13 @@ export default function Settings() {
       <div
         style={{
           backgroundColor: '#FFFFFF',
-          border: '2px solid #252A2E',
-          boxShadow: '4px 4px 0px #252A2E',
+          border: '1px solid rgba(37, 42, 46, 0.08)',
+          borderRadius: '8px',
+          boxShadow: '0 1px 3px rgba(37, 42, 46, 0.04)',
           padding: '1.75rem',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #252A2E', paddingBottom: '0.75rem', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(37, 42, 46, 0.08)', paddingBottom: '0.75rem', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Users size={22} color="#252A2E" />
             <h2 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '1.85rem', margin: 0 }}>
@@ -253,17 +256,16 @@ export default function Settings() {
                 gap: '0.45rem',
                 backgroundColor: '#F4C400',
                 color: '#252A2E',
-                border: '2px solid #252A2E',
+                border: '1px solid #D4A900',
+                borderRadius: '6px',
                 padding: '0.65rem 1.25rem',
                 fontSize: '0.85rem',
-                fontWeight: 800,
-                textTransform: 'uppercase',
-                boxShadow: '2px 2px 0px #252A2E',
+                fontWeight: 700,
                 cursor: 'pointer',
               }}
             >
               <Plus size={16} />
-              <span>+ PROVISION STAFF</span>
+              <span>Provision Staff</span>
             </button>
           )}
         </div>
@@ -399,8 +401,9 @@ export default function Settings() {
             onClick={(e) => e.stopPropagation()}
             style={{
               backgroundColor: '#FFFFFF',
-              border: '2px solid #252A2E',
-              boxShadow: '6px 6px 0px #252A2E',
+              border: '1px solid rgba(37, 42, 46, 0.1)',
+              borderRadius: '10px',
+              boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)',
               width: '100%',
               maxWidth: '480px',
               padding: '2rem',
@@ -412,13 +415,13 @@ export default function Settings() {
 
             <form onSubmit={handleSaveStaff} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {staffError && (
-                <div style={{ backgroundColor: '#FDF2F2', border: '1.5px solid #A83D3D', color: '#A83D3D', padding: '0.75rem', fontSize: '0.85rem' }}>
+                <div style={{ backgroundColor: '#FDF2F2', border: '1px solid #A83D3D', borderRadius: '6px', color: '#A83D3D', padding: '0.75rem', fontSize: '0.85rem' }}>
                   {staffError}
                 </div>
               )}
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4B555D', marginBottom: '0.35rem' }}>
                   Staff Full Name *
                 </label>
                 <input
@@ -427,12 +430,12 @@ export default function Settings() {
                   onChange={(e) => setStaffName(e.target.value)}
                   placeholder="e.g. Ramesh Kumar"
                   required
-                  style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4B555D', marginBottom: '0.35rem' }}>
                   Staff Email *
                 </label>
                 <input
@@ -441,12 +444,12 @@ export default function Settings() {
                   onChange={(e) => setStaffEmail(e.target.value)}
                   placeholder="e.g. receptionist@leegym.com"
                   required
-                  style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4B555D', marginBottom: '0.35rem' }}>
                   Phone Number
                 </label>
                 <input
@@ -454,18 +457,18 @@ export default function Settings() {
                   value={staffPhone}
                   onChange={(e) => setStaffPhone(e.target.value)}
                   placeholder="e.g. +91 98765 43210"
-                  style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4B555D', marginBottom: '0.35rem' }}>
                   Assigned Role *
                 </label>
                 <select
                   value={staffRole}
                   onChange={(e) => setStaffRole(e.target.value)}
-                  style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', fontWeight: 700 }}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '6px', fontSize: '0.9rem', fontWeight: 600 }}
                 >
                   <option value="Receptionist">Receptionist (Front desk, registrations & collections)</option>
                   <option value="Trainer">Trainer (Training floor, physical details only)</option>
@@ -474,7 +477,7 @@ export default function Settings() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4B555D', marginBottom: '0.35rem' }}>
                   Notes (Optional)
                 </label>
                 <input
@@ -482,7 +485,7 @@ export default function Settings() {
                   value={staffNotes}
                   onChange={(e) => setStaffNotes(e.target.value)}
                   placeholder="e.g. Morning shift receptionist"
-                  style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }}
                 />
               </div>
 
@@ -491,14 +494,14 @@ export default function Settings() {
                   type="button"
                   onClick={() => setShowAddStaffModal(false)}
                   disabled={isSubmittingStaff}
-                  style={{ padding: '0.65rem 1.25rem', border: '1.5px solid #252A2E', background: '#FFFFFF', fontWeight: 700, cursor: 'pointer' }}
+                  style={{ padding: '0.65rem 1.25rem', border: '1px solid rgba(37, 42, 46, 0.2)', background: '#FFFFFF', borderRadius: '6px', fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer' }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingStaff}
-                  style={{ padding: '0.75rem 1.5rem', border: '2px solid #252A2E', background: '#F4C400', fontWeight: 800, cursor: 'pointer' }}
+                  style={{ padding: '0.65rem 1.5rem', border: '1px solid #D4A900', background: '#F4C400', borderRadius: '6px', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer' }}
                 >
                   {isSubmittingStaff ? 'Provisioning...' : 'Provision Staff'}
                 </button>

@@ -559,8 +559,9 @@ export default function MemberDetail() {
       <div
         style={{
           backgroundColor: '#FFFFFF',
-          border: '2px solid #252A2E',
-          boxShadow: '5px 5px 0px #252A2E',
+          border: '1px solid rgba(37, 42, 46, 0.08)',
+          borderRadius: '8px',
+          boxShadow: '0 1px 3px rgba(37, 42, 46, 0.04)',
           padding: '1.75rem',
           marginBottom: '2rem',
           display: 'flex',
@@ -578,7 +579,8 @@ export default function MemberDetail() {
               height: '84px',
               backgroundColor: '#252A2E',
               color: '#F4C400',
-              border: '2px solid #252A2E',
+              border: '1px solid rgba(37, 42, 46, 0.15)',
+              borderRadius: '8px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -676,18 +678,17 @@ export default function MemberDetail() {
               gap: '0.45rem',
               backgroundColor: '#FFFFFF',
               color: '#252A2E',
-              border: '2px solid #252A2E',
+              border: '1px solid rgba(37, 42, 46, 0.2)',
+              borderRadius: '6px',
               padding: '0.65rem 1.1rem',
               fontSize: '0.82rem',
-              fontWeight: 800,
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-              boxShadow: '2px 2px 0px #252A2E',
+              fontWeight: 600,
               cursor: 'pointer',
+              transition: 'all 120ms ease',
             }}
           >
             <Edit size={15} />
-            <span>EDIT</span>
+            <span>Edit</span>
           </button>
 
           {/* RENEW Button */}
@@ -702,18 +703,17 @@ export default function MemberDetail() {
                 gap: '0.45rem',
                 backgroundColor: '#F4C400',
                 color: '#252A2E',
-                border: '2px solid #252A2E',
+                border: '1px solid #D4A900',
+                borderRadius: '6px',
                 padding: '0.65rem 1.1rem',
                 fontSize: '0.82rem',
-                fontWeight: 800,
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                boxShadow: '2px 2px 0px #252A2E',
+                fontWeight: 700,
                 cursor: 'pointer',
+                transition: 'all 120ms ease',
               }}
             >
               <RefreshCw size={15} />
-              <span>RENEW</span>
+              <span>Renew</span>
             </button>
           )}
 
@@ -730,17 +730,17 @@ export default function MemberDetail() {
                   gap: '0.45rem',
                   backgroundColor: '#1D6F8A',
                   color: '#FFFFFF',
-                  border: '2px solid #252A2E',
+                  border: '1px solid #1D6F8A',
+                  borderRadius: '6px',
                   padding: '0.65rem 1.1rem',
                   fontSize: '0.82rem',
-                  fontWeight: 800,
-                  textTransform: 'uppercase',
-                  boxShadow: '2px 2px 0px #252A2E',
+                  fontWeight: 600,
                   cursor: 'pointer',
+                  transition: 'all 120ms ease',
                 }}
               >
                 <PlayCircle size={15} />
-                <span>RESUME</span>
+                <span>Resume</span>
               </button>
             ) : (
               <button
@@ -753,17 +753,17 @@ export default function MemberDetail() {
                   gap: '0.45rem',
                   backgroundColor: '#FFFFFF',
                   color: '#1D6F8A',
-                  border: '2px solid #1D6F8A',
+                  border: '1px solid rgba(29, 111, 138, 0.4)',
+                  borderRadius: '6px',
                   padding: '0.65rem 1.1rem',
                   fontSize: '0.82rem',
-                  fontWeight: 800,
-                  textTransform: 'uppercase',
-                  boxShadow: '2px 2px 0px #252A2E',
+                  fontWeight: 600,
                   cursor: 'pointer',
+                  transition: 'all 120ms ease',
                 }}
               >
                 <Snowflake size={15} />
-                <span>FREEZE</span>
+                <span>Freeze</span>
               </button>
             )
           )}
@@ -780,18 +780,17 @@ export default function MemberDetail() {
                 gap: '0.45rem',
                 backgroundColor: '#2F7D4A',
                 color: '#FFFFFF',
-                border: '2px solid #252A2E',
+                border: '1px solid rgba(47, 125, 74, 0.8)',
+                borderRadius: '6px',
                 padding: '0.65rem 1.1rem',
                 fontSize: '0.82rem',
-                fontWeight: 800,
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                boxShadow: '2px 2px 0px #252A2E',
+                fontWeight: 600,
                 cursor: 'pointer',
+                transition: 'all 120ms ease',
               }}
             >
               <DollarSign size={15} />
-              <span>COLLECT DUE</span>
+              <span>Collect Due</span>
             </button>
           )}
 
@@ -807,16 +806,17 @@ export default function MemberDetail() {
                 gap: '0.45rem',
                 backgroundColor: '#FFFFFF',
                 color: '#7A8288',
-                border: '1.5px solid #7A8288',
+                border: '1px solid rgba(122, 130, 136, 0.3)',
+                borderRadius: '6px',
                 padding: '0.65rem 0.9rem',
                 fontSize: '0.82rem',
-                fontWeight: 700,
+                fontWeight: 600,
                 cursor: 'pointer',
               }}
               title="Safe member archival"
             >
               <Archive size={15} />
-              <span>ARCHIVE</span>
+              <span>Archive</span>
             </button>
           )}
         </div>
@@ -828,8 +828,9 @@ export default function MemberDetail() {
         <div
           style={{
             backgroundColor: '#FFFFFF',
-            border: '2px solid #252A2E',
-            boxShadow: '4px 4px 0px #252A2E',
+            border: '1px solid rgba(37, 42, 46, 0.08)',
+            borderRadius: '8px',
+            boxShadow: '0 1px 3px rgba(37, 42, 46, 0.04)',
             padding: '1.5rem',
           }}
         >
@@ -839,7 +840,7 @@ export default function MemberDetail() {
               fontSize: '1.5rem',
               letterSpacing: '0.04em',
               color: '#252A2E',
-              borderBottom: '2px solid #252A2E',
+              borderBottom: '1px solid rgba(37, 42, 46, 0.08)',
               paddingBottom: '0.5rem',
               marginBottom: '1.25rem',
             }}
@@ -881,8 +882,9 @@ export default function MemberDetail() {
         <div
           style={{
             backgroundColor: '#FFFFFF',
-            border: '2px solid #252A2E',
-            boxShadow: '4px 4px 0px #252A2E',
+            border: '1px solid rgba(37, 42, 46, 0.08)',
+            borderRadius: '8px',
+            boxShadow: '0 1px 3px rgba(37, 42, 46, 0.04)',
             padding: '1.5rem',
           }}
         >
@@ -892,7 +894,7 @@ export default function MemberDetail() {
               fontSize: '1.5rem',
               letterSpacing: '0.04em',
               color: '#252A2E',
-              borderBottom: '2px solid #252A2E',
+              borderBottom: '1px solid rgba(37, 42, 46, 0.08)',
               paddingBottom: '0.5rem',
               marginBottom: '1.25rem',
               display: 'flex',
@@ -957,8 +959,9 @@ export default function MemberDetail() {
         <div
           style={{
             backgroundColor: '#FFFFFF',
-            border: '2px solid #252A2E',
-            boxShadow: '4px 4px 0px #252A2E',
+            border: '1px solid rgba(37, 42, 46, 0.08)',
+            borderRadius: '8px',
+            boxShadow: '0 1px 3px rgba(37, 42, 46, 0.04)',
             padding: '1.5rem',
           }}
         >
@@ -968,7 +971,7 @@ export default function MemberDetail() {
               fontSize: '1.5rem',
               letterSpacing: '0.04em',
               color: '#252A2E',
-              borderBottom: '2px solid #252A2E',
+              borderBottom: '1px solid rgba(37, 42, 46, 0.08)',
               paddingBottom: '0.5rem',
               marginBottom: '1.25rem',
               display: 'flex',
@@ -1033,20 +1036,21 @@ export default function MemberDetail() {
         <div
           style={{
             backgroundColor: '#FFFFFF',
-            border: '2px solid #252A2E',
-            boxShadow: '4px 4px 0px #252A2E',
+            border: '1px solid rgba(37, 42, 46, 0.08)',
+            borderRadius: '8px',
+            boxShadow: '0 1px 3px rgba(37, 42, 46, 0.04)',
             padding: '1.75rem',
             marginBottom: '2rem',
           }}
         >
-          <div style={{ borderBottom: '2px solid #252A2E', paddingBottom: '0.75rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ borderBottom: '1px solid rgba(37, 42, 46, 0.08)', paddingBottom: '0.75rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <RefreshCw size={20} color="#252A2E" />
               <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '1.6rem', margin: 0, color: '#252A2E' }}>
                 RENEWAL HISTORY
               </h3>
             </div>
-            <span style={{ backgroundColor: '#252A2E', color: '#F4C400', fontSize: '0.75rem', fontWeight: 800, padding: '0.2rem 0.5rem', fontFamily: 'monospace' }}>
+            <span style={{ backgroundColor: '#252A2E', color: '#F4C400', fontSize: '0.75rem', fontWeight: 700, padding: '0.2rem 0.5rem', fontFamily: 'monospace', borderRadius: '4px' }}>
               {member.renewals.length} RENEWAL{member.renewals.length > 1 ? 'S' : ''}
             </span>
           </div>
@@ -1056,8 +1060,9 @@ export default function MemberDetail() {
               <div
                 key={idx}
                 style={{
-                  backgroundColor: '#FAF8F4',
-                  border: '1px solid #252A2E',
+                  backgroundColor: '#FFFFFF',
+                  border: '1px solid rgba(37, 42, 46, 0.08)',
+                  borderRadius: '6px',
                   padding: '0.85rem 1rem',
                   display: 'flex',
                   alignItems: 'center',
@@ -1075,7 +1080,7 @@ export default function MemberDetail() {
                 </div>
 
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontWeight: 800, color: '#2F7D4A' }}>Paid: ₹{Number(ren.amountPaid || 0).toLocaleString('en-IN')}</div>
+                  <div style={{ fontWeight: 700, color: '#2F7D4A' }}>Paid: ₹{Number(ren.amountPaid || 0).toLocaleString('en-IN')}</div>
                   <div style={{ fontSize: '0.75rem', color: '#7A8288' }}>
                     Receipt: {ren.receiptNumber || '—'} | By: {ren.renewedBy || 'Staff'}
                   </div>
@@ -1090,8 +1095,9 @@ export default function MemberDetail() {
       <div
         style={{
           backgroundColor: '#FFFFFF',
-          border: '2px solid #252A2E',
-          boxShadow: '4px 4px 0px #252A2E',
+          border: '1px solid rgba(37, 42, 46, 0.08)',
+          borderRadius: '8px',
+          boxShadow: '0 1px 3px rgba(37, 42, 46, 0.04)',
           padding: '1.75rem',
         }}
       >
@@ -1100,7 +1106,7 @@ export default function MemberDetail() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            borderBottom: '2px solid #252A2E',
+            borderBottom: '1px solid rgba(37, 42, 46, 0.08)',
             paddingBottom: '0.75rem',
             marginBottom: '1.25rem',
             flexWrap: 'wrap',
@@ -1126,9 +1132,10 @@ export default function MemberDetail() {
                 backgroundColor: '#252A2E',
                 color: '#F4C400',
                 fontSize: '0.78rem',
-                fontWeight: 800,
+                fontWeight: 700,
                 padding: '0.2rem 0.6rem',
                 fontFamily: 'monospace',
+                borderRadius: '4px',
               }}
             >
               {payments.length} {payments.length === 1 ? 'RECORD' : 'RECORDS'}
@@ -1145,16 +1152,17 @@ export default function MemberDetail() {
                 gap: '0.4rem',
                 backgroundColor: '#F4C400',
                 color: '#252A2E',
-                border: '2px solid #252A2E',
+                border: '1px solid #D4A900',
+                borderRadius: '6px',
                 padding: '0.55rem 1rem',
                 fontSize: '0.82rem',
-                fontWeight: 800,
+                fontWeight: 700,
                 cursor: 'pointer',
-                boxShadow: '2px 2px 0px #252A2E',
+                transition: 'all 120ms ease',
               }}
             >
               <Plus size={16} />
-              <span>RECORD PAYMENT</span>
+              <span>Record Payment</span>
             </button>
           )}
         </div>
@@ -1321,8 +1329,9 @@ export default function MemberDetail() {
             onClick={(e) => e.stopPropagation()}
             style={{
               backgroundColor: '#FFFFFF',
-              border: '2px solid #252A2E',
-              boxShadow: '6px 6px 0px #252A2E',
+              border: '1px solid rgba(37, 42, 46, 0.1)',
+              borderRadius: '10px',
+              boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)',
               width: '100%',
               maxWidth: '520px',
               padding: '2rem',
@@ -1330,11 +1339,11 @@ export default function MemberDetail() {
               overflowY: 'auto',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #252A2E', paddingBottom: '0.75rem', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(37, 42, 46, 0.08)', paddingBottom: '0.75rem', marginBottom: '1.5rem' }}>
               <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2rem', margin: 0 }}>
                 EDIT MEMBER DETAILS
               </h3>
-              <button type="button" onClick={() => setShowEditModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button type="button" onClick={() => setShowEditModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7A8288' }}>
                 <X size={22} />
               </button>
             </div>
@@ -1407,13 +1416,13 @@ export default function MemberDetail() {
                 <button
                   type="button"
                   onClick={() => setShowEditModal(false)}
-                  style={{ padding: '0.65rem 1.25rem', border: '1.5px solid #252A2E', background: '#FFFFFF', fontWeight: 700, cursor: 'pointer' }}
+                  style={{ padding: '0.65rem 1.25rem', border: '1px solid rgba(37, 42, 46, 0.2)', background: '#FFFFFF', borderRadius: '6px', fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer' }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  style={{ padding: '0.65rem 1.5rem', border: '2px solid #252A2E', background: '#F4C400', fontWeight: 800, cursor: 'pointer' }}
+                  style={{ padding: '0.65rem 1.5rem', border: '1px solid #D4A900', background: '#F4C400', borderRadius: '6px', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer' }}
                 >
                   Save Changes
                 </button>
@@ -1442,8 +1451,9 @@ export default function MemberDetail() {
             onClick={(e) => e.stopPropagation()}
             style={{
               backgroundColor: '#FFFFFF',
-              border: '2px solid #252A2E',
-              boxShadow: '6px 6px 0px #252A2E',
+              border: '1px solid rgba(37, 42, 46, 0.1)',
+              borderRadius: '10px',
+              boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)',
               width: '100%',
               maxWidth: '520px',
               padding: '2rem',
@@ -1451,14 +1461,14 @@ export default function MemberDetail() {
               overflowY: 'auto',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #252A2E', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(37, 42, 46, 0.08)', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
               <div>
                 <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2rem', margin: 0 }}>
                   RENEW MEMBERSHIP
                 </h3>
                 <div style={{ fontSize: '0.85rem', color: '#4B555D' }}>{member.name} ({member.id})</div>
               </div>
-              <button type="button" onClick={() => setShowRenewModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button type="button" onClick={() => setShowRenewModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7A8288' }}>
                 <X size={22} />
               </button>
             </div>
@@ -1592,7 +1602,7 @@ export default function MemberDetail() {
                   type="button"
                   onClick={() => setShowRenewModal(false)}
                   disabled={isSubmittingRenew}
-                  style={{ padding: '0.65rem 1.25rem', border: '1.5px solid #252A2E', background: '#FFFFFF', fontWeight: 700, cursor: 'pointer' }}
+                  style={{ padding: '0.65rem 1.25rem', border: '1px solid rgba(37, 42, 46, 0.2)', background: '#FFFFFF', borderRadius: '6px', fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer' }}
                 >
                   Cancel
                 </button>
@@ -1600,12 +1610,13 @@ export default function MemberDetail() {
                   type="submit"
                   disabled={isSubmittingRenew}
                   style={{
-                    padding: '0.75rem 1.5rem',
-                    border: '2px solid #252A2E',
+                    padding: '0.65rem 1.5rem',
+                    border: '1px solid #D4A900',
                     background: '#F4C400',
-                    fontWeight: 800,
+                    borderRadius: '6px',
+                    fontWeight: 700,
+                    fontSize: '0.88rem',
                     cursor: isSubmittingRenew ? 'not-allowed' : 'pointer',
-                    boxShadow: '3px 3px 0px #252A2E',
                   }}
                 >
                   {isSubmittingRenew ? 'Processing Renewal...' : 'Confirm & Renew'}
@@ -1635,31 +1646,32 @@ export default function MemberDetail() {
             onClick={(e) => e.stopPropagation()}
             style={{
               backgroundColor: '#FFFFFF',
-              border: '2px solid #252A2E',
-              boxShadow: '6px 6px 0px #252A2E',
+              border: '1px solid rgba(37, 42, 46, 0.1)',
+              borderRadius: '10px',
+              boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)',
               width: '100%',
               maxWidth: '460px',
               padding: '2rem',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #252A2E', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(37, 42, 46, 0.08)', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
               <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2rem', margin: 0, color: '#1D6F8A' }}>
                 FREEZE MEMBERSHIP
               </h3>
-              <button type="button" onClick={() => setShowFreezeModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button type="button" onClick={() => setShowFreezeModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7A8288' }}>
                 <X size={22} />
               </button>
             </div>
 
             <form onSubmit={handleSaveFreeze} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {freezeError && (
-                <div style={{ backgroundColor: '#FDF2F2', border: '1.5px solid #A83D3D', color: '#A83D3D', padding: '0.75rem', fontSize: '0.85rem' }}>
+                <div style={{ backgroundColor: '#FDF2F2', border: '1px solid #A83D3D', borderRadius: '6px', color: '#A83D3D', padding: '0.75rem', fontSize: '0.85rem' }}>
                   {freezeError}
                 </div>
               )}
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4B555D', marginBottom: '0.35rem' }}>
                   Freeze Start Date *
                 </label>
                 <input
@@ -1667,24 +1679,24 @@ export default function MemberDetail() {
                   value={freezeStartDate}
                   onChange={(e) => setFreezeStartDate(e.target.value)}
                   required
-                  style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box', fontWeight: 600 }}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box', fontWeight: 500 }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4B555D', marginBottom: '0.35rem' }}>
                   Expected End Date (Optional)
                 </label>
                 <input
                   type="date"
                   value={freezeExpectedEndDate}
                   onChange={(e) => setFreezeExpectedEndDate(e.target.value)}
-                  style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box', fontWeight: 600 }}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box', fontWeight: 500 }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4B555D', marginBottom: '0.35rem' }}>
                   Reason for Freeze *
                 </label>
                 <textarea
@@ -1693,11 +1705,11 @@ export default function MemberDetail() {
                   onChange={(e) => setFreezeReason(e.target.value)}
                   placeholder="e.g. Travel, exam period, minor injury"
                   required
-                  style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }}
                 />
               </div>
 
-              <div style={{ fontSize: '0.8rem', color: '#4B555D', backgroundColor: '#E1F3F8', padding: '0.75rem' }}>
+              <div style={{ fontSize: '0.8rem', color: '#1D6F8A', backgroundColor: 'rgba(29, 111, 138, 0.08)', borderRadius: '6px', padding: '0.75rem' }}>
                 Note: When resumed, the membership expiry date will automatically be extended by the exact number of days frozen.
               </div>
 
@@ -1706,14 +1718,14 @@ export default function MemberDetail() {
                   type="button"
                   onClick={() => setShowFreezeModal(false)}
                   disabled={isSubmittingFreeze}
-                  style={{ padding: '0.65rem 1.25rem', border: '1.5px solid #252A2E', background: '#FFFFFF', fontWeight: 700, cursor: 'pointer' }}
+                  style={{ padding: '0.65rem 1.25rem', border: '1px solid rgba(37, 42, 46, 0.2)', background: '#FFFFFF', borderRadius: '6px', fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer' }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingFreeze}
-                  style={{ padding: '0.75rem 1.5rem', border: '2px solid #252A2E', background: '#1D6F8A', color: '#FFFFFF', fontWeight: 800, cursor: 'pointer' }}
+                  style={{ padding: '0.65rem 1.5rem', border: '1px solid #1D6F8A', background: '#1D6F8A', color: '#FFFFFF', borderRadius: '6px', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer' }}
                 >
                   {isSubmittingFreeze ? 'Freezing...' : 'Confirm Freeze'}
                 </button>
@@ -1742,25 +1754,26 @@ export default function MemberDetail() {
             onClick={(e) => e.stopPropagation()}
             style={{
               backgroundColor: '#FFFFFF',
-              border: '2px solid #252A2E',
-              boxShadow: '6px 6px 0px #252A2E',
+              border: '1px solid rgba(37, 42, 46, 0.1)',
+              borderRadius: '10px',
+              boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)',
               width: '100%',
               maxWidth: '460px',
               padding: '2rem',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #252A2E', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(37, 42, 46, 0.08)', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
               <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2rem', margin: 0, color: '#2F7D4A' }}>
                 RESUME MEMBERSHIP
               </h3>
-              <button type="button" onClick={() => setShowResumeModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button type="button" onClick={() => setShowResumeModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7A8288' }}>
                 <X size={22} />
               </button>
             </div>
 
             <form onSubmit={handleSaveResume} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4B555D', marginBottom: '0.35rem' }}>
                   Resume Date *
                 </label>
                 <input
@@ -1768,15 +1781,15 @@ export default function MemberDetail() {
                   value={resumeDate}
                   onChange={(e) => setResumeDate(e.target.value)}
                   required
-                  style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box', fontWeight: 600 }}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box', fontWeight: 500 }}
                 />
               </div>
 
               {member.freezeInfo?.startDate && (
-                <div style={{ backgroundColor: '#F2F9F4', border: '1px solid #2F7D4A', padding: '0.85rem', fontSize: '0.85rem' }}>
+                <div style={{ backgroundColor: 'rgba(47, 125, 74, 0.06)', border: '1px solid rgba(47, 125, 74, 0.2)', borderRadius: '6px', padding: '0.85rem', fontSize: '0.85rem' }}>
                   <div>Frozen Start Date: <strong>{formatDate(member.freezeInfo.startDate)}</strong></div>
                   <div>Current Expiry Date: <strong>{formatDate(member.expiryDate)}</strong></div>
-                  <div style={{ marginTop: '0.35rem', color: '#2F7D4A', fontWeight: 700 }}>
+                  <div style={{ marginTop: '0.35rem', color: '#2F7D4A', fontWeight: 600 }}>
                     Extension: Expiry date will be extended by the actual duration frozen.
                   </div>
                 </div>
@@ -1787,14 +1800,14 @@ export default function MemberDetail() {
                   type="button"
                   onClick={() => setShowResumeModal(false)}
                   disabled={isSubmittingResume}
-                  style={{ padding: '0.65rem 1.25rem', border: '1.5px solid #252A2E', background: '#FFFFFF', fontWeight: 700, cursor: 'pointer' }}
+                  style={{ padding: '0.65rem 1.25rem', border: '1px solid rgba(37, 42, 46, 0.2)', background: '#FFFFFF', borderRadius: '6px', fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer' }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingResume}
-                  style={{ padding: '0.75rem 1.5rem', border: '2px solid #252A2E', background: '#2F7D4A', color: '#FFFFFF', fontWeight: 800, cursor: 'pointer' }}
+                  style={{ padding: '0.65rem 1.5rem', border: '1px solid #2F7D4A', background: '#2F7D4A', color: '#FFFFFF', borderRadius: '6px', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer' }}
                 >
                   {isSubmittingResume ? 'Resuming...' : 'Confirm Resume'}
                 </button>
@@ -1823,18 +1836,19 @@ export default function MemberDetail() {
             onClick={(e) => e.stopPropagation()}
             style={{
               backgroundColor: '#FFFFFF',
-              border: '2px solid #252A2E',
-              boxShadow: '6px 6px 0px #252A2E',
+              border: '1px solid rgba(37, 42, 46, 0.1)',
+              borderRadius: '10px',
+              boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)',
               width: '100%',
               maxWidth: '460px',
               padding: '2rem',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #252A2E', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(37, 42, 46, 0.08)', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
               <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2rem', margin: 0, color: '#A83D3D' }}>
                 ARCHIVE MEMBER
               </h3>
-              <button type="button" onClick={() => setShowArchiveModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button type="button" onClick={() => setShowArchiveModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7A8288' }}>
                 <X size={22} />
               </button>
             </div>
@@ -1845,7 +1859,7 @@ export default function MemberDetail() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4B555D', marginBottom: '0.35rem' }}>
                   Reason for Archival (Optional)
                 </label>
                 <textarea
@@ -1853,7 +1867,7 @@ export default function MemberDetail() {
                   value={archiveReason}
                   onChange={(e) => setArchiveReason(e.target.value)}
                   placeholder="e.g. Relocated to another city / Discontinued membership"
-                  style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }}
                 />
               </div>
 
@@ -1862,14 +1876,14 @@ export default function MemberDetail() {
                   type="button"
                   onClick={() => setShowArchiveModal(false)}
                   disabled={isSubmittingArchive}
-                  style={{ padding: '0.65rem 1.25rem', border: '1.5px solid #252A2E', background: '#FFFFFF', fontWeight: 700, cursor: 'pointer' }}
+                  style={{ padding: '0.65rem 1.25rem', border: '1px solid rgba(37, 42, 46, 0.2)', background: '#FFFFFF', borderRadius: '6px', fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer' }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingArchive}
-                  style={{ padding: '0.75rem 1.5rem', border: '2px solid #252A2E', background: '#A83D3D', color: '#FFFFFF', fontWeight: 800, cursor: 'pointer' }}
+                  style={{ padding: '0.65rem 1.5rem', border: '1px solid #A83D3D', background: '#A83D3D', color: '#FFFFFF', borderRadius: '6px', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer' }}
                 >
                   {isSubmittingArchive ? 'Archiving...' : 'Confirm Archive'}
                 </button>
@@ -1898,21 +1912,22 @@ export default function MemberDetail() {
             onClick={(e) => e.stopPropagation()}
             style={{
               backgroundColor: '#FFFFFF',
-              border: '2px solid #252A2E',
-              boxShadow: '6px 6px 0px #252A2E',
+              border: '1px solid rgba(37, 42, 46, 0.1)',
+              borderRadius: '10px',
+              boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)',
               width: '100%',
               maxWidth: '460px',
               padding: '2rem',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #252A2E', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(37, 42, 46, 0.08)', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
               <div>
                 <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2rem', margin: 0 }}>
                   RECORD PAYMENT
                 </h3>
                 <div style={{ fontSize: '0.85rem', color: '#4B555D' }}>{member.name} ({member.id})</div>
               </div>
-              <button type="button" onClick={() => setShowPaymentModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button type="button" onClick={() => setShowPaymentModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7A8288' }}>
                 <X size={22} />
               </button>
             </div>
@@ -2036,9 +2051,11 @@ export default function MemberDetail() {
                   disabled={isSubmittingPayment}
                   style={{
                     padding: '0.65rem 1.25rem',
-                    border: '1.5px solid #252A2E',
+                    border: '1px solid rgba(37, 42, 46, 0.2)',
                     background: '#FFFFFF',
-                    fontWeight: 700,
+                    borderRadius: '6px',
+                    fontWeight: 600,
+                    fontSize: '0.88rem',
                     cursor: isSubmittingPayment ? 'not-allowed' : 'pointer',
                   }}
                 >
@@ -2048,12 +2065,13 @@ export default function MemberDetail() {
                   type="submit"
                   disabled={isSubmittingPayment}
                   style={{
-                    padding: '0.75rem 1.5rem',
-                    border: '2px solid #252A2E',
+                    padding: '0.65rem 1.5rem',
+                    border: '1px solid #D4A900',
                     background: '#F4C400',
-                    fontWeight: 800,
+                    borderRadius: '6px',
+                    fontWeight: 700,
+                    fontSize: '0.88rem',
                     cursor: isSubmittingPayment ? 'not-allowed' : 'pointer',
-                    boxShadow: '3px 3px 0px #252A2E',
                   }}
                 >
                   {isSubmittingPayment ? 'Recording...' : 'Record Payment'}

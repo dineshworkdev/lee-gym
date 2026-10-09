@@ -42,11 +42,12 @@ export default function OwnerLayout() {
             height: '54px',
             backgroundColor: '#252A2E',
             color: '#F4C400',
+            borderRadius: '10px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             marginBottom: '1rem',
-            boxShadow: '4px 4px 0px #252A2E',
+            boxShadow: '0 4px 12px rgba(37, 42, 46, 0.15)',
           }}
         >
           <Dumbbell size={28} />
@@ -117,33 +118,34 @@ export default function OwnerLayout() {
         <div>
           <div
             style={{
-              padding: '1.75rem 1.5rem',
+              padding: '1.5rem 1.5rem 1.25rem',
               borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.85rem',
+              gap: '0.75rem',
             }}
           >
             <div
               style={{
-                width: '42px',
-                height: '42px',
-                backgroundColor: '#F4C400',
-                color: '#252A2E',
+                width: '36px',
+                height: '36px',
+                borderRadius: '6px',
+                backgroundColor: 'rgba(244, 196, 0, 0.15)',
+                color: '#F4C400',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
               }}
             >
-              <Dumbbell size={24} />
+              <Dumbbell size={20} />
             </div>
 
             <div>
               <div
                 style={{
-                  fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                  fontSize: '1.75rem',
+                  fontFamily: 'var(--font-display, "Bebas Neue", "Impact", sans-serif)',
+                  fontSize: '1.6rem',
                   letterSpacing: '0.04em',
                   lineHeight: 1,
                   color: '#FFFFFF',
@@ -153,22 +155,33 @@ export default function OwnerLayout() {
               </div>
               <div
                 style={{
-                  fontFamily: 'var(--font-body, "Inter", sans-serif)',
-                  fontSize: '0.65rem',
-                  fontWeight: 800,
-                  letterSpacing: '0.18em',
-                  color: '#F4C400',
+                  fontSize: '0.68rem',
+                  fontWeight: 600,
+                  letterSpacing: '0.08em',
+                  color: 'rgba(255, 255, 255, 0.45)',
                   textTransform: 'uppercase',
-                  marginTop: '0.15rem',
+                  marginTop: '0.2rem',
                 }}
               >
-                OWNER WORKSPACE
+                Management Portal
               </div>
             </div>
           </div>
 
           {/* Navigation Items */}
-          <nav style={{ padding: '1.5rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+          <nav style={{ padding: '1.25rem 0.85rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+            <div
+              style={{
+                fontSize: '0.68rem',
+                fontWeight: 700,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                color: 'rgba(255, 255, 255, 0.35)',
+                padding: '0 0.65rem 0.5rem',
+              }}
+            >
+              Menu
+            </div>
             {navItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -179,18 +192,19 @@ export default function OwnerLayout() {
                   style={({ isActive }) => ({
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.85rem',
-                    padding: '0.85rem 1rem',
+                    gap: '0.75rem',
+                    padding: '0.65rem 0.85rem',
+                    borderRadius: '6px',
                     textDecoration: 'none',
-                    backgroundColor: isActive ? '#F4C400' : 'transparent',
-                    color: isActive ? '#252A2E' : '#FFFFFF',
-                    fontWeight: isActive ? 800 : 500,
-                    fontSize: '0.92rem',
-                    letterSpacing: '0.02em',
-                    transition: 'all 120ms ease',
+                    backgroundColor: isActive ? 'rgba(244, 196, 0, 0.12)' : 'transparent',
+                    color: isActive ? '#F4C400' : 'rgba(255, 255, 255, 0.75)',
+                    fontWeight: isActive ? 600 : 400,
+                    fontSize: '0.88rem',
+                    transition: 'all 150ms ease',
+                    borderLeft: isActive ? '3px solid #F4C400' : '3px solid transparent',
                   })}
                 >
-                  <Icon size={20} />
+                  <Icon size={18} style={{ opacity: 0.9 }} />
                   <span>{item.label}</span>
                 </NavLink>
               );
@@ -201,9 +215,9 @@ export default function OwnerLayout() {
         {/* Bottom Profile & Logout */}
         <div
           style={{
-            padding: '1.25rem 1rem',
+            padding: '1rem',
             borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-            backgroundColor: '#1E2225',
+            backgroundColor: 'rgba(0, 0, 0, 0.15)',
           }}
         >
           {/* Owner info */}
@@ -212,16 +226,16 @@ export default function OwnerLayout() {
               display: 'flex',
               alignItems: 'center',
               gap: '0.75rem',
-              padding: '0.5rem 0.65rem',
+              padding: '0.4rem 0.5rem',
               marginBottom: '0.75rem',
             }}
           >
             <div
               style={{
-                width: '36px',
-                height: '36px',
+                width: '34px',
+                height: '34px',
                 borderRadius: '50%',
-                backgroundColor: '#4B555D',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -229,13 +243,13 @@ export default function OwnerLayout() {
                 flexShrink: 0,
               }}
             >
-              <User size={18} />
+              <User size={16} />
             </div>
             <div style={{ overflow: 'hidden' }}>
               <div
                 style={{
-                  fontSize: '0.85rem',
-                  fontWeight: 700,
+                  fontSize: '0.82rem',
+                  fontWeight: 600,
                   color: '#FFFFFF',
                   whiteSpace: 'nowrap',
                   textOverflow: 'ellipsis',
@@ -244,8 +258,8 @@ export default function OwnerLayout() {
               >
                 {ownerProfile.name}
               </div>
-              <div style={{ fontSize: '0.7rem', color: '#F4C400', letterSpacing: '0.05em' }}>
-                GYM OWNER
+              <div style={{ fontSize: '0.7rem', color: '#F4C400', opacity: 0.9 }}>
+                {ownerProfile.role || 'Gym Owner'}
               </div>
             </div>
           </div>
@@ -260,29 +274,30 @@ export default function OwnerLayout() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.65rem',
-              padding: '0.75rem',
-              backgroundColor: 'transparent',
-              border: '1.5px solid rgba(255, 255, 255, 0.2)',
-              color: '#FFFFFF',
-              fontSize: '0.85rem',
-              fontWeight: 700,
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase',
+              gap: '0.5rem',
+              padding: '0.55rem',
+              borderRadius: '6px',
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: 'rgba(255, 255, 255, 0.75)',
+              fontSize: '0.8rem',
+              fontWeight: 500,
               cursor: 'pointer',
-              transition: 'background-color 150ms ease, border-color 150ms ease',
+              transition: 'all 150ms ease',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#A83D3D';
-              e.currentTarget.style.borderColor = '#A83D3D';
+              e.currentTarget.style.backgroundColor = 'rgba(168, 61, 61, 0.2)';
+              e.currentTarget.style.borderColor = 'rgba(168, 61, 61, 0.4)';
+              e.currentTarget.style.color = '#FCA5A5';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+              e.currentTarget.style.color = 'rgba(255, 255, 255, 0.75)';
             }}
           >
-            <LogOut size={16} />
-            <span>Logout</span>
+            <LogOut size={15} />
+            <span>Sign Out</span>
           </button>
         </div>
       </aside>
@@ -292,7 +307,7 @@ export default function OwnerLayout() {
         {/* Sticky Mobile Header */}
         <header
           style={{
-            height: '64px',
+            height: '60px',
             backgroundColor: '#252A2E',
             color: '#FFFFFF',
             display: 'flex',
@@ -302,28 +317,29 @@ export default function OwnerLayout() {
             position: 'sticky',
             top: 0,
             zIndex: 90,
-            borderBottom: '2px solid #F4C400',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             <div
               style={{
-                width: '32px',
-                height: '32px',
-                backgroundColor: '#F4C400',
-                color: '#252A2E',
+                width: '30px',
+                height: '30px',
+                borderRadius: '6px',
+                backgroundColor: 'rgba(244, 196, 0, 0.15)',
+                color: '#F4C400',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <Dumbbell size={18} />
+              <Dumbbell size={16} />
             </div>
             <div>
               <span
                 style={{
-                  fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                  fontSize: '1.5rem',
+                  fontFamily: 'var(--font-display, "Bebas Neue", "Impact", sans-serif)',
+                  fontSize: '1.35rem',
                   letterSpacing: '0.04em',
                   color: '#FFFFFF',
                 }}
@@ -332,15 +348,14 @@ export default function OwnerLayout() {
               </span>
               <span
                 style={{
-                  fontSize: '0.6rem',
-                  fontWeight: 800,
-                  letterSpacing: '0.12em',
-                  color: '#F4C400',
+                  fontSize: '0.65rem',
+                  fontWeight: 600,
+                  color: 'rgba(255, 255, 255, 0.5)',
                   marginLeft: '0.4rem',
                   textTransform: 'uppercase',
                 }}
               >
-                OWNER
+                Portal
               </span>
             </div>
           </div>
@@ -360,7 +375,7 @@ export default function OwnerLayout() {
             }}
             aria-label="Toggle menu"
           >
-            {mobileDrawerOpen ? <X size={26} /> : <Menu size={26} />}
+            {mobileDrawerOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </header>
 
@@ -372,27 +387,28 @@ export default function OwnerLayout() {
             style={{
               position: 'fixed',
               inset: 0,
-              top: '64px',
-              backgroundColor: 'rgba(37, 42, 46, 0.75)',
+              top: '60px',
+              backgroundColor: 'rgba(0, 0, 0, 0.6)',
               zIndex: 95,
               display: 'flex',
+              backdropFilter: 'blur(3px)',
             }}
           >
             <div
               onClick={(e) => e.stopPropagation()}
               style={{
-                width: '280px',
+                width: '270px',
                 height: '100%',
                 backgroundColor: '#252A2E',
                 color: '#FFFFFF',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                padding: '1.5rem 1rem',
-                boxShadow: '4px 0 16px rgba(0,0,0,0.3)',
+                padding: '1.25rem 1rem',
+                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)',
               }}
             >
-              <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                 {navItems.map((item) => {
                   const Icon = item.icon;
                   return (
@@ -404,29 +420,30 @@ export default function OwnerLayout() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        padding: '0.9rem 1rem',
+                        padding: '0.75rem 0.85rem',
+                        borderRadius: '6px',
                         textDecoration: 'none',
-                        backgroundColor: isActive ? '#F4C400' : 'rgba(255,255,255,0.05)',
-                        color: isActive ? '#252A2E' : '#FFFFFF',
-                        fontWeight: isActive ? 800 : 600,
-                        fontSize: '0.95rem',
+                        backgroundColor: isActive ? 'rgba(244, 196, 0, 0.15)' : 'transparent',
+                        color: isActive ? '#F4C400' : 'rgba(255, 255, 255, 0.8)',
+                        fontWeight: isActive ? 600 : 400,
+                        fontSize: '0.9rem',
                       })}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <Icon size={20} />
+                        <Icon size={18} />
                         <span>{item.label}</span>
                       </div>
-                      <ChevronRight size={16} />
+                      <ChevronRight size={15} style={{ opacity: 0.5 }} />
                     </NavLink>
                   );
                 })}
               </nav>
 
-              <div style={{ paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#FFFFFF', marginBottom: '0.2rem' }}>
+              <div style={{ paddingTop: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#FFFFFF', marginBottom: '0.15rem' }}>
                   {ownerProfile.name}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#F4C400', marginBottom: '1.25rem' }}>
+                <div style={{ fontSize: '0.72rem', color: 'rgba(255, 255, 255, 0.5)', marginBottom: '1rem' }}>
                   {ownerProfile.email}
                 </div>
                 <button
@@ -437,19 +454,19 @@ export default function OwnerLayout() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '0.65rem',
-                    padding: '0.8rem',
-                    backgroundColor: '#A83D3D',
-                    border: 'none',
-                    color: '#FFFFFF',
-                    fontSize: '0.85rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
+                    gap: '0.5rem',
+                    padding: '0.65rem',
+                    borderRadius: '6px',
+                    backgroundColor: 'rgba(168, 61, 61, 0.15)',
+                    border: '1px solid rgba(168, 61, 61, 0.3)',
+                    color: '#FCA5A5',
+                    fontSize: '0.82rem',
+                    fontWeight: 600,
                     cursor: 'pointer',
                   }}
                 >
-                  <LogOut size={16} />
-                  <span>Logout</span>
+                  <LogOut size={15} />
+                  <span>Sign Out</span>
                 </button>
               </div>
             </div>
@@ -468,8 +485,8 @@ export default function OwnerLayout() {
         style={{
           flex: 1,
           overflowY: 'auto',
-          padding: '2.5rem 3rem 4rem',
-          maxWidth: '1500px',
+          padding: '2rem 2.5rem 3.5rem',
+          maxWidth: '1440px',
         }}
       >
         <Outlet />

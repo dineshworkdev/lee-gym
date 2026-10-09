@@ -227,91 +227,96 @@ export default function Payments() {
           flexWrap: 'wrap',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '1.25rem',
-          marginBottom: '2rem',
-          paddingBottom: '1.5rem',
-          borderBottom: '2px solid rgba(37, 42, 46, 0.1)',
+          gap: '1rem',
+          marginBottom: '1.75rem',
+          paddingBottom: '1.25rem',
+          borderBottom: '1px solid rgba(37, 42, 46, 0.08)',
         }}
       >
         <div>
           <h1
             style={{
               fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-              fontSize: 'clamp(2.4rem, 5vw, 3.2rem)',
+              fontSize: 'clamp(2rem, 3.5vw, 2.6rem)',
               letterSpacing: '0.04em',
-              color: '#252A2E',
+              color: 'var(--color-charcoal, #252A2E)',
               margin: 0,
               lineHeight: 1,
             }}
           >
             PAYMENTS &amp; REVENUE
           </h1>
-          <p style={{ fontFamily: 'var(--font-body, "Inter", sans-serif)', fontSize: '0.9rem', color: '#4B555D', margin: '0.4rem 0 0' }}>
+          <p style={{ fontFamily: 'var(--font-body, "Inter", sans-serif)', fontSize: '0.85rem', color: 'var(--color-slate, #4B555D)', margin: '0.3rem 0 0' }}>
             Authoritative collections ledger, receipt generation, and member dues management
           </p>
         </div>
 
         {/* View Switcher: Transactions vs Outstanding Dues */}
-        <div style={{ display: 'flex', gap: '0.5rem', backgroundColor: '#FFFFFF', padding: '0.35rem', border: '2px solid #252A2E' }}>
+        <div style={{ display: 'flex', gap: '0.35rem', backgroundColor: '#FFFFFF', padding: '0.25rem', borderRadius: '8px', border: '1px solid rgba(37, 42, 46, 0.12)' }}>
           <button
             type="button"
             onClick={() => setActiveTab('transactions')}
             style={{
-              padding: '0.6rem 1.25rem',
+              padding: '0.5rem 1rem',
+              borderRadius: '6px',
               backgroundColor: activeTab === 'transactions' ? '#252A2E' : 'transparent',
-              color: activeTab === 'transactions' ? '#F4C400' : '#252A2E',
+              color: activeTab === 'transactions' ? '#FFFFFF' : 'var(--color-charcoal, #252A2E)',
               border: 'none',
-              fontWeight: 800,
-              fontSize: '0.85rem',
+              fontWeight: 600,
+              fontSize: '0.82rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '0.4rem',
+              transition: 'all 120ms ease',
             }}
           >
-            <Receipt size={16} />
-            <span>TRANSACTIONS ({payments.length})</span>
+            <Receipt size={15} />
+            <span>Transactions ({payments.length})</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('dues')}
             style={{
-              padding: '0.6rem 1.25rem',
-              backgroundColor: activeTab === 'dues' ? '#A83D3D' : 'transparent',
-              color: activeTab === 'dues' ? '#FFFFFF' : '#252A2E',
+              padding: '0.5rem 1rem',
+              borderRadius: '6px',
+              backgroundColor: activeTab === 'dues' ? 'rgba(168, 61, 61, 0.12)' : 'transparent',
+              color: activeTab === 'dues' ? '#A83D3D' : 'var(--color-charcoal, #252A2E)',
               border: 'none',
-              fontWeight: 800,
-              fontSize: '0.85rem',
+              fontWeight: 600,
+              fontSize: '0.82rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '0.4rem',
+              transition: 'all 120ms ease',
             }}
           >
-            <AlertCircle size={16} />
-            <span>OUTSTANDING DUES ({duesMembers.length})</span>
+            <AlertCircle size={15} color={activeTab === 'dues' ? '#A83D3D' : 'currentColor'} />
+            <span>Outstanding Dues ({duesMembers.length})</span>
           </button>
         </div>
       </div>
 
       {/* ── METRIC CARDS ────────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem', marginBottom: '1.75rem' }}>
         <div
           style={{
             backgroundColor: '#FFFFFF',
-            border: '2px solid #252A2E',
-            boxShadow: '4px 4px 0px #252A2E',
-            padding: '1.25rem',
+            border: '1px solid rgba(37, 42, 46, 0.08)',
+            borderRadius: '8px',
+            boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
+            padding: '1.25rem 1.4rem',
           }}
         >
-          <div style={{ fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#4B555D' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-slate, #4B555D)' }}>
             Collections in Selected Range
           </div>
-          <div style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2.4rem', color: '#2F7D4A', lineHeight: 1.1, margin: '0.35rem 0' }}>
+          <div style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2.2rem', color: '#2F7D4A', lineHeight: 1.1, margin: '0.35rem 0' }}>
             ₹{summaryMetrics.totalCollected.toLocaleString('en-IN')}
           </div>
-          <div style={{ fontSize: '0.78rem', color: '#4B555D' }}>
+          <div style={{ fontSize: '0.75rem', color: 'var(--color-slate, #4B555D)' }}>
             From <strong>{summaryMetrics.count}</strong> transaction{summaryMetrics.count !== 1 ? 's' : ''}
           </div>
         </div>
@@ -319,52 +324,55 @@ export default function Payments() {
         <div
           style={{
             backgroundColor: '#FFFFFF',
-            border: '2px solid #252A2E',
-            boxShadow: '4px 4px 0px #252A2E',
-            padding: '1.25rem',
+            border: '1px solid rgba(37, 42, 46, 0.08)',
+            borderRadius: '8px',
+            boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
+            padding: '1.25rem 1.4rem',
           }}
         >
-          <div style={{ fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#4B555D' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-slate, #4B555D)' }}>
             Cash Received
           </div>
-          <div style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2.4rem', color: '#252A2E', lineHeight: 1.1, margin: '0.35rem 0' }}>
+          <div style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2.2rem', color: 'var(--color-charcoal, #252A2E)', lineHeight: 1.1, margin: '0.35rem 0' }}>
             ₹{summaryMetrics.cashTotal.toLocaleString('en-IN')}
           </div>
-          <div style={{ fontSize: '0.78rem', color: '#4B555D' }}>Desk cash collection</div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--color-slate, #4B555D)' }}>Desk cash collection</div>
         </div>
 
         <div
           style={{
             backgroundColor: '#FFFFFF',
-            border: '2px solid #252A2E',
-            boxShadow: '4px 4px 0px #252A2E',
-            padding: '1.25rem',
+            border: '1px solid rgba(37, 42, 46, 0.08)',
+            borderRadius: '8px',
+            boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
+            padding: '1.25rem 1.4rem',
           }}
         >
-          <div style={{ fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#4B555D' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-slate, #4B555D)' }}>
             UPI / Online Received
           </div>
-          <div style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2.4rem', color: '#252A2E', lineHeight: 1.1, margin: '0.35rem 0' }}>
+          <div style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2.2rem', color: 'var(--color-charcoal, #252A2E)', lineHeight: 1.1, margin: '0.35rem 0' }}>
             ₹{summaryMetrics.upiTotal.toLocaleString('en-IN')}
           </div>
-          <div style={{ fontSize: '0.78rem', color: '#4B555D' }}>Digital payments</div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--color-slate, #4B555D)' }}>Digital payments</div>
         </div>
 
         <div
           style={{
-            backgroundColor: '#FFF5F5',
-            border: '2px solid #A83D3D',
-            boxShadow: '4px 4px 0px #A83D3D',
-            padding: '1.25rem',
+            backgroundColor: '#FFFFFF',
+            border: '1px solid rgba(168, 61, 61, 0.15)',
+            borderRadius: '8px',
+            boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
+            padding: '1.25rem 1.4rem',
           }}
         >
-          <div style={{ fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#A83D3D' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#A83D3D' }}>
             Total Unpaid Dues
           </div>
-          <div style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2.4rem', color: '#A83D3D', lineHeight: 1.1, margin: '0.35rem 0' }}>
+          <div style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2.2rem', color: '#A83D3D', lineHeight: 1.1, margin: '0.35rem 0' }}>
             ₹{totalOutstandingDues.toLocaleString('en-IN')}
           </div>
-          <div style={{ fontSize: '0.78rem', color: '#A83D3D' }}>
+          <div style={{ fontSize: '0.75rem', color: '#A83D3D' }}>
             Across <strong>{duesMembers.length}</strong> member{duesMembers.length !== 1 ? 's' : ''}
           </div>
         </div>
@@ -377,8 +385,9 @@ export default function Payments() {
           <div
             style={{
               backgroundColor: '#FFFFFF',
-              border: '2px solid #252A2E',
-              boxShadow: '4px 4px 0px #252A2E',
+              border: '1px solid rgba(37, 42, 46, 0.08)',
+              borderRadius: '8px',
+              boxShadow: '0 1px 3px rgba(37, 42, 46, 0.04)',
               padding: '1.25rem',
               marginBottom: '1.5rem',
               display: 'flex',
@@ -404,10 +413,11 @@ export default function Payments() {
                 style={{
                   width: '100%',
                   padding: '0.65rem 1rem 0.65rem 2.4rem',
-                  border: '1.5px solid #252A2E',
-                  backgroundColor: '#FAF8F4',
-                  fontWeight: 600,
-                  fontSize: '0.9rem',
+                  border: '1px solid rgba(37, 42, 46, 0.15)',
+                  borderRadius: '6px',
+                  backgroundColor: '#FFFFFF',
+                  fontWeight: 500,
+                  fontSize: '0.88rem',
                   boxSizing: 'border-box',
                 }}
               />
@@ -431,12 +441,14 @@ export default function Payments() {
                   }}
                   style={{
                     padding: '0.45rem 0.75rem',
-                    border: '1.5px solid #252A2E',
+                    border: dateFilter === t.id ? '1px solid #252A2E' : '1px solid rgba(37, 42, 46, 0.15)',
+                    borderRadius: '4px',
                     backgroundColor: dateFilter === t.id ? '#252A2E' : '#FFFFFF',
                     color: dateFilter === t.id ? '#FFFFFF' : '#252A2E',
                     fontSize: '0.8rem',
-                    fontWeight: 700,
+                    fontWeight: dateFilter === t.id ? 700 : 500,
                     cursor: 'pointer',
+                    transition: 'all 120ms ease',
                   }}
                 >
                   {t.label}
@@ -452,7 +464,7 @@ export default function Payments() {
                   setModeFilter(e.target.value);
                   setCurrentPage(1);
                 }}
-                style={{ padding: '0.55rem 0.85rem', border: '1.5px solid #252A2E', fontWeight: 700, fontSize: '0.82rem' }}
+                style={{ padding: '0.55rem 0.85rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '6px', fontWeight: 600, fontSize: '0.82rem' }}
               >
                 <option value="all">All Modes</option>
                 <option value="Cash">Cash Only</option>
@@ -464,20 +476,20 @@ export default function Payments() {
 
           {/* Custom Date Range Picker */}
           {dateFilter === 'custom' && (
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.5rem', backgroundColor: '#FAF8F4', padding: '0.75rem 1rem', border: '1px solid #252A2E' }}>
-              <span style={{ fontSize: '0.82rem', fontWeight: 700 }}>Custom Range:</span>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.5rem', backgroundColor: '#FFFFFF', padding: '0.75rem 1rem', border: '1px solid rgba(37, 42, 46, 0.1)', borderRadius: '6px' }}>
+              <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#4B555D' }}>Custom Range:</span>
               <input
                 type="date"
                 value={customStartDate}
                 onChange={(e) => setCustomStartDate(e.target.value)}
-                style={{ padding: '0.4rem 0.6rem', border: '1px solid #252A2E', fontWeight: 600 }}
+                style={{ padding: '0.4rem 0.6rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '4px', fontWeight: 500 }}
               />
-              <span>to</span>
+              <span style={{ color: '#4B555D' }}>to</span>
               <input
                 type="date"
                 value={customEndDate}
                 onChange={(e) => setCustomEndDate(e.target.value)}
-                style={{ padding: '0.4rem 0.6rem', border: '1px solid #252A2E', fontWeight: 600 }}
+                style={{ padding: '0.4rem 0.6rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '4px', fontWeight: 500 }}
               />
             </div>
           )}
@@ -486,8 +498,9 @@ export default function Payments() {
           <div
             style={{
               backgroundColor: '#FFFFFF',
-              border: '2px solid #252A2E',
-              boxShadow: '4px 4px 0px #252A2E',
+              border: '1px solid rgba(37, 42, 46, 0.08)',
+              borderRadius: '8px',
+              boxShadow: '0 1px 3px rgba(37, 42, 46, 0.04)',
               overflow: 'hidden',
               marginBottom: '1.5rem',
             }}
@@ -676,8 +689,9 @@ export default function Payments() {
           <div
             style={{
               backgroundColor: '#FFFFFF',
-              border: '2px solid #252A2E',
-              boxShadow: '4px 4px 0px #252A2E',
+              border: '1px solid rgba(37, 42, 46, 0.08)',
+              borderRadius: '8px',
+              boxShadow: '0 1px 3px rgba(37, 42, 46, 0.04)',
               overflow: 'hidden',
             }}
           >
@@ -850,41 +864,42 @@ export default function Payments() {
             onClick={(e) => e.stopPropagation()}
             style={{
               backgroundColor: '#FFFFFF',
-              border: '2px solid #252A2E',
-              boxShadow: '6px 6px 0px #252A2E',
+              border: '1px solid rgba(37, 42, 46, 0.1)',
+              borderRadius: '10px',
+              boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)',
               width: '100%',
               maxWidth: '460px',
               padding: '2rem',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #252A2E', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(37, 42, 46, 0.08)', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
               <div>
                 <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2rem', margin: 0 }}>
                   COLLECT OUTSTANDING DUE
                 </h3>
                 <div style={{ fontSize: '0.85rem', color: '#4B555D' }}>{recordDuesMember.name} ({recordDuesMember.id})</div>
               </div>
-              <button type="button" onClick={() => setRecordDuesMember(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button type="button" onClick={() => setRecordDuesMember(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7A8288' }}>
                 <X size={22} />
               </button>
             </div>
 
             <form onSubmit={handleSaveCollect} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               {collectError && (
-                <div style={{ backgroundColor: '#FDF2F2', border: '1.5px solid #A83D3D', color: '#A83D3D', padding: '0.75rem', fontSize: '0.85rem', fontWeight: 700 }}>
+                <div style={{ backgroundColor: '#FDF2F2', border: '1px solid #A83D3D', borderRadius: '6px', color: '#A83D3D', padding: '0.75rem', fontSize: '0.85rem', fontWeight: 600 }}>
                   {collectError}
                 </div>
               )}
 
-              <div style={{ backgroundColor: '#FFF5F5', border: '1px solid #A83D3D', padding: '0.75rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#A83D3D' }}>Total Due Amount:</span>
+              <div style={{ backgroundColor: 'rgba(168, 61, 61, 0.06)', border: '1px solid rgba(168, 61, 61, 0.2)', borderRadius: '6px', padding: '0.75rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#A83D3D' }}>Total Due Amount:</span>
                 <strong style={{ fontSize: '1.2rem', color: '#A83D3D' }}>
                   ₹{Number(recordDuesMember.dueAmount !== undefined ? recordDuesMember.dueAmount : recordDuesMember.amountDue || 0)}
                 </strong>
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4B555D', marginBottom: '0.35rem' }}>
                   Amount to Collect (₹) *
                 </label>
                 <input
@@ -893,18 +908,18 @@ export default function Payments() {
                   value={collectAmount}
                   onChange={(e) => setCollectAmount(e.target.value)}
                   required
-                  style={{ width: '100%', padding: '0.75rem', border: '1.5px solid #252A2E', fontSize: '1.1rem', fontWeight: 800, boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '0.75rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '6px', fontSize: '1.1rem', fontWeight: 700, boxSizing: 'border-box' }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4B555D', marginBottom: '0.35rem' }}>
                   Payment Mode
                 </label>
                 <select
                   value={collectMode}
                   onChange={(e) => setCollectMode(e.target.value)}
-                  style={{ width: '100%', padding: '0.75rem', border: '1.5px solid #252A2E', fontWeight: 700 }}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '6px', fontWeight: 600, fontSize: '0.9rem' }}
                 >
                   <option value="Cash">Cash</option>
                   <option value="UPI / Online">UPI / Online</option>
@@ -914,7 +929,7 @@ export default function Payments() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4B555D', marginBottom: '0.35rem' }}>
                   Payment Date *
                 </label>
                 <input
@@ -922,19 +937,19 @@ export default function Payments() {
                   value={collectDate}
                   onChange={(e) => setCollectDate(e.target.value)}
                   required
-                  style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box', fontWeight: 600 }}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '6px', boxSizing: 'border-box', fontWeight: 500 }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4B555D', marginBottom: '0.35rem' }}>
                   Notes / Reference
                 </label>
                 <input
                   type="text"
                   value={collectNotes}
                   onChange={(e) => setCollectNotes(e.target.value)}
-                  style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '6px', boxSizing: 'border-box' }}
                 />
               </div>
 
@@ -943,7 +958,7 @@ export default function Payments() {
                   type="button"
                   onClick={() => setRecordDuesMember(null)}
                   disabled={isSubmittingCollect}
-                  style={{ padding: '0.65rem 1.25rem', border: '1.5px solid #252A2E', background: '#FFFFFF', fontWeight: 700, cursor: 'pointer' }}
+                  style={{ padding: '0.65rem 1.25rem', border: '1px solid rgba(37, 42, 46, 0.2)', background: '#FFFFFF', borderRadius: '6px', fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer' }}
                 >
                   Cancel
                 </button>
@@ -951,12 +966,13 @@ export default function Payments() {
                   type="submit"
                   disabled={isSubmittingCollect}
                   style={{
-                    padding: '0.75rem 1.5rem',
-                    border: '2px solid #252A2E',
+                    padding: '0.65rem 1.5rem',
+                    border: '1px solid #D4A900',
                     background: '#F4C400',
-                    fontWeight: 800,
+                    borderRadius: '6px',
+                    fontWeight: 700,
+                    fontSize: '0.88rem',
                     cursor: isSubmittingCollect ? 'not-allowed' : 'pointer',
-                    boxShadow: '3px 3px 0px #252A2E',
                   }}
                 >
                   {isSubmittingCollect ? 'Recording...' : 'Confirm & Collect'}

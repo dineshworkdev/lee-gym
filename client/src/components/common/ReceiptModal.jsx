@@ -47,9 +47,11 @@ export default function ReceiptModal({ payment, member, onClose }) {
           maxWidth: '560px',
           maxHeight: '92vh',
           overflowY: 'auto',
-          border: '2px solid #252A2E',
-          boxShadow: '8px 8px 0px #252A2E',
+          border: '1px solid rgba(37, 42, 46, 0.1)',
+          borderRadius: '10px',
+          boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)',
           position: 'relative',
+          overflow: 'hidden',
         }}
       >
         {/* Top Action Bar (hidden when printing) */}
@@ -64,7 +66,7 @@ export default function ReceiptModal({ payment, member, onClose }) {
             color: '#FFFFFF',
           }}
         >
-          <span style={{ fontSize: '0.82rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#F4C400' }}>
+          <span style={{ fontSize: '0.82rem', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#F4C400' }}>
             Official Payment Receipt
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
@@ -77,10 +79,11 @@ export default function ReceiptModal({ payment, member, onClose }) {
                 gap: '0.4rem',
                 backgroundColor: '#F4C400',
                 color: '#252A2E',
-                border: 'none',
+                border: '1px solid #D4A900',
+                borderRadius: '4px',
                 padding: '0.45rem 0.85rem',
                 fontSize: '0.8rem',
-                fontWeight: 800,
+                fontWeight: 700,
                 cursor: 'pointer',
               }}
             >

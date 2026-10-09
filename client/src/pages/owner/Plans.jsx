@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import {
   Plus,
   Edit,
@@ -119,12 +119,12 @@ export default function Plans() {
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
       {/* HEADER */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1.25rem', marginBottom: '2rem', paddingBottom: '1.5rem', borderBottom: '2px solid rgba(37, 42, 46, 0.1)' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.75rem', paddingBottom: '1.25rem', borderBottom: '1px solid rgba(37, 42, 46, 0.08)' }}>
         <div>
-          <h1 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: 'clamp(2.4rem, 5vw, 3.2rem)', letterSpacing: '0.04em', color: '#252A2E', margin: 0, lineHeight: 1 }}>
+          <h1 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: 'clamp(2rem, 3.5vw, 2.6rem)', letterSpacing: '0.04em', color: 'var(--color-charcoal, #252A2E)', margin: 0, lineHeight: 1 }}>
             MEMBERSHIP PLANS
           </h1>
-          <p style={{ fontFamily: 'var(--font-body, "Inter", sans-serif)', fontSize: '0.9rem', color: '#4B555D', margin: '0.4rem 0 0' }}>
+          <p style={{ fontFamily: 'var(--font-body, "Inter", sans-serif)', fontSize: '0.85rem', color: 'var(--color-slate, #4B555D)', margin: '0.3rem 0 0' }}>
             Manage pricing tiers, subscription durations, and activation status
           </p>
         </div>
@@ -132,23 +132,45 @@ export default function Plans() {
           id="plans-add-plan-btn"
           type="button"
           onClick={openAddModal}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', backgroundColor: '#F4C400', color: '#252A2E', border: '2px solid #252A2E', padding: '0.75rem 1.4rem', fontFamily: 'var(--font-body, "Inter", sans-serif)', fontSize: '0.9rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', boxShadow: '3px 3px 0px #252A2E', cursor: 'pointer' }}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.45rem',
+            backgroundColor: 'var(--color-yellow, #F4C400)',
+            color: 'var(--color-charcoal, #252A2E)',
+            border: '1px solid rgba(212, 169, 0, 0.8)',
+            padding: '0.65rem 1.25rem',
+            borderRadius: '6px',
+            fontSize: '0.85rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            boxShadow: '0 2px 6px rgba(244, 196, 0, 0.3)',
+            transition: 'all 150ms ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#E5B800';
+            e.currentTarget.style.transform = 'translateY(-1px)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#F4C400';
+            e.currentTarget.style.transform = 'none';
+          }}
         >
-          <Plus size={18} />
-          <span>+ ADD NEW PLAN</span>
+          <Plus size={16} />
+          <span>Add New Plan</span>
         </button>
       </div>
 
       {/* Notice */}
       {notice && (
-        <div style={{ backgroundColor: noticeType === 'error' ? '#A83D3D' : '#2F7D4A', color: '#FFFFFF', padding: '0.75rem 1.25rem', marginBottom: '1.5rem', fontWeight: 700, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          {noticeType === 'error' ? <AlertCircle size={18} /> : <Check size={18} />}
+        <div style={{ backgroundColor: noticeType === 'error' ? 'rgba(168, 61, 61, 0.1)' : 'rgba(47, 125, 74, 0.1)', color: noticeType === 'error' ? '#A83D3D' : '#2F7D4A', border: noticeType === 'error' ? '1px solid rgba(168, 61, 61, 0.25)' : '1px solid rgba(47, 125, 74, 0.25)', padding: '0.75rem 1.25rem', borderRadius: '6px', marginBottom: '1.5rem', fontWeight: 600, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {noticeType === 'error' ? <AlertCircle size={17} /> : <Check size={17} />}
           <span>{notice}</span>
         </div>
       )}
 
       {/* PLANS GRID */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem' }}>
         {plans.map((plan) => {
           const isActive = plan.status === 'Active';
           const toggling = isToggling === plan.id;
@@ -156,33 +178,66 @@ export default function Plans() {
             <div
               key={plan.id}
               id={`plan-item-${plan.id}`}
-              style={{ backgroundColor: '#FFFFFF', border: '2px solid #252A2E', boxShadow: '4px 4px 0px #252A2E', padding: '1.75rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', opacity: isActive ? 1 : 0.65, transition: 'all 120ms ease' }}
+              style={{
+                backgroundColor: '#FFFFFF',
+                border: '1px solid rgba(37, 42, 46, 0.08)',
+                borderRadius: '8px',
+                borderTop: isActive ? '4px solid var(--color-yellow, #F4C400)' : '4px solid rgba(37, 42, 46, 0.2)',
+                boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
+                padding: '1.5rem',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                opacity: isActive ? 1 : 0.7,
+                transition: 'all 150ms ease',
+              }}
             >
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                  <h2 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2rem', letterSpacing: '0.04em', color: '#252A2E', margin: 0, lineHeight: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                  <h2 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '1.75rem', letterSpacing: '0.04em', color: 'var(--color-charcoal, #252A2E)', margin: 0, lineHeight: 1 }}>
                     {plan.name}
                   </h2>
-                  <span style={{ backgroundColor: isActive ? '#2F7D4A' : '#4B555D', color: '#FFFFFF', fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.2rem 0.6rem' }}>
+                  <span style={{ backgroundColor: isActive ? 'rgba(47, 125, 74, 0.1)' : 'rgba(75, 85, 93, 0.1)', color: isActive ? '#2F7D4A' : '#4B555D', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', padding: '0.2rem 0.55rem', borderRadius: '4px' }}>
                     {plan.status}
                   </span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.4rem', marginBottom: '0.75rem' }}>
-                  <span style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '3.2rem', lineHeight: 0.9, color: '#252A2E' }}>
-                    {String.fromCharCode(8377)}{plan.price}
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.35rem', marginBottom: '0.65rem' }}>
+                  <span style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2.6rem', lineHeight: 0.95, color: 'var(--color-charcoal, #252A2E)' }}>
+                    ₹{plan.price}
                   </span>
-                  <span style={{ fontSize: '0.85rem', color: '#4B555D', fontWeight: 600 }}>/ fee</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--color-slate, #4B555D)', fontWeight: 500 }}>/ fee</span>
                 </div>
-                <div style={{ backgroundColor: '#FAF8F4', border: '1px solid rgba(37,42,46,0.15)', padding: '0.65rem 0.85rem', fontSize: '0.85rem', color: '#252A2E', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                  <Calendar size={16} color="#4B555D" />
+                <div style={{ backgroundColor: '#FAF8F4', borderRadius: '6px', border: '1px solid rgba(37,42,46,0.06)', padding: '0.55rem 0.75rem', fontSize: '0.82rem', color: '#252A2E', display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '1.25rem' }}>
+                  <Calendar size={15} color="var(--color-slate, #4B555D)" />
                   <span>Duration: <strong>{plan.durationDays} Days</strong></span>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '0.75rem', borderTop: '1px dashed rgba(37, 42, 46, 0.15)', paddingTop: '1.25rem' }}>
+              <div style={{ display: 'flex', gap: '0.65rem', borderTop: '1px solid rgba(37, 42, 46, 0.06)', paddingTop: '1rem' }}>
                 <button
                   type="button"
                   onClick={() => openEditModal(plan)}
-                  style={{ flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', backgroundColor: '#FFFFFF', color: '#252A2E', border: '1.5px solid #252A2E', padding: '0.65rem', fontSize: '0.82rem', fontWeight: 700, textTransform: 'uppercase', cursor: 'pointer' }}
+                  style={{
+                    flex: 1,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.35rem',
+                    backgroundColor: '#FFFFFF',
+                    color: '#252A2E',
+                    border: '1px solid rgba(37, 42, 46, 0.15)',
+                    borderRadius: '6px',
+                    padding: '0.55rem',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 120ms ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#FAF8F4';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#FFFFFF';
+                  }}
                 >
                   <Edit size={14} />
                   <span>Edit</span>
@@ -191,7 +246,23 @@ export default function Plans() {
                   type="button"
                   onClick={() => handleToggle(plan)}
                   disabled={toggling}
-                  style={{ flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', backgroundColor: isActive ? '#FAF8F4' : '#252A2E', color: isActive ? '#A83D3D' : '#FFFFFF', border: isActive ? '1.5px solid #A83D3D' : '1.5px solid #252A2E', padding: '0.65rem', fontSize: '0.82rem', fontWeight: 700, textTransform: 'uppercase', cursor: toggling ? 'not-allowed' : 'pointer', opacity: toggling ? 0.7 : 1 }}
+                  style={{
+                    flex: 1,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.35rem',
+                    backgroundColor: isActive ? 'rgba(168, 61, 61, 0.08)' : '#252A2E',
+                    color: isActive ? '#A83D3D' : '#FFFFFF',
+                    border: isActive ? '1px solid rgba(168, 61, 61, 0.25)' : '1px solid #252A2E',
+                    borderRadius: '6px',
+                    padding: '0.55rem',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    cursor: toggling ? 'not-allowed' : 'pointer',
+                    opacity: toggling ? 0.7 : 1,
+                    transition: 'all 120ms ease',
+                  }}
                 >
                   <Power size={14} />
                   <span>{toggling ? '...' : isActive ? 'Deactivate' : 'Reactivate'}</span>
@@ -204,10 +275,10 @@ export default function Plans() {
 
       {/* ADD / EDIT MODAL */}
       {modalMode && (
-        <div onClick={() => setModalMode(null)} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(37, 42, 46, 0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ backgroundColor: '#FFFFFF', border: '2px solid #252A2E', boxShadow: '6px 6px 0px #252A2E', width: '100%', maxWidth: '460px', padding: '2rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #252A2E', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
-              <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2rem', margin: 0 }}>
+        <div onClick={() => setModalMode(null)} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(3px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(37, 42, 46, 0.1)', borderRadius: '8px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)', width: '100%', maxWidth: '440px', padding: '1.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(37, 42, 46, 0.08)', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
+              <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '1.6rem', margin: 0, color: 'var(--color-charcoal, #252A2E)' }}>
                 {modalMode === 'add' ? 'ADD NEW PLAN' : 'EDIT MEMBERSHIP PLAN'}
               </h3>
               <button type="button" onClick={() => setModalMode(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
@@ -226,17 +297,17 @@ export default function Plans() {
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>Price (Rs.)</label>
-                <input type="number" placeholder="e.g. 1000" value={planForm.price} onChange={(e) => setPlanForm({ ...planForm, price: e.target.value })} required style={{ width: '100%', padding: '0.7rem', border: '1.5px solid #252A2E', boxSizing: 'border-box' }} />
+                <input type="number" placeholder="e.g. 1000" value={planForm.price} onChange={(e) => setPlanForm({ ...planForm, price: e.target.value })} required style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>Duration (Days)</label>
-                <input type="number" placeholder="e.g. 30" value={planForm.durationDays} onChange={(e) => setPlanForm({ ...planForm, durationDays: e.target.value })} required style={{ width: '100%', padding: '0.7rem', border: '1.5px solid #252A2E', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4B555D', marginBottom: '0.35rem' }}>Duration (Days)</label>
+                <input type="number" placeholder="e.g. 30" value={planForm.durationDays} onChange={(e) => setPlanForm({ ...planForm, durationDays: e.target.value })} required style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.75rem' }}>
-                <button type="button" onClick={() => setModalMode(null)} disabled={isSaving} style={{ padding: '0.65rem 1.25rem', border: '1.5px solid #252A2E', background: '#FFFFFF', fontWeight: 700, cursor: isSaving ? 'not-allowed' : 'pointer' }}>
+                <button type="button" onClick={() => setModalMode(null)} disabled={isSaving} style={{ padding: '0.65rem 1.25rem', border: '1px solid rgba(37, 42, 46, 0.2)', background: '#FFFFFF', borderRadius: '6px', fontWeight: 600, fontSize: '0.88rem', cursor: isSaving ? 'not-allowed' : 'pointer' }}>
                   Cancel
                 </button>
-                <button type="submit" disabled={isSaving} style={{ padding: '0.7rem 1.5rem', border: '2px solid #252A2E', background: '#F4C400', fontWeight: 800, cursor: isSaving ? 'not-allowed' : 'pointer', boxShadow: isSaving ? 'none' : '3px 3px 0px #252A2E', opacity: isSaving ? 0.8 : 1 }}>
+                <button type="submit" disabled={isSaving} style={{ padding: '0.65rem 1.5rem', border: '1px solid #D4A900', background: '#F4C400', borderRadius: '6px', fontWeight: 700, fontSize: '0.88rem', cursor: isSaving ? 'not-allowed' : 'pointer', opacity: isSaving ? 0.8 : 1 }}>
                   {isSaving ? 'Saving...' : 'Save Plan'}
                 </button>
               </div>

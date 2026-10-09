@@ -2,136 +2,113 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   UserPlus,
-  SlidersHorizontal,
   Users,
   AlertTriangle,
   Clock,
   CheckCircle2,
   ArrowRight,
-  CreditCard,
-  ChevronRight,
-  X,
   TrendingUp,
   IndianRupee,
-  ShieldAlert,
   Calendar,
+  Snowflake,
+  AlertCircle,
+  FileText,
+  SlidersHorizontal,
+  ChevronRight,
+  X,
+  CreditCard,
+  Receipt,
+  UserCheck,
 } from 'lucide-react';
-import { useOwnerGym, formatDate } from '../../context/OwnerGymContext.jsx';
+import { useOwnerGym, formatDate, CURRENT_DATE_STR } from '../../context/OwnerGymContext.jsx';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { dashboardMetrics, members, memberEvaluator } = useOwnerGym();
+  const { dashboardMetrics, members, payments, memberEvaluator } = useOwnerGym();
   const [showManageModal, setShowManageModal] = useState(false);
 
-  // Quick Action Triage: get members needing immediate attention (Due or Expiring Today / Soon)
-  const priorityMembers = members
-    .filter((m) => {
-      const { isDue, isExpiringToday, isExpiring1To3 } = memberEvaluator(m);
-      return isDue || isExpiringToday || isExpiring1To3;
-    })
-    .slice(0, 5);
+  // Current formatted date banner
+  const todayFormatted = new Date().toLocaleDateString('en-IN', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
 
-  const metricsConfig = [
-    {
-      id: 'due',
-      label: 'DUE MEMBERS',
-      value: dashboardMetrics.dueMembers,
-      sublabel: 'Payment or renewal required',
-      filter: 'due',
-      color: '#A83D3D',
-      borderColor: '#A83D3D',
-      bgLight: '#FFF5F5',
-      icon: AlertTriangle,
-    },
-    {
-      id: 'today',
-      label: 'EXPIRING TODAY',
-      value: dashboardMetrics.expiringToday,
-      sublabel: 'Renewal required today',
-      filter: 'today',
-      color: '#B38E00',
-      borderColor: '#F4C400',
-      bgLight: '#FFFAEB',
-      icon: Clock,
-    },
-    {
-      id: 'soon',
-      label: 'EXPIRING IN 1–3 DAYS',
-      value: dashboardMetrics.expiringSoon,
-      sublabel: 'Immediate renewal window',
-      filter: 'soon',
-      color: '#D4A900',
-      borderColor: '#FFE866',
-      bgLight: '#FFFDF5',
-      icon: Clock,
-    },
-    {
-      id: 'active',
-      label: 'ACTIVE MEMBERS',
-      value: dashboardMetrics.activeMembers,
-      sublabel: 'In good membership standing',
-      filter: 'active',
-      color: '#2F7D4A',
-      borderColor: '#2F7D4A',
-      bgLight: '#F2F9F4',
-      icon: CheckCircle2,
-    },
-    {
-      id: 'total',
-      label: 'TOTAL MEMBERS',
-      value: dashboardMetrics.totalMembers,
-      sublabel: 'All registered gym athletes',
-      filter: 'all',
-      color: '#252A2E',
-      borderColor: '#252A2E',
-      bgLight: '#FFFFFF',
-      icon: Users,
-    },
-  ];
+  // Actionable Members for "Needs Attention / Follow-ups"
+  const attentionMembers = members
+    .filter((m) => {
+      const evalStatus = memberEvaluator(m);
+      if (evalStatus.isArchived) return false;
+      return (
+        evalStatus.isExpiringToday ||
+        evalStatus.isExpiringSoon ||
+        evalStatus.isDue ||
+        evalStatus.isExpired ||
+        evalStatus.isFrozen
+      );
+    })
+    .slice(0, 6);
+
+  // Recent Activity derived from verified real payments and members
+  const recentTransactions = payments.slice(0, 5);
 
   return (
-    <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-      {/* ── HEADER & TOP ACTIONS ────────────────────────────────────── */}
+    <div style={{ maxWidth: '1440px', margin: '0 auto' }}>
+      {/* ── A. PAGE HEADER ──────────────────────────────────────────── */}
       <div
         style={{
           display: 'flex',
           flexWrap: 'wrap',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '1.25rem',
+          gap: '1rem',
           marginBottom: '2rem',
-          paddingBottom: '1.5rem',
-          borderBottom: '2px solid rgba(37, 42, 46, 0.1)',
+          paddingBottom: '1.25rem',
+          borderBottom: '1px solid rgba(37, 42, 46, 0.08)',
         }}
       >
         <div>
-          <h1
-            style={{
-              fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-              fontSize: 'clamp(2.4rem, 5vw, 3.2rem)',
-              letterSpacing: '0.04em',
-              color: '#252A2E',
-              margin: 0,
-              lineHeight: 1,
-            }}
-          >
-            DASHBOARD
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <h1
+              style={{
+                fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
+                fontSize: 'clamp(2rem, 3.5vw, 2.6rem)',
+                letterSpacing: '0.04em',
+                color: 'var(--color-charcoal, #252A2E)',
+                margin: 0,
+                lineHeight: 1,
+              }}
+            >
+              DASHBOARD
+            </h1>
+            <span
+              style={{
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                color: 'var(--color-slate, #4B555D)',
+                backgroundColor: 'rgba(37, 42, 46, 0.05)',
+                padding: '0.25rem 0.65rem',
+                borderRadius: '4px',
+              }}
+            >
+              {todayFormatted}
+            </span>
+          </div>
           <p
             style={{
               fontFamily: 'var(--font-body, "Inter", sans-serif)',
-              fontSize: '0.9rem',
-              color: '#4B555D',
-              margin: '0.4rem 0 0',
+              fontSize: '0.88rem',
+              color: 'var(--color-slate, #4B555D)',
+              margin: '0.35rem 0 0',
             }}
           >
-            Live member operations &amp; subscription status
+            Your gym operations, cash flow, and membership standing at a glance.
           </p>
         </div>
 
-        {/* Action Buttons: Strong + ADD MEMBER and MANAGE */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
-          {/* MANAGE Button */}
+        {/* Header Actions */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           <button
             id="dashboard-manage-btn"
             type="button"
@@ -139,104 +116,128 @@ export default function Dashboard() {
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.5rem',
+              gap: '0.45rem',
               backgroundColor: '#FFFFFF',
-              color: '#252A2E',
-              border: '2px solid #252A2E',
-              padding: '0.75rem 1.25rem',
-              fontFamily: 'var(--font-body, "Inter", sans-serif)',
-              fontSize: '0.88rem',
-              fontWeight: 700,
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
+              color: 'var(--color-charcoal, #252A2E)',
+              border: '1px solid rgba(37, 42, 46, 0.15)',
+              padding: '0.65rem 1.15rem',
+              borderRadius: '6px',
+              fontSize: '0.85rem',
+              fontWeight: 600,
               cursor: 'pointer',
-              boxShadow: '3px 3px 0px #252A2E',
-              transition: 'transform 100ms ease, box-shadow 100ms ease',
+              boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
+              transition: 'all 150ms ease',
             }}
-            onMouseDown={(e) => {
-              e.currentTarget.style.transform = 'translate(1px, 1px)';
-              e.currentTarget.style.boxShadow = '2px 2px 0px #252A2E';
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.3)';
+              e.currentTarget.style.backgroundColor = '#FAF8F4';
             }}
-            onMouseUp={(e) => {
-              e.currentTarget.style.transform = 'none';
-              e.currentTarget.style.boxShadow = '3px 3px 0px #252A2E';
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.15)';
+              e.currentTarget.style.backgroundColor = '#FFFFFF';
             }}
           >
-            <SlidersHorizontal size={17} />
-            <span>MANAGE</span>
+            <SlidersHorizontal size={16} />
+            <span>Manage Portal</span>
           </button>
 
-          {/* + ADD MEMBER Button (Visually Prominent) */}
+          <Link
+            to="/owner/members"
+            id="dashboard-view-members-btn"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              backgroundColor: '#FFFFFF',
+              color: 'var(--color-charcoal, #252A2E)',
+              border: '1px solid rgba(37, 42, 46, 0.15)',
+              padding: '0.65rem 1.15rem',
+              borderRadius: '6px',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              textDecoration: 'none',
+              boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
+              transition: 'all 150ms ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.3)';
+              e.currentTarget.style.backgroundColor = '#FAF8F4';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.15)';
+              e.currentTarget.style.backgroundColor = '#FFFFFF';
+            }}
+          >
+            <Users size={16} />
+            <span>Members List</span>
+          </Link>
+
           <Link
             to="/owner/members/new"
             id="dashboard-add-member-btn"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.55rem',
-              backgroundColor: '#F4C400',
-              color: '#252A2E',
-              border: '2px solid #252A2E',
-              padding: '0.75rem 1.5rem',
-              fontFamily: 'var(--font-body, "Inter", sans-serif)',
-              fontSize: '0.92rem',
-              fontWeight: 800,
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
+              gap: '0.45rem',
+              backgroundColor: 'var(--color-yellow, #F4C400)',
+              color: 'var(--color-charcoal, #252A2E)',
+              border: '1px solid rgba(212, 169, 0, 0.8)',
+              padding: '0.65rem 1.25rem',
+              borderRadius: '6px',
+              fontSize: '0.85rem',
+              fontWeight: 700,
               textDecoration: 'none',
-              cursor: 'pointer',
-              boxShadow: '4px 4px 0px #252A2E',
-              transition: 'transform 100ms ease, box-shadow 100ms ease',
+              boxShadow: '0 2px 6px rgba(244, 196, 0, 0.3)',
+              transition: 'all 150ms ease',
             }}
-            onMouseDown={(e) => {
-              e.currentTarget.style.transform = 'translate(2px, 2px)';
-              e.currentTarget.style.boxShadow = '2px 2px 0px #252A2E';
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#E5B800';
+              e.currentTarget.style.transform = 'translateY(-1px)';
             }}
-            onMouseUp={(e) => {
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#F4C400';
               e.currentTarget.style.transform = 'none';
-              e.currentTarget.style.boxShadow = '4px 4px 0px #252A2E';
             }}
           >
-            <UserPlus size={19} />
-            <span>+ ADD MEMBER</span>
+            <UserPlus size={16} />
+            <span>Add Member</span>
           </Link>
         </div>
       </div>
 
-      {/* ── FINANCIAL OVERVIEW & REVENUE CARDS ─────────────────────── */}
+      {/* ── B. FINANCIAL OVERVIEW ────────────────────────────────────── */}
       <section style={{ marginBottom: '2.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
           <div>
             <h2
               style={{
                 fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                fontSize: '1.75rem',
+                fontSize: '1.45rem',
                 letterSpacing: '0.04em',
-                color: '#252A2E',
+                color: 'var(--color-charcoal, #252A2E)',
                 margin: 0,
               }}
             >
-              FINANCIAL OVERVIEW
+              FINANCIAL PERFORMANCE
             </h2>
-            <p style={{ fontSize: '0.85rem', color: '#4B555D', margin: '0.2rem 0 0' }}>
-              Real-time revenue collections and member dues from Firestore
+            <p style={{ fontSize: '0.82rem', color: 'var(--color-slate, #4B555D)', margin: '0.15rem 0 0' }}>
+              Real-time revenue collections and dues recorded in Firestore
             </p>
           </div>
           <Link
             to="/owner/payments"
             style={{
-              fontFamily: 'var(--font-body, "Inter", sans-serif)',
-              fontSize: '0.85rem',
-              fontWeight: 700,
-              color: '#252A2E',
+              fontSize: '0.82rem',
+              fontWeight: 600,
+              color: 'var(--color-charcoal, #252A2E)',
               textDecoration: 'none',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.35rem',
+              gap: '0.25rem',
             }}
           >
-            <span>Open Payments Ledger</span>
-            <ArrowRight size={16} />
+            <span>Open Ledger</span>
+            <ChevronRight size={15} />
           </Link>
         </div>
 
@@ -244,437 +245,670 @@ export default function Dashboard() {
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            gap: '1.25rem',
+            gap: '1rem',
           }}
         >
-          {/* Today's Collection */}
+          {/* 1. Collected Today */}
           <div
             style={{
               backgroundColor: '#FFFFFF',
-              border: '2px solid #252A2E',
-              borderTop: '6px solid #2F7D4A',
-              padding: '1.25rem',
-              boxShadow: '4px 4px 0px #252A2E',
+              border: '1px solid rgba(37, 42, 46, 0.08)',
+              borderRadius: '8px',
+              padding: '1.25rem 1.4rem',
+              boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#4B555D', textTransform: 'uppercase' }}>
-                COLLECTED TODAY
+              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-slate, #4B555D)' }}>
+                Collected Today
               </span>
-              <Calendar size={17} color="#2F7D4A" />
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '6px',
+                  backgroundColor: 'rgba(47, 125, 74, 0.08)',
+                  color: '#2F7D4A',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Calendar size={17} />
+              </div>
             </div>
-            <div
-              style={{
-                fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                fontSize: '2.5rem',
-                color: '#252A2E',
-                margin: '0.3rem 0 0.1rem',
-                lineHeight: 1,
-              }}
-            >
-              ₹{dashboardMetrics.collectionsToday?.toLocaleString('en-IN') || 0}
+            <div style={{ margin: '0.75rem 0 0.25rem' }}>
+              <div
+                style={{
+                  fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
+                  fontSize: '2.4rem',
+                  lineHeight: 1,
+                  color: 'var(--color-charcoal, #252A2E)',
+                }}
+              >
+                ₹{Number(dashboardMetrics.collectionsToday || 0).toLocaleString('en-IN')}
+              </div>
             </div>
-            <span style={{ fontSize: '0.75rem', color: '#2F7D4A', fontWeight: 600 }}>Active business day receipts</span>
+            <span style={{ fontSize: '0.75rem', color: '#2F7D4A', fontWeight: 500 }}>
+              Active business day collections
+            </span>
           </div>
 
-          {/* This Month's Collection */}
+          {/* 2. Collected This Month */}
           <div
             style={{
               backgroundColor: '#FFFFFF',
-              border: '2px solid #252A2E',
-              borderTop: '6px solid #F4C400',
-              padding: '1.25rem',
-              boxShadow: '4px 4px 0px #252A2E',
+              border: '1px solid rgba(37, 42, 46, 0.08)',
+              borderRadius: '8px',
+              padding: '1.25rem 1.4rem',
+              boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#4B555D', textTransform: 'uppercase' }}>
-                THIS MONTH (M-T-D)
+              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-slate, #4B555D)' }}>
+                This Month (MTD)
               </span>
-              <TrendingUp size={17} color="#B38E00" />
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '6px',
+                  backgroundColor: 'rgba(244, 196, 0, 0.15)',
+                  color: '#D4A900',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <TrendingUp size={17} />
+              </div>
             </div>
-            <div
-              style={{
-                fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                fontSize: '2.5rem',
-                color: '#252A2E',
-                margin: '0.3rem 0 0.1rem',
-                lineHeight: 1,
-              }}
-            >
-              ₹{dashboardMetrics.collectionsThisMonth?.toLocaleString('en-IN') || 0}
+            <div style={{ margin: '0.75rem 0 0.25rem' }}>
+              <div
+                style={{
+                  fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
+                  fontSize: '2.4rem',
+                  lineHeight: 1,
+                  color: 'var(--color-charcoal, #252A2E)',
+                }}
+              >
+                ₹{Number(dashboardMetrics.collectionsThisMonth || 0).toLocaleString('en-IN')}
+              </div>
             </div>
-            <span style={{ fontSize: '0.75rem', color: '#4B555D', fontWeight: 600 }}>Total month-to-date income</span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--color-slate, #4B555D)', fontWeight: 500 }}>
+              Month-to-date collections
+            </span>
           </div>
 
-          {/* Total Lifetime Collection */}
+          {/* 3. Total Lifetime Revenue */}
           <div
             style={{
               backgroundColor: '#FFFFFF',
-              border: '2px solid #252A2E',
-              borderTop: '6px solid #252A2E',
-              padding: '1.25rem',
-              boxShadow: '4px 4px 0px #252A2E',
+              border: '1px solid rgba(37, 42, 46, 0.08)',
+              borderRadius: '8px',
+              padding: '1.25rem 1.4rem',
+              boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#4B555D', textTransform: 'uppercase' }}>
-                TOTAL REVENUE (LIFETIME)
+              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-slate, #4B555D)' }}>
+                Total Revenue
               </span>
-              <IndianRupee size={17} color="#252A2E" />
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '6px',
+                  backgroundColor: 'rgba(37, 42, 46, 0.08)',
+                  color: 'var(--color-charcoal, #252A2E)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <IndianRupee size={17} />
+              </div>
             </div>
-            <div
-              style={{
-                fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                fontSize: '2.5rem',
-                color: '#252A2E',
-                margin: '0.3rem 0 0.1rem',
-                lineHeight: 1,
-              }}
-            >
-              ₹{dashboardMetrics.totalRevenueCollected?.toLocaleString('en-IN') || 0}
+            <div style={{ margin: '0.75rem 0 0.25rem' }}>
+              <div
+                style={{
+                  fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
+                  fontSize: '2.4rem',
+                  lineHeight: 1,
+                  color: 'var(--color-charcoal, #252A2E)',
+                }}
+              >
+                ₹{Number(dashboardMetrics.totalRevenueCollected || 0).toLocaleString('en-IN')}
+              </div>
             </div>
-            <span style={{ fontSize: '0.75rem', color: '#4B555D', fontWeight: 600 }}>All verified payments recorded</span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--color-slate, #4B555D)', fontWeight: 500 }}>
+              All verified receipts combined
+            </span>
           </div>
 
-          {/* Total Outstanding Dues */}
+          {/* 4. Outstanding Dues */}
           <div
             onClick={() => navigate('/owner/payments')}
             style={{
               backgroundColor: '#FFFFFF',
-              border: '2px solid #252A2E',
-              borderTop: '6px solid #A83D3D',
-              padding: '1.25rem',
-              boxShadow: '4px 4px 0px #252A2E',
+              border: '1px solid rgba(168, 61, 61, 0.15)',
+              borderRadius: '8px',
+              padding: '1.25rem 1.4rem',
+              boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
+              position: 'relative',
               cursor: 'pointer',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              transition: 'all 150ms ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(168, 61, 61, 0.35)';
+              e.currentTarget.style.boxShadow = '0 6px 16px rgba(168, 61, 61, 0.08)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(168, 61, 61, 0.15)';
+              e.currentTarget.style.boxShadow = 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))';
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#A83D3D', textTransform: 'uppercase' }}>
-                OUTSTANDING DUES
+              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#A83D3D' }}>
+                Outstanding Dues
               </span>
-              <ShieldAlert size={17} color="#A83D3D" />
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '6px',
+                  backgroundColor: 'rgba(168, 61, 61, 0.08)',
+                  color: '#A83D3D',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <AlertCircle size={17} />
+              </div>
             </div>
-            <div
-              style={{
-                fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                fontSize: '2.5rem',
-                color: '#A83D3D',
-                margin: '0.3rem 0 0.1rem',
-                lineHeight: 1,
-              }}
-            >
-              ₹{dashboardMetrics.totalOutstandingDues?.toLocaleString('en-IN') || 0}
+            <div style={{ margin: '0.75rem 0 0.25rem' }}>
+              <div
+                style={{
+                  fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
+                  fontSize: '2.4rem',
+                  lineHeight: 1,
+                  color: '#A83D3D',
+                }}
+              >
+                ₹{Number(dashboardMetrics.totalOutstandingDues || 0).toLocaleString('en-IN')}
+              </div>
             </div>
-            <span style={{ fontSize: '0.75rem', color: '#A83D3D', fontWeight: 700 }}>
+            <span style={{ fontSize: '0.75rem', color: '#A83D3D', fontWeight: 600 }}>
               {dashboardMetrics.dueMembers} member{dashboardMetrics.dueMembers === 1 ? '' : 's'} with due balance
             </span>
           </div>
         </div>
       </section>
 
-      {/* ── KEY MEMBERSHIP METRICS ──────────────────────────────────── */}
-      <section style={{ marginBottom: '3rem' }}>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '1.25rem',
-          }}
-        >
-          {metricsConfig.map((metric) => {
-            const Icon = metric.icon;
-            return (
-              <div
-                key={metric.id}
-                id={`metric-${metric.id}`}
-                onClick={() => navigate(`/owner/members?filter=${metric.filter}`)}
-                style={{
-                  backgroundColor: '#FFFFFF',
-                  border: '2px solid #252A2E',
-                  borderLeft: `6px solid ${metric.borderColor}`,
-                  boxShadow: '4px 4px 0px #252A2E',
-                  padding: '1.4rem 1.5rem',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  transition: 'transform 120ms ease, box-shadow 120ms ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translate(-2px, -2px)';
-                  e.currentTarget.style.boxShadow = '6px 6px 0px #252A2E';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.boxShadow = '4px 4px 0px #252A2E';
-                }}
-              >
-                {/* Top Row: Label and Icon */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-body, "Inter", sans-serif)',
-                      fontSize: '0.78rem',
-                      fontWeight: 800,
-                      letterSpacing: '0.1em',
-                      color: metric.color,
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    {metric.label}
-                  </span>
-                  <div
-                    style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '4px',
-                      backgroundColor: metric.bgLight,
-                      color: metric.color,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Icon size={17} />
-                  </div>
-                </div>
-
-                {/* Main Metric Value */}
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', margin: '0.2rem 0 0.4rem' }}>
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                      fontSize: 'clamp(3rem, 5vw, 3.8rem)',
-                      lineHeight: 0.95,
-                      color: '#252A2E',
-                      letterSpacing: '0.02em',
-                    }}
-                  >
-                    {metric.value}
-                  </span>
-                </div>
-
-                {/* Subtitle & View Arrow */}
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginTop: '0.6rem',
-                    paddingTop: '0.65rem',
-                    borderTop: '1px dashed rgba(37, 42, 46, 0.12)',
-                  }}
-                >
-                  <span style={{ fontSize: '0.78rem', color: '#4B555D' }}>{metric.sublabel}</span>
-                  <span
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '0.25rem',
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
-                      color: '#252A2E',
-                    }}
-                  >
-                    View <ChevronRight size={14} />
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* ── PRIORITY ATTENTION TABLE (QUICK ACTION) ────────────────── */}
+      {/* ── C. MEMBERSHIP OVERVIEW ───────────────────────────────────── */}
       <section style={{ marginBottom: '2.5rem' }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: '1rem',
-          }}
-        >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
           <div>
             <h2
               style={{
                 fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                fontSize: '1.75rem',
+                fontSize: '1.45rem',
                 letterSpacing: '0.04em',
-                color: '#252A2E',
+                color: 'var(--color-charcoal, #252A2E)',
                 margin: 0,
               }}
             >
-              MEMBERS REQUIRING ATTENTION
+              MEMBERSHIP STATUS
             </h2>
-            <p style={{ fontSize: '0.85rem', color: '#4B555D', margin: '0.2rem 0 0' }}>
-              Pending payment balance or memberships expiring in 0–3 days
+            <p style={{ fontSize: '0.82rem', color: 'var(--color-slate, #4B555D)', margin: '0.15rem 0 0' }}>
+              Active athletes, upcoming expirations, and status breakdown
             </p>
           </div>
           <Link
-            to="/owner/members?filter=due"
+            to="/owner/members?filter=all"
             style={{
-              fontFamily: 'var(--font-body, "Inter", sans-serif)',
-              fontSize: '0.85rem',
-              fontWeight: 700,
-              color: '#252A2E',
+              fontSize: '0.82rem',
+              fontWeight: 600,
+              color: 'var(--color-charcoal, #252A2E)',
               textDecoration: 'none',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.35rem',
+              gap: '0.25rem',
             }}
           >
-            <span>View All Due / Expiring</span>
-            <ArrowRight size={16} />
+            <span>All Members ({dashboardMetrics.totalMembers})</span>
+            <ChevronRight size={15} />
           </Link>
         </div>
 
-        {/* Priority Members List Container */}
         <div
           style={{
-            backgroundColor: '#FFFFFF',
-            border: '2px solid #252A2E',
-            boxShadow: '4px 4px 0px #252A2E',
-            overflow: 'hidden',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: '1rem',
           }}
         >
-          {priorityMembers.length === 0 ? (
-            <div style={{ padding: '2rem', textAlign: 'center', color: '#4B555D' }}>
-              All members are fully up to date. No pending due balances or urgent expirations.
+          {/* Active Members */}
+          <div
+            onClick={() => navigate('/owner/members?filter=active')}
+            style={{
+              backgroundColor: '#FFFFFF',
+              border: '1px solid rgba(37, 42, 46, 0.08)',
+              borderRadius: '8px',
+              padding: '1.15rem 1.25rem',
+              cursor: 'pointer',
+              transition: 'all 150ms ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(47, 125, 74, 0.3)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.08)';
+              e.currentTarget.style.transform = 'none';
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#2F7D4A' }}>Active Members</span>
+              <CheckCircle2 size={16} color="#2F7D4A" />
             </div>
-          ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '680px' }}>
-                <thead>
-                  <tr style={{ backgroundColor: '#252A2E', color: '#FFFFFF' }}>
-                    <th style={{ padding: '0.85rem 1rem', fontSize: '0.78rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-                      Member ID
-                    </th>
-                    <th style={{ padding: '0.85rem 1rem', fontSize: '0.78rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-                      Name &amp; Mobile
-                    </th>
-                    <th style={{ padding: '0.85rem 1rem', fontSize: '0.78rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-                      Plan
-                    </th>
-                    <th style={{ padding: '0.85rem 1rem', fontSize: '0.78rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-                      Expiry Date
-                    </th>
-                    <th style={{ padding: '0.85rem 1rem', fontSize: '0.78rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-                      Due Balance
-                    </th>
-                    <th style={{ padding: '0.85rem 1rem', fontSize: '0.78rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-                      Action
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {priorityMembers.map((member, idx) => {
-                    const { isDue, isExpiringToday, isExpiring1To3, diff } = memberEvaluator(member);
-                    return (
-                      <tr
-                        key={member.id}
-                        style={{
-                          borderBottom: '1px solid rgba(37, 42, 46, 0.08)',
-                          backgroundColor: idx % 2 === 0 ? '#FFFFFF' : '#FAF8F4',
-                        }}
-                      >
-                        <td style={{ padding: '0.9rem 1rem', fontWeight: 700, fontSize: '0.85rem', color: '#252A2E' }}>
-                          {member.id}
-                        </td>
-                        <td style={{ padding: '0.9rem 1rem' }}>
-                          <div style={{ fontWeight: 700, fontSize: '0.92rem', color: '#252A2E' }}>{member.name}</div>
-                          <div style={{ fontSize: '0.78rem', color: '#4B555D' }}>{member.mobile}</div>
-                        </td>
-                        <td style={{ padding: '0.9rem 1rem', fontSize: '0.85rem', color: '#252A2E' }}>
-                          {member.planName}
-                        </td>
-                        <td style={{ padding: '0.9rem 1rem' }}>
-                          <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#252A2E' }}>
-                            {formatDate(member.expiryDate)}
-                          </div>
-                          {isExpiringToday && (
-                            <span
-                              style={{
-                                display: 'inline-block',
-                                backgroundColor: '#F4C400',
-                                color: '#252A2E',
-                                fontSize: '0.68rem',
-                                fontWeight: 800,
-                                padding: '0.15rem 0.45rem',
-                                marginTop: '0.2rem',
-                              }}
-                            >
-                              TODAY
-                            </span>
-                          )}
-                          {isExpiring1To3 && (
-                            <span
-                              style={{
-                                display: 'inline-block',
-                                backgroundColor: '#FFE866',
-                                color: '#252A2E',
-                                fontSize: '0.68rem',
-                                fontWeight: 800,
-                                padding: '0.15rem 0.45rem',
-                                marginTop: '0.2rem',
-                              }}
-                            >
-                              IN {diff} DAY{diff > 1 ? 'S' : ''}
-                            </span>
-                          )}
-                        </td>
-                        <td style={{ padding: '0.9rem 1rem' }}>
-                          {isDue ? (
-                            <span
-                              style={{
-                                display: 'inline-block',
-                                backgroundColor: '#FDF2F2',
-                                color: '#A83D3D',
-                                border: '1px solid #A83D3D',
-                                fontWeight: 800,
-                                fontSize: '0.85rem',
-                                padding: '0.25rem 0.65rem',
-                              }}
-                            >
-                              ₹{member.amountDue}
-                            </span>
-                          ) : (
-                            <span style={{ fontSize: '0.85rem', color: '#2F7D4A', fontWeight: 700 }}>
-                              ₹0 (Paid)
-                            </span>
-                          )}
-                        </td>
-                        <td style={{ padding: '0.9rem 1rem' }}>
-                          <Link
-                            to={`/owner/members/${member.id}`}
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '0.35rem',
-                              backgroundColor: '#252A2E',
-                              color: '#FFFFFF',
-                              padding: '0.45rem 0.85rem',
-                              fontSize: '0.78rem',
-                              fontWeight: 700,
-                              textDecoration: 'none',
-                              letterSpacing: '0.04em',
-                              textTransform: 'uppercase',
-                            }}
-                          >
-                            View
-                          </Link>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: '2.2rem', color: '#252A2E', margin: '0.4rem 0 0.1rem', lineHeight: 1 }}>
+              {dashboardMetrics.activeMembers}
             </div>
-          )}
+            <span style={{ fontSize: '0.72rem', color: 'var(--color-slate, #4B555D)' }}>Valid subscriptions</span>
+          </div>
+
+          {/* Expiring Today */}
+          <div
+            onClick={() => navigate('/owner/members?filter=today')}
+            style={{
+              backgroundColor: '#FFFFFF',
+              border: '1px solid rgba(37, 42, 46, 0.08)',
+              borderRadius: '8px',
+              padding: '1.15rem 1.25rem',
+              cursor: 'pointer',
+              transition: 'all 150ms ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(244, 196, 0, 0.5)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.08)';
+              e.currentTarget.style.transform = 'none';
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#D4A900' }}>Expiring Today</span>
+              <Clock size={16} color="#D4A900" />
+            </div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: '2.2rem', color: '#252A2E', margin: '0.4rem 0 0.1rem', lineHeight: 1 }}>
+              {dashboardMetrics.expiringToday}
+            </div>
+            <span style={{ fontSize: '0.72rem', color: 'var(--color-slate, #4B555D)' }}>Renewal due today</span>
+          </div>
+
+          {/* Expiring Soon (1-3 Days) */}
+          <div
+            onClick={() => navigate('/owner/members?filter=soon')}
+            style={{
+              backgroundColor: '#FFFFFF',
+              border: '1px solid rgba(37, 42, 46, 0.08)',
+              borderRadius: '8px',
+              padding: '1.15rem 1.25rem',
+              cursor: 'pointer',
+              transition: 'all 150ms ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(244, 196, 0, 0.5)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.08)';
+              e.currentTarget.style.transform = 'none';
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#B38E00' }}>Expiring 1–3 Days</span>
+              <Clock size={16} color="#B38E00" />
+            </div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: '2.2rem', color: '#252A2E', margin: '0.4rem 0 0.1rem', lineHeight: 1 }}>
+              {dashboardMetrics.expiringSoon}
+            </div>
+            <span style={{ fontSize: '0.72rem', color: 'var(--color-slate, #4B555D)' }}>Upcoming renewals</span>
+          </div>
+
+          {/* Expired Members */}
+          <div
+            onClick={() => navigate('/owner/members?filter=expired')}
+            style={{
+              backgroundColor: '#FFFFFF',
+              border: '1px solid rgba(37, 42, 46, 0.08)',
+              borderRadius: '8px',
+              padding: '1.15rem 1.25rem',
+              cursor: 'pointer',
+              transition: 'all 150ms ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(168, 61, 61, 0.3)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.08)';
+              e.currentTarget.style.transform = 'none';
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#A83D3D' }}>Expired Members</span>
+              <AlertTriangle size={16} color="#A83D3D" />
+            </div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: '2.2rem', color: '#252A2E', margin: '0.4rem 0 0.1rem', lineHeight: 1 }}>
+              {dashboardMetrics.expiredMembers}
+            </div>
+            <span style={{ fontSize: '0.72rem', color: 'var(--color-slate, #4B555D)' }}>Pending re-activation</span>
+          </div>
+
+          {/* Frozen Members */}
+          <div
+            onClick={() => navigate('/owner/members?filter=frozen')}
+            style={{
+              backgroundColor: '#FFFFFF',
+              border: '1px solid rgba(37, 42, 46, 0.08)',
+              borderRadius: '8px',
+              padding: '1.15rem 1.25rem',
+              cursor: 'pointer',
+              transition: 'all 150ms ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(75, 85, 93, 0.3)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.08)';
+              e.currentTarget.style.transform = 'none';
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#4B555D' }}>Frozen</span>
+              <Snowflake size={16} color="#4B555D" />
+            </div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: '2.2rem', color: '#252A2E', margin: '0.4rem 0 0.1rem', lineHeight: 1 }}>
+              {dashboardMetrics.frozenMembers}
+            </div>
+            <span style={{ fontSize: '0.72rem', color: 'var(--color-slate, #4B555D)' }}>Temporarily on pause</span>
+          </div>
         </div>
       </section>
+
+      {/* ── D & E. SPLIT SECTION: ATTENTION REQUIRED + RECENT TRANSACTIONS ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>
+        {/* D. Member Follow-ups / Needs Attention */}
+        <section
+          style={{
+            backgroundColor: '#FFFFFF',
+            border: '1px solid rgba(37, 42, 46, 0.08)',
+            borderRadius: '8px',
+            boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
+            padding: '1.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+            <div>
+              <h3
+                style={{
+                  fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
+                  fontSize: '1.35rem',
+                  letterSpacing: '0.04em',
+                  color: 'var(--color-charcoal, #252A2E)',
+                  margin: 0,
+                }}
+              >
+                NEEDS ATTENTION
+              </h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-slate, #4B555D)', margin: '0.1rem 0 0' }}>
+                Urgent dues, expirations, and renewal follow-ups
+              </p>
+            </div>
+            <Link
+              to="/owner/members?filter=due"
+              style={{ fontSize: '0.8rem', color: 'var(--color-charcoal, #252A2E)', fontWeight: 600, textDecoration: 'none' }}
+            >
+              View all
+            </Link>
+          </div>
+
+          {attentionMembers.length === 0 ? (
+            <div style={{ padding: '2rem 1rem', textAlign: 'center', color: 'var(--color-slate, #4B555D)', fontSize: '0.85rem' }}>
+              <CheckCircle2 size={28} color="#2F7D4A" style={{ margin: '0 auto 0.5rem' }} />
+              All memberships and dues are fully settled.
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {attentionMembers.map((m) => {
+                const evalStatus = memberEvaluator(m);
+                return (
+                  <div
+                    key={m.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '0.75rem 0.85rem',
+                      borderRadius: '6px',
+                      backgroundColor: 'rgba(37, 42, 46, 0.02)',
+                      border: '1px solid rgba(37, 42, 46, 0.05)',
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ fontWeight: 600, fontSize: '0.88rem', color: '#252A2E' }}>
+                          {m.name}
+                        </span>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--color-slate, #4B555D)' }}>
+                          ({m.memberId || m.id})
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--color-slate, #4B555D)', marginTop: '0.2rem' }}>
+                        {m.planName} • Exp: {formatDate(m.expiryDate)}
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      {evalStatus.isDue ? (
+                        <span
+                          style={{
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            color: '#A83D3D',
+                            backgroundColor: 'rgba(168, 61, 61, 0.08)',
+                            padding: '0.2rem 0.5rem',
+                            borderRadius: '4px',
+                          }}
+                        >
+                          Due: ₹{m.dueAmount || m.amountDue || 0}
+                        </span>
+                      ) : evalStatus.isExpiringToday ? (
+                        <span
+                          style={{
+                            fontSize: '0.72rem',
+                            fontWeight: 700,
+                            color: '#997A00',
+                            backgroundColor: 'rgba(244, 196, 0, 0.15)',
+                            padding: '0.2rem 0.5rem',
+                            borderRadius: '4px',
+                          }}
+                        >
+                          Expires Today
+                        </span>
+                      ) : evalStatus.isExpiringSoon ? (
+                        <span
+                          style={{
+                            fontSize: '0.72rem',
+                            fontWeight: 600,
+                            color: '#997A00',
+                            backgroundColor: 'rgba(244, 196, 0, 0.12)',
+                            padding: '0.2rem 0.5rem',
+                            borderRadius: '4px',
+                          }}
+                        >
+                          Expires in {evalStatus.diff}d
+                        </span>
+                      ) : (
+                        <span
+                          style={{
+                            fontSize: '0.72rem',
+                            fontWeight: 600,
+                            color: '#4B555D',
+                            backgroundColor: 'rgba(75, 85, 93, 0.08)',
+                            padding: '0.2rem 0.5rem',
+                            borderRadius: '4px',
+                          }}
+                        >
+                          {evalStatus.badgeLabel}
+                        </span>
+                      )}
+
+                      <Link
+                        to={`/owner/members/${m.id}`}
+                        style={{
+                          fontSize: '0.78rem',
+                          fontWeight: 600,
+                          color: '#252A2E',
+                          backgroundColor: '#FFFFFF',
+                          border: '1px solid rgba(37, 42, 46, 0.15)',
+                          padding: '0.35rem 0.65rem',
+                          borderRadius: '4px',
+                          textDecoration: 'none',
+                        }}
+                      >
+                        Action
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        {/* E. Recent Activity: Verified Collections */}
+        <section
+          style={{
+            backgroundColor: '#FFFFFF',
+            border: '1px solid rgba(37, 42, 46, 0.08)',
+            borderRadius: '8px',
+            boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
+            padding: '1.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+            <div>
+              <h3
+                style={{
+                  fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
+                  fontSize: '1.35rem',
+                  letterSpacing: '0.04em',
+                  color: 'var(--color-charcoal, #252A2E)',
+                  margin: 0,
+                }}
+              >
+                RECENT TRANSACTIONS
+              </h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-slate, #4B555D)', margin: '0.1rem 0 0' }}>
+                Latest verified payment collections
+              </p>
+            </div>
+            <Link
+              to="/owner/payments"
+              style={{ fontSize: '0.8rem', color: 'var(--color-charcoal, #252A2E)', fontWeight: 600, textDecoration: 'none' }}
+            >
+              All payments
+            </Link>
+          </div>
+
+          {recentTransactions.length === 0 ? (
+            <div style={{ padding: '2rem 1rem', textAlign: 'center', color: 'var(--color-slate, #4B555D)', fontSize: '0.85rem' }}>
+              <Receipt size={28} color="#4B555D" style={{ margin: '0 auto 0.5rem', opacity: 0.5 }} />
+              No transaction history recorded yet.
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {recentTransactions.map((p) => (
+                <div
+                  key={p.id || p.receiptNumber}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '0.75rem 0.85rem',
+                    borderRadius: '6px',
+                    backgroundColor: 'rgba(37, 42, 46, 0.02)',
+                    border: '1px solid rgba(37, 42, 46, 0.05)',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '6px',
+                        backgroundColor: 'rgba(47, 125, 74, 0.08)',
+                        color: '#2F7D4A',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                      }}
+                    >
+                      ₹
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: '0.88rem', color: '#252A2E' }}>
+                        {p.memberName}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--color-slate, #4B555D)' }}>
+                        {p.receiptNumber} • {p.paymentMode} • {formatDate(p.paymentDateStr || p.paymentDate)}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#2F7D4A' }}>
+                      +₹{Number(p.amountPaid || 0).toLocaleString('en-IN')}
+                    </div>
+                    {p.remainingDueAmount > 0 && (
+                      <div style={{ fontSize: '0.7rem', color: '#A83D3D' }}>
+                        Due: ₹{p.remainingDueAmount}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
 
       {/* ── MANAGE MODAL / ACTION DRAWER ────────────────────────────── */}
       {showManageModal && (
@@ -684,23 +918,25 @@ export default function Dashboard() {
           style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(37, 42, 46, 0.7)',
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 1000,
             padding: '1rem',
+            backdropFilter: 'blur(3px)',
           }}
         >
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
               backgroundColor: '#FFFFFF',
-              border: '2px solid #252A2E',
-              boxShadow: '6px 6px 0px #252A2E',
+              border: '1px solid rgba(37, 42, 46, 0.1)',
+              borderRadius: '8px',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
               width: '100%',
-              maxWidth: '460px',
-              padding: '2rem',
+              maxWidth: '440px',
+              padding: '1.75rem',
             }}
           >
             {/* Modal Header */}
@@ -710,24 +946,24 @@ export default function Dashboard() {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 paddingBottom: '1rem',
-                borderBottom: '2px solid #252A2E',
-                marginBottom: '1.5rem',
+                borderBottom: '1px solid rgba(37, 42, 46, 0.08)',
+                marginBottom: '1.25rem',
               }}
             >
               <div>
                 <h3
                   style={{
                     fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                    fontSize: '2rem',
+                    fontSize: '1.6rem',
                     letterSpacing: '0.04em',
-                    color: '#252A2E',
+                    color: 'var(--color-charcoal, #252A2E)',
                     margin: 0,
                   }}
                 >
                   MANAGE GYM
                 </h3>
-                <p style={{ fontSize: '0.85rem', color: '#4B555D', margin: '0.2rem 0 0' }}>
-                  Select an administrative section
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-slate, #4B555D)', margin: '0.15rem 0 0' }}>
+                  Quick shortcuts to primary management areas
                 </p>
               </div>
 
@@ -738,17 +974,16 @@ export default function Dashboard() {
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
-                  color: '#252A2E',
+                  color: 'var(--color-slate, #4B555D)',
                   padding: '0.25rem',
                 }}
               >
-                <X size={24} />
+                <X size={20} />
               </button>
             </div>
 
-            {/* Quick Management Links: MEMBERS & PLANS */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {/* Option 1: MEMBERS */}
+            {/* Quick Links */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
               <div
                 onClick={() => {
                   setShowManageModal(false);
@@ -758,56 +993,49 @@ export default function Dashboard() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  padding: '1.25rem',
-                  border: '2px solid #252A2E',
+                  padding: '1rem',
+                  borderRadius: '6px',
+                  border: '1px solid rgba(37, 42, 46, 0.08)',
                   backgroundColor: '#FAF8F4',
                   cursor: 'pointer',
-                  transition: 'background-color 120ms ease, transform 120ms ease',
+                  transition: 'all 120ms ease',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#F4C400';
-                  e.currentTarget.style.transform = 'translateX(4px)';
+                  e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.25)';
+                  e.currentTarget.style.backgroundColor = '#F5EFE4';
                 }}
                 onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.08)';
                   e.currentTarget.style.backgroundColor = '#FAF8F4';
-                  e.currentTarget.style.transform = 'none';
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <div
                     style={{
-                      width: '42px',
-                      height: '42px',
-                      backgroundColor: '#252A2E',
-                      color: '#F4C400',
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '6px',
+                      backgroundColor: 'rgba(37, 42, 46, 0.08)',
+                      color: 'var(--color-charcoal, #252A2E)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
                   >
-                    <Users size={22} />
+                    <Users size={18} />
                   </div>
                   <div>
-                    <div
-                      style={{
-                        fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                        fontSize: '1.4rem',
-                        letterSpacing: '0.04em',
-                        color: '#252A2E',
-                        lineHeight: 1,
-                      }}
-                    >
-                      MEMBERS
+                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: '#252A2E' }}>
+                      Members Directory
                     </div>
-                    <div style={{ fontSize: '0.8rem', color: '#4B555D' }}>
-                      Search, filter, view profiles, and record payments
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-slate, #4B555D)' }}>
+                      Search, edit, freeze, renew, or archive
                     </div>
                   </div>
                 </div>
-                <ChevronRight size={20} color="#252A2E" />
+                <ChevronRight size={16} color="var(--color-slate, #4B555D)" />
               </div>
 
-              {/* Option 2: PLANS */}
               <div
                 onClick={() => {
                   setShowManageModal(false);
@@ -817,53 +1045,99 @@ export default function Dashboard() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  padding: '1.25rem',
-                  border: '2px solid #252A2E',
+                  padding: '1rem',
+                  borderRadius: '6px',
+                  border: '1px solid rgba(37, 42, 46, 0.08)',
                   backgroundColor: '#FAF8F4',
                   cursor: 'pointer',
-                  transition: 'background-color 120ms ease, transform 120ms ease',
+                  transition: 'all 120ms ease',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#F4C400';
-                  e.currentTarget.style.transform = 'translateX(4px)';
+                  e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.25)';
+                  e.currentTarget.style.backgroundColor = '#F5EFE4';
                 }}
                 onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.08)';
                   e.currentTarget.style.backgroundColor = '#FAF8F4';
-                  e.currentTarget.style.transform = 'none';
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <div
                     style={{
-                      width: '42px',
-                      height: '42px',
-                      backgroundColor: '#252A2E',
-                      color: '#F4C400',
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '6px',
+                      backgroundColor: 'rgba(37, 42, 46, 0.08)',
+                      color: 'var(--color-charcoal, #252A2E)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
                   >
-                    <CreditCard size={22} />
+                    <CreditCard size={18} />
                   </div>
                   <div>
-                    <div
-                      style={{
-                        fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                        fontSize: '1.4rem',
-                        letterSpacing: '0.04em',
-                        color: '#252A2E',
-                        lineHeight: 1,
-                      }}
-                    >
-                      PLANS
+                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: '#252A2E' }}>
+                      Membership Plans
                     </div>
-                    <div style={{ fontSize: '0.8rem', color: '#4B555D' }}>
-                      Configure membership packages, pricing, and durations
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-slate, #4B555D)' }}>
+                      Manage pricing, terms, and active plans
                     </div>
                   </div>
                 </div>
-                <ChevronRight size={20} color="#252A2E" />
+                <ChevronRight size={16} color="var(--color-slate, #4B555D)" />
+              </div>
+
+              <div
+                onClick={() => {
+                  setShowManageModal(false);
+                  navigate('/owner/payments');
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '1rem',
+                  borderRadius: '6px',
+                  border: '1px solid rgba(37, 42, 46, 0.08)',
+                  backgroundColor: '#FAF8F4',
+                  cursor: 'pointer',
+                  transition: 'all 120ms ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.25)';
+                  e.currentTarget.style.backgroundColor = '#F5EFE4';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.08)';
+                  e.currentTarget.style.backgroundColor = '#FAF8F4';
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '6px',
+                      backgroundColor: 'rgba(37, 42, 46, 0.08)',
+                      color: 'var(--color-charcoal, #252A2E)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Receipt size={18} />
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: '#252A2E' }}>
+                      Payments Ledger
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-slate, #4B555D)' }}>
+                      View collections, print receipts, and manage dues
+                    </div>
+                  </div>
+                </div>
+                <ChevronRight size={16} color="var(--color-slate, #4B555D)" />
               </div>
             </div>
           </div>

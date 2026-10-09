@@ -51,6 +51,18 @@
 
   /* Navbar */
   --navbar-height: 72px;
+
+  /* Owner Portal Tokens (Harmonized with Public Site) */
+  --portal-bg:           #FBF8F2;
+  --portal-card-bg:      #FFFFFF;
+  --portal-card-border:  rgba(37, 42, 46, 0.08);
+  --portal-card-shadow:  0 1px 3px rgba(37, 42, 46, 0.04), 0 1px 2px rgba(37, 42, 46, 0.02);
+  --portal-card-hover:   0 8px 24px rgba(37, 42, 46, 0.07);
+  --portal-sidebar-bg:   #252A2E;
+  --portal-sidebar-border: rgba(255, 255, 255, 0.06);
+  --portal-text-primary: #252A2E;
+  --portal-text-muted:   #6B7280;
+  --portal-divider:      rgba(37, 42, 46, 0.06);
 }
 
 /* ─── Reset & Base ───────────────────────────────────────────── */

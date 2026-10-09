@@ -167,21 +167,20 @@ export default function Notifications() {
           flexWrap: 'wrap',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '1.25rem',
-          marginBottom: '2rem',
-          paddingBottom: '1.5rem',
-          borderBottom: '2px solid rgba(37, 42, 46, 0.1)',
+          gap: '1rem',
+          marginBottom: '1.75rem',
+          paddingBottom: '1.25rem',
+          borderBottom: '1px solid rgba(37, 42, 46, 0.08)',
         }}
       >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <Bell size={28} color="#252A2E" />
             <h1
               style={{
                 fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                fontSize: 'clamp(2.4rem, 5vw, 3.2rem)',
+                fontSize: 'clamp(2rem, 3.5vw, 2.6rem)',
                 letterSpacing: '0.04em',
-                color: '#252A2E',
+                color: 'var(--color-charcoal, #252A2E)',
                 margin: 0,
                 lineHeight: 1,
               }}
@@ -189,7 +188,7 @@ export default function Notifications() {
               NOTIFICATIONS &amp; ALERTS
             </h1>
           </div>
-          <p style={{ fontFamily: 'var(--font-body, "Inter", sans-serif)', fontSize: '0.9rem', color: '#4B555D', margin: '0.4rem 0 0' }}>
+          <p style={{ fontFamily: 'var(--font-body, "Inter", sans-serif)', fontSize: '0.85rem', color: 'var(--color-slate, #4B555D)', margin: '0.3rem 0 0' }}>
             Real-time computed operational alerts for membership expirations, payment dues, and renewals
           </p>
         </div>
@@ -199,13 +198,15 @@ export default function Notifications() {
             type="button"
             onClick={clearAllDismissed}
             style={{
-              padding: '0.6rem 1rem',
-              border: '1.5px solid #252A2E',
+              padding: '0.5rem 0.85rem',
+              borderRadius: '6px',
+              border: '1px solid rgba(37, 42, 46, 0.15)',
               backgroundColor: '#FFFFFF',
-              color: '#252A2E',
+              color: 'var(--color-charcoal, #252A2E)',
               fontSize: '0.8rem',
-              fontWeight: 700,
+              fontWeight: 600,
               cursor: 'pointer',
+              transition: 'all 120ms ease',
             }}
           >
             Restore Dismissed Alerts ({dismissedIds.length})
@@ -213,17 +214,17 @@ export default function Notifications() {
         )}
       </div>
 
-      {/* ── FILTER BUTTONS ──────────────────────────────────────────── */}
+      {/* ── FILTER BUTTONS ──────────────────────────────────── */}
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '0.5rem',
+          gap: '0.35rem',
           flexWrap: 'wrap',
-          marginBottom: '1.75rem',
+          marginBottom: '1.5rem',
         }}
       >
-        <span style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', color: '#4B555D', marginRight: '0.25rem' }}>
+        <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', color: 'var(--color-slate, #4B555D)', marginRight: '0.25rem' }}>
           Filter:
         </span>
         {[
@@ -239,27 +240,29 @@ export default function Notifications() {
               type="button"
               onClick={() => setFilterType(tab.id)}
               style={{
-                padding: '0.5rem 0.9rem',
-                border: '1.5px solid #252A2E',
+                padding: '0.4rem 0.75rem',
+                borderRadius: '6px',
+                border: isSelected ? '1px solid #252A2E' : '1px solid rgba(37, 42, 46, 0.12)',
                 backgroundColor: isSelected ? '#252A2E' : '#FFFFFF',
-                color: isSelected ? '#FFFFFF' : '#252A2E',
-                fontSize: '0.82rem',
-                fontWeight: 700,
+                color: isSelected ? '#FFFFFF' : 'var(--color-charcoal, #252A2E)',
+                fontSize: '0.8rem',
+                fontWeight: 600,
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.4rem',
+                gap: '0.35rem',
+                transition: 'all 120ms ease',
               }}
             >
               <span>{tab.label}</span>
               <span
                 style={{
-                  backgroundColor: isSelected ? '#F4C400' : 'rgba(37,42,46,0.1)',
-                  color: '#252A2E',
-                  fontSize: '0.72rem',
-                  fontWeight: 800,
-                  padding: '0.1rem 0.35rem',
-                  borderRadius: '2px',
+                  backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.2)' : 'rgba(37, 42, 46, 0.08)',
+                  color: isSelected ? '#FFFFFF' : 'var(--color-charcoal, #252A2E)',
+                  fontSize: '0.68rem',
+                  fontWeight: 700,
+                  padding: '0.1rem 0.4rem',
+                  borderRadius: '10px',
                 }}
               >
                 {tab.count}
@@ -274,38 +277,40 @@ export default function Notifications() {
         <div
           style={{
             backgroundColor: '#FFFFFF',
-            border: '2px solid #252A2E',
-            boxShadow: '4px 4px 0px #252A2E',
-            padding: '3.5rem 2rem',
+            border: '1px solid rgba(37, 42, 46, 0.08)',
+            borderRadius: '8px',
+            boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
+            padding: '3rem 2rem',
             textAlign: 'center',
           }}
         >
-          <CheckCircle2 size={42} color="#2F7D4A" style={{ margin: '0 auto 0.75rem auto' }} />
-          <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2rem', color: '#2F7D4A', margin: 0 }}>
+          <CheckCircle2 size={36} color="#2F7D4A" style={{ margin: '0 auto 0.75rem auto' }} />
+          <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '1.75rem', color: '#2F7D4A', margin: 0 }}>
             NO PENDING NOTIFICATIONS
           </h3>
-          <p style={{ color: '#4B555D', fontSize: '0.9rem', margin: '0.4rem 0 0' }}>
+          <p style={{ color: 'var(--color-slate, #4B555D)', fontSize: '0.85rem', margin: '0.3rem 0 0' }}>
             All member expirations and payment records are up to date!
           </p>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {filteredAlerts.map((alert) => {
             const isUrgent = alert.severity === 'urgent';
             const isDues = alert.severity === 'dues';
             const isWarning = alert.severity === 'warning';
 
-            const borderColor = isUrgent ? '#A83D3D' : isDues ? '#A83D3D' : isWarning ? '#D4A900' : '#1D6F8A';
-            const badgeBg = isUrgent ? '#FDF2F2' : isDues ? '#FFF5F5' : isWarning ? '#FFFDF5' : '#E1F3F8';
+            const borderHighlight = isUrgent || isDues ? 'rgba(168, 61, 61, 0.3)' : isWarning ? 'rgba(244, 196, 0, 0.5)' : 'rgba(37, 42, 46, 0.1)';
 
             return (
               <div
                 key={alert.id}
                 style={{
                   backgroundColor: '#FFFFFF',
-                  border: `2px solid ${borderColor}`,
-                  boxShadow: `3px 3px 0px ${borderColor}`,
-                  padding: '1.25rem 1.5rem',
+                  border: '1px solid rgba(37, 42, 46, 0.08)',
+                  borderLeft: `4px solid ${borderHighlight}`,
+                  borderRadius: '8px',
+                  boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
+                  padding: '1.15rem 1.35rem',
                   display: 'flex',
                   alignItems: 'flex-start',
                   justifyContent: 'space-between',

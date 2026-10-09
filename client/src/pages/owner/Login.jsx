@@ -127,8 +127,9 @@ export default function Login() {
           width: '100%',
           maxWidth: '440px',
           backgroundColor: '#FFFFFF',
-          border: '2px solid #252A2E',
-          boxShadow: '6px 6px 0px #252A2E',
+          border: '1px solid rgba(37, 42, 46, 0.08)',
+          borderRadius: '12px',
+          boxShadow: '0 4px 24px rgba(37, 42, 46, 0.08)',
           padding: '2.5rem 2rem',
         }}
       >
@@ -363,20 +364,19 @@ export default function Login() {
               color: '#252A2E',
               fontFamily: 'var(--font-body, "Inter", sans-serif)',
               fontSize: '0.92rem',
-              fontWeight: 800,
-              letterSpacing: '0.08em',
+              fontWeight: 700,
+              letterSpacing: '0.04em',
               textTransform: 'uppercase',
-              padding: '0.9rem 1.5rem',
-              border: '2px solid #252A2E',
-              boxShadow: (isLoading || isGoogleLoading) ? 'none' : '3px 3px 0px #252A2E',
-              transform: (isLoading || isGoogleLoading) ? 'translate(2px, 2px)' : 'none',
+              padding: '0.85rem 1.5rem',
+              border: '1px solid #D4A900',
+              borderRadius: '6px',
               cursor: (isLoading || isGoogleLoading) ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '0.5rem',
               marginTop: '0.5rem',
-              transition: 'transform 120ms ease, box-shadow 120ms ease',
+              transition: 'all 150ms ease',
               opacity: (isLoading || isGoogleLoading) ? 0.8 : 1,
             }}
           >
@@ -399,12 +399,12 @@ export default function Login() {
               gap: '0.75rem',
             }}
           >
-            <div style={{ flex: 1, height: '1px', backgroundColor: 'rgba(37, 42, 46, 0.2)' }} />
+            <div style={{ flex: 1, height: '1px', backgroundColor: 'rgba(37, 42, 46, 0.12)' }} />
             <span
               style={{
                 fontFamily: 'var(--font-body, "Inter", sans-serif)',
                 fontSize: '0.75rem',
-                fontWeight: 700,
+                fontWeight: 600,
                 color: '#8B949E',
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
@@ -412,7 +412,7 @@ export default function Login() {
             >
               OR
             </span>
-            <div style={{ flex: 1, height: '1px', backgroundColor: 'rgba(37, 42, 46, 0.2)' }} />
+            <div style={{ flex: 1, height: '1px', backgroundColor: 'rgba(37, 42, 46, 0.12)' }} />
           </div>
 
           <button
@@ -425,18 +425,17 @@ export default function Login() {
               color: '#252A2E',
               fontFamily: 'var(--font-body, "Inter", sans-serif)',
               fontSize: '0.88rem',
-              fontWeight: 700,
-              letterSpacing: '0.04em',
+              fontWeight: 600,
+              letterSpacing: '0.02em',
               padding: '0.75rem 1.25rem',
-              border: '2px solid #252A2E',
-              boxShadow: (isLoading || isGoogleLoading) ? 'none' : '3px 3px 0px #252A2E',
-              transform: (isLoading || isGoogleLoading) ? 'translate(2px, 2px)' : 'none',
+              border: '1px solid rgba(37, 42, 46, 0.18)',
+              borderRadius: '6px',
               cursor: (isLoading || isGoogleLoading) ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '0.65rem',
-              transition: 'transform 120ms ease, box-shadow 120ms ease',
+              transition: 'all 150ms ease',
               opacity: (isLoading || isGoogleLoading) ? 0.75 : 1,
             }}
           >

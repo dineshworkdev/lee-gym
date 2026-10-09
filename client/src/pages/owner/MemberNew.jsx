@@ -250,20 +250,20 @@ export default function MemberNew() {
 
       {/* ── HEADING ─────────────────────────────────────────────────── */}
       {currentStep !== 5 && (
-        <div style={{ marginBottom: '1.75rem' }}>
+        <div style={{ marginBottom: '1.75rem', paddingBottom: '1.25rem', borderBottom: '1px solid rgba(37, 42, 46, 0.08)' }}>
           <h1
             style={{
               fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-              fontSize: 'clamp(2.2rem, 4vw, 3rem)',
+              fontSize: 'clamp(2rem, 3.5vw, 2.6rem)',
               letterSpacing: '0.04em',
-              color: '#252A2E',
+              color: 'var(--color-charcoal, #252A2E)',
               margin: 0,
               lineHeight: 1,
             }}
           >
             ADD NEW MEMBER
           </h1>
-          <p style={{ fontSize: '0.88rem', color: '#4B555D', margin: '0.35rem 0 0' }}>
+          <p style={{ fontSize: '0.85rem', color: 'var(--color-slate, #4B555D)', margin: '0.3rem 0 0' }}>
             Complete the 4-step registration to enroll athlete
           </p>
         </div>
@@ -274,10 +274,11 @@ export default function MemberNew() {
         <div
           style={{
             backgroundColor: '#FFFFFF',
-            border: '2px solid #252A2E',
-            boxShadow: '4px 4px 0px #252A2E',
-            padding: '1rem',
-            marginBottom: '2rem',
+            border: '1px solid rgba(37, 42, 46, 0.08)',
+            borderRadius: '8px',
+            boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
+            padding: '0.75rem',
+            marginBottom: '1.75rem',
             display: 'grid',
             gridTemplateColumns: 'repeat(4, 1fr)',
             gap: '0.5rem',
@@ -293,13 +294,14 @@ export default function MemberNew() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
-                  padding: '0.6rem 0.75rem',
-                  backgroundColor: isActive ? '#F4C400' : isCompleted ? '#FAF8F4' : '#FFFFFF',
-                  border: isActive ? '2px solid #252A2E' : '1px solid rgba(37,42,46,0.15)',
-                  color: '#252A2E',
-                  fontWeight: isActive ? 800 : 600,
-                  fontSize: '0.82rem',
-                  letterSpacing: '0.04em',
+                  padding: '0.5rem 0.65rem',
+                  borderRadius: '6px',
+                  backgroundColor: isActive ? 'rgba(244, 196, 0, 0.15)' : isCompleted ? '#F8FAF9' : 'transparent',
+                  border: isActive ? '1px solid rgba(244, 196, 0, 0.6)' : isCompleted ? '1px solid rgba(47, 125, 74, 0.2)' : '1px solid transparent',
+                  color: isActive ? '#997A00' : isCompleted ? '#2F7D4A' : 'var(--color-slate, #4B555D)',
+                  fontWeight: isActive ? 700 : isCompleted ? 600 : 500,
+                  fontSize: '0.8rem',
+                  letterSpacing: '0.02em',
                 }}
               >
                 <div
@@ -307,13 +309,13 @@ export default function MemberNew() {
                     width: '22px',
                     height: '22px',
                     borderRadius: '50%',
-                    backgroundColor: isActive ? '#252A2E' : isCompleted ? '#2F7D4A' : '#E5E7EB',
-                    color: isActive ? '#F4C400' : isCompleted ? '#FFFFFF' : '#4B555D',
+                    backgroundColor: isActive ? 'var(--color-yellow, #F4C400)' : isCompleted ? '#2F7D4A' : '#E5E7EB',
+                    color: isActive ? '#252A2E' : isCompleted ? '#FFFFFF' : '#4B555D',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: '0.72rem',
-                    fontWeight: 800,
+                    fontWeight: 700,
                     flexShrink: 0,
                   }}
                 >
@@ -330,10 +332,11 @@ export default function MemberNew() {
       <div
         style={{
           backgroundColor: '#FFFFFF',
-          border: '2px solid #252A2E',
-          boxShadow: '5px 5px 0px #252A2E',
+          border: '1px solid rgba(37, 42, 46, 0.08)',
+          borderRadius: '8px',
+          boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
           padding: '2rem',
-          marginBottom: '3rem',
+          marginBottom: '2.5rem',
         }}
       >
         {/* ════ STEP 1: BASIC INFORMATION ════ */}
@@ -397,12 +400,13 @@ export default function MemberNew() {
                         gap: '0.4rem',
                         backgroundColor: '#FFFFFF',
                         color: '#252A2E',
-                        border: '1.5px solid #252A2E',
+                        border: '1px solid rgba(37, 42, 46, 0.2)',
+                        borderRadius: '6px',
                         padding: '0.5rem 0.85rem',
                         fontSize: '0.8rem',
-                        fontWeight: 700,
+                        fontWeight: 600,
                         cursor: 'pointer',
-                        boxShadow: '2px 2px 0px #252A2E',
+                        transition: 'all 120ms ease',
                       }}
                     >
                       <Upload size={14} />
@@ -552,17 +556,18 @@ export default function MemberNew() {
                     gap: '0.5rem',
                     backgroundColor: '#F4C400',
                     color: '#252A2E',
-                    border: '2px solid #252A2E',
-                    padding: '0.8rem 1.75rem',
-                    fontWeight: 800,
-                    fontSize: '0.92rem',
-                    letterSpacing: '0.06em',
+                    border: '1px solid #D4A900',
+                    borderRadius: '6px',
+                    padding: '0.75rem 1.75rem',
+                    fontWeight: 700,
+                    fontSize: '0.9rem',
+                    letterSpacing: '0.02em',
                     textTransform: 'uppercase',
                     cursor: 'pointer',
-                    boxShadow: '3px 3px 0px #252A2E',
+                    transition: 'all 120ms ease',
                   }}
                 >
-                  <span>PROCEED</span>
+                  <span>Proceed</span>
                   <ArrowRight size={18} />
                 </button>
               </div>
@@ -664,16 +669,16 @@ export default function MemberNew() {
                     gap: '0.45rem',
                     backgroundColor: '#FFFFFF',
                     color: '#252A2E',
-                    border: '1.5px solid #252A2E',
+                    border: '1px solid rgba(37, 42, 46, 0.2)',
+                    borderRadius: '6px',
                     padding: '0.75rem 1.4rem',
-                    fontWeight: 700,
+                    fontWeight: 600,
                     fontSize: '0.88rem',
-                    textTransform: 'uppercase',
                     cursor: 'pointer',
                   }}
                 >
                   <ArrowLeft size={16} />
-                  <span>BACK</span>
+                  <span>Back</span>
                 </button>
 
                 <button
@@ -686,17 +691,18 @@ export default function MemberNew() {
                     gap: '0.5rem',
                     backgroundColor: '#F4C400',
                     color: '#252A2E',
-                    border: '2px solid #252A2E',
-                    padding: '0.8rem 1.75rem',
-                    fontWeight: 800,
-                    fontSize: '0.92rem',
-                    letterSpacing: '0.06em',
+                    border: '1px solid #D4A900',
+                    borderRadius: '6px',
+                    padding: '0.75rem 1.75rem',
+                    fontWeight: 700,
+                    fontSize: '0.9rem',
+                    letterSpacing: '0.02em',
                     textTransform: 'uppercase',
                     cursor: 'pointer',
-                    boxShadow: '3px 3px 0px #252A2E',
+                    transition: 'all 120ms ease',
                   }}
                 >
-                  <span>PROCEED</span>
+                  <span>Proceed</span>
                   <ArrowRight size={18} />
                 </button>
               </div>
@@ -815,12 +821,13 @@ export default function MemberNew() {
                           }));
                         }}
                         style={{
-                          border: isSelected ? '2.5px solid #252A2E' : '1.5px solid rgba(37, 42, 46, 0.2)',
-                          backgroundColor: isSelected ? '#FAF8F4' : '#FFFFFF',
+                          border: isSelected ? '1.5px solid #F4C400' : '1px solid rgba(37, 42, 46, 0.12)',
+                          borderRadius: '8px',
+                          backgroundColor: isSelected ? 'rgba(244, 196, 0, 0.05)' : '#FFFFFF',
                           padding: '1.25rem 1rem',
                           cursor: 'pointer',
                           position: 'relative',
-                          boxShadow: isSelected ? '3px 3px 0px #252A2E' : 'none',
+                          boxShadow: isSelected ? '0 2px 8px rgba(244, 196, 0, 0.15)' : 'none',
                           transition: 'all 120ms ease',
                         }}
                       >
@@ -903,16 +910,16 @@ export default function MemberNew() {
                     gap: '0.45rem',
                     backgroundColor: '#FFFFFF',
                     color: '#252A2E',
-                    border: '1.5px solid #252A2E',
+                    border: '1px solid rgba(37, 42, 46, 0.2)',
+                    borderRadius: '6px',
                     padding: '0.75rem 1.4rem',
-                    fontWeight: 700,
+                    fontWeight: 600,
                     fontSize: '0.88rem',
-                    textTransform: 'uppercase',
                     cursor: 'pointer',
                   }}
                 >
                   <ArrowLeft size={16} />
-                  <span>BACK</span>
+                  <span>Back</span>
                 </button>
 
                 <button
@@ -925,17 +932,18 @@ export default function MemberNew() {
                     gap: '0.5rem',
                     backgroundColor: '#F4C400',
                     color: '#252A2E',
-                    border: '2px solid #252A2E',
-                    padding: '0.8rem 1.75rem',
-                    fontWeight: 800,
-                    fontSize: '0.92rem',
-                    letterSpacing: '0.06em',
+                    border: '1px solid #D4A900',
+                    borderRadius: '6px',
+                    padding: '0.75rem 1.75rem',
+                    fontWeight: 700,
+                    fontSize: '0.9rem',
+                    letterSpacing: '0.02em',
                     textTransform: 'uppercase',
                     cursor: 'pointer',
-                    boxShadow: '3px 3px 0px #252A2E',
+                    transition: 'all 120ms ease',
                   }}
                 >
-                  <span>PROCEED</span>
+                  <span>Proceed</span>
                   <ArrowRight size={18} />
                 </button>
               </div>
@@ -1042,11 +1050,11 @@ export default function MemberNew() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  border: '2px solid #252A2E',
+                  borderRadius: '8px',
                 }}
               >
                 <div>
-                  <div style={{ fontSize: '0.78rem', color: '#F4C400', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 800 }}>
+                  <div style={{ fontSize: '0.78rem', color: '#F4C400', letterSpacing: '0.04em', textTransform: 'uppercase', fontWeight: 700 }}>
                     TOTAL AMOUNT PAYABLE
                   </div>
                   <div style={{ fontSize: '0.78rem', color: '#E5E7EB', marginTop: '0.15rem' }}>
@@ -1067,8 +1075,8 @@ export default function MemberNew() {
 
               {/* Amount Collected */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.4rem' }}>
-                  AMOUNT COLLECTED (₹) *
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#4B555D', marginBottom: '0.4rem' }}>
+                  Amount Collected (₹) *
                 </label>
                 <input
                   type="number"
@@ -1078,7 +1086,8 @@ export default function MemberNew() {
                   style={{
                     width: '100%',
                     padding: '0.75rem',
-                    border: '2px solid #252A2E',
+                    border: '1px solid rgba(37, 42, 46, 0.2)',
+                    borderRadius: '6px',
                     fontSize: '1.1rem',
                     fontWeight: 700,
                     boxSizing: 'border-box',
@@ -1210,17 +1219,17 @@ export default function MemberNew() {
                     gap: '0.45rem',
                     backgroundColor: '#FFFFFF',
                     color: '#252A2E',
-                    border: '1.5px solid #252A2E',
+                    border: '1px solid rgba(37, 42, 46, 0.2)',
+                    borderRadius: '6px',
                     padding: '0.75rem 1.4rem',
-                    fontWeight: 700,
+                    fontWeight: 600,
                     fontSize: '0.88rem',
-                    textTransform: 'uppercase',
                     cursor: isSubmitting ? 'not-allowed' : 'pointer',
                     opacity: isSubmitting ? 0.7 : 1,
                   }}
                 >
                   <ArrowLeft size={16} />
-                  <span>BACK</span>
+                  <span>Back</span>
                 </button>
 
                 <button
@@ -1233,19 +1242,20 @@ export default function MemberNew() {
                     gap: '0.55rem',
                     backgroundColor: '#F4C400',
                     color: '#252A2E',
-                    border: '2px solid #252A2E',
-                    padding: '0.85rem 2rem',
-                    fontWeight: 800,
-                    fontSize: '0.95rem',
-                    letterSpacing: '0.08em',
+                    border: '1px solid #D4A900',
+                    borderRadius: '6px',
+                    padding: '0.75rem 2rem',
+                    fontWeight: 700,
+                    fontSize: '0.92rem',
+                    letterSpacing: '0.02em',
                     textTransform: 'uppercase',
                     cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                    boxShadow: isSubmitting ? 'none' : '4px 4px 0px #252A2E',
+                    transition: 'all 120ms ease',
                     opacity: isSubmitting ? 0.8 : 1,
                   }}
                 >
                   <CheckCircle2 size={18} />
-                  <span>{isSubmitting ? 'SAVING TO FIRESTORE...' : 'ADD MEMBER'}</span>
+                  <span>{isSubmitting ? 'Saving to Firestore...' : 'Add Member'}</span>
                 </button>
               </div>
             </form>
@@ -1294,14 +1304,15 @@ export default function MemberNew() {
               style={{
                 maxWidth: '480px',
                 margin: '0 auto 2rem',
-                backgroundColor: '#FAF8F4',
-                border: '2px solid #252A2E',
-                boxShadow: '4px 4px 0px #252A2E',
-                padding: '1.5rem',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid rgba(37, 42, 46, 0.08)',
+                borderRadius: '8px',
+                boxShadow: '0 2px 8px rgba(37, 42, 46, 0.06)',
+                padding: '1.75rem',
                 textAlign: 'left',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #252A2E', paddingBottom: '0.75rem', marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(37, 42, 46, 0.08)', paddingBottom: '0.75rem', marginBottom: '1rem' }}>
                 <div>
                   <div style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '1.6rem', color: '#252A2E', lineHeight: 1 }}>
                     {createdMember.name}
@@ -1375,7 +1386,7 @@ export default function MemberNew() {
             </div>
 
             {/* Action Buttons: [ PRINT RECEIPT ] & [ VIEW MEMBER ] & [ BACK TO DASHBOARD ] */}
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
               <button
                 type="button"
                 id="success-print-receipt-btn"
@@ -1386,17 +1397,17 @@ export default function MemberNew() {
                   gap: '0.5rem',
                   backgroundColor: '#2F7D4A',
                   color: '#FFFFFF',
-                  border: '2px solid #252A2E',
-                  padding: '0.8rem 1.6rem',
-                  fontWeight: 800,
+                  border: '1px solid rgba(47, 125, 74, 0.8)',
+                  borderRadius: '6px',
+                  padding: '0.75rem 1.4rem',
+                  fontWeight: 600,
                   fontSize: '0.88rem',
-                  textTransform: 'uppercase',
                   cursor: 'pointer',
-                  boxShadow: '3px 3px 0px #252A2E',
+                  transition: 'all 120ms ease',
                 }}
               >
                 <Printer size={16} />
-                <span>PRINT RECEIPT</span>
+                <span>Print Receipt</span>
               </button>
 
               <button
@@ -1409,16 +1420,16 @@ export default function MemberNew() {
                   gap: '0.5rem',
                   backgroundColor: '#252A2E',
                   color: '#FFFFFF',
-                  border: '2px solid #252A2E',
-                  padding: '0.8rem 1.6rem',
-                  fontWeight: 800,
+                  border: '1px solid #252A2E',
+                  borderRadius: '6px',
+                  padding: '0.75rem 1.4rem',
+                  fontWeight: 600,
                   fontSize: '0.88rem',
-                  textTransform: 'uppercase',
                   cursor: 'pointer',
-                  boxShadow: '3px 3px 0px #252A2E',
+                  transition: 'all 120ms ease',
                 }}
               >
-                <span>VIEW MEMBER</span>
+                <span>View Member</span>
                 <ArrowRight size={16} />
               </button>
 
@@ -1432,16 +1443,16 @@ export default function MemberNew() {
                   gap: '0.5rem',
                   backgroundColor: '#F4C400',
                   color: '#252A2E',
-                  border: '2px solid #252A2E',
-                  padding: '0.8rem 1.6rem',
-                  fontWeight: 800,
+                  border: '1px solid #D4A900',
+                  borderRadius: '6px',
+                  padding: '0.75rem 1.4rem',
+                  fontWeight: 700,
                   fontSize: '0.88rem',
-                  textTransform: 'uppercase',
                   cursor: 'pointer',
-                  boxShadow: '3px 3px 0px #252A2E',
+                  transition: 'all 120ms ease',
                 }}
               >
-                <span>BACK TO DASHBOARD</span>
+                <span>Dashboard</span>
               </button>
 
               <button
@@ -1478,16 +1489,16 @@ export default function MemberNew() {
                   gap: '0.5rem',
                   backgroundColor: '#FFFFFF',
                   color: '#252A2E',
-                  border: '2px solid #252A2E',
-                  padding: '0.8rem 1.6rem',
-                  fontWeight: 800,
+                  border: '1px solid rgba(37, 42, 46, 0.2)',
+                  borderRadius: '6px',
+                  padding: '0.75rem 1.4rem',
+                  fontWeight: 600,
                   fontSize: '0.88rem',
-                  textTransform: 'uppercase',
                   cursor: 'pointer',
-                  boxShadow: '3px 3px 0px #252A2E',
+                  transition: 'all 120ms ease',
                 }}
               >
-                <span>+ ADD ANOTHER MEMBER</span>
+                <span>+ Add Another Member</span>
               </button>
             </div>
           </div>
@@ -1513,31 +1524,32 @@ export default function MemberNew() {
             onClick={(e) => e.stopPropagation()}
             style={{
               backgroundColor: '#FFFFFF',
-              border: '2px solid #252A2E',
-              boxShadow: '6px 6px 0px #252A2E',
+              border: '1px solid rgba(37, 42, 46, 0.1)',
+              borderRadius: '10px',
+              boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)',
               width: '100%',
               maxWidth: '440px',
               padding: '2rem',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #252A2E', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(37, 42, 46, 0.08)', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
               <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2rem', margin: 0 }}>
                 ADD NEW PLAN
               </h3>
-              <button type="button" onClick={() => setShowAddPlanModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button type="button" onClick={() => setShowAddPlanModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7A8288' }}>
                 <X size={22} />
               </button>
             </div>
 
             {planModalError && (
-              <div style={{ backgroundColor: '#FDF2F2', color: '#A83D3D', padding: '0.5rem', fontSize: '0.82rem', fontWeight: 600, marginBottom: '1rem' }}>
+              <div style={{ backgroundColor: '#FDF2F2', border: '1px solid #A83D3D', borderRadius: '6px', color: '#A83D3D', padding: '0.5rem', fontSize: '0.82rem', fontWeight: 600, marginBottom: '1rem' }}>
                 {planModalError}
               </div>
             )}
 
             <form onSubmit={handleSaveNewPlan} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4B555D', marginBottom: '0.35rem' }}>
                   Plan Name
                 </label>
                 <input
@@ -1546,12 +1558,12 @@ export default function MemberNew() {
                   value={newPlanName}
                   onChange={(e) => setNewPlanName(e.target.value)}
                   required
-                  style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4B555D', marginBottom: '0.35rem' }}>
                   Price (₹)
                 </label>
                 <input
@@ -1560,12 +1572,12 @@ export default function MemberNew() {
                   value={newPlanPrice}
                   onChange={(e) => setNewPlanPrice(e.target.value)}
                   required
-                  style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4B555D', marginBottom: '0.35rem' }}>
                   Duration (Days)
                 </label>
                 <input
@@ -1574,7 +1586,7 @@ export default function MemberNew() {
                   value={newPlanDuration}
                   onChange={(e) => setNewPlanDuration(e.target.value)}
                   required
-                  style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid rgba(37, 42, 46, 0.2)', borderRadius: '6px', fontSize: '0.9rem', boxSizing: 'border-box' }}
                 />
               </div>
 
@@ -1582,13 +1594,13 @@ export default function MemberNew() {
                 <button
                   type="button"
                   onClick={() => setShowAddPlanModal(false)}
-                  style={{ padding: '0.65rem 1.25rem', border: '1.5px solid #252A2E', background: '#FFFFFF', fontWeight: 700, cursor: 'pointer' }}
+                  style={{ padding: '0.65rem 1.25rem', border: '1px solid rgba(37, 42, 46, 0.2)', background: '#FFFFFF', borderRadius: '6px', fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer' }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  style={{ padding: '0.65rem 1.5rem', border: '2px solid #252A2E', background: '#F4C400', fontWeight: 800, cursor: 'pointer' }}
+                  style={{ padding: '0.65rem 1.5rem', border: '1px solid #D4A900', background: '#F4C400', borderRadius: '6px', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer' }}
                 >
                   Save Plan
                 </button>
