@@ -1,11 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { AnimatedArrow } from '../icons/AnimatedGymIcons';
-import { MEMBERSHIP_PLANS } from '../../data/gymData';
+import { getActivePlans, DEFAULT_PLANS_SEED } from '../../services/planService.js';
 
 function PlanCard({ plan, idx, shouldReduce }) {
   const [isHovered, setIsHovered] = useState(false);
+
+  const durationLabel = plan.durationDays
+    ? (plan.durationDays >= 365
+        ? `${Math.round(plan.durationDays / 365)} Year`
+        : plan.durationDays >= 30
+        ? `${Math.round(plan.durationDays / 30)} Month${plan.durationDays >= 60 ? 's' : ''}`
+        : `${plan.durationDays} Days`)
+    : 'Custom';
 
   return (
     <motion.div
@@ -56,11 +64,11 @@ function PlanCard({ plan, idx, shouldReduce }) {
               borderRadius: '2px',
             }}
           >
-            {plan.duration}
+            {durationLabel}
           </span>
         </div>
 
-        {/* Real Price */}
+        {/* Real Live Price */}
         <div style={{ margin: '0.6rem 0', display: 'flex', alignItems: 'baseline', gap: '0.35rem' }}>
           <span
             style={{
@@ -71,7 +79,7 @@ function PlanCard({ plan, idx, shouldReduce }) {
               color: 'var(--color-charcoal)',
             }}
           >
-            ₹{plan.price.toLocaleString('en-IN')}
+            ₹{Number(plan.price || 0).toLocaleString('en-IN')}
           </span>
         </div>
 
@@ -90,7 +98,7 @@ function PlanCard({ plan, idx, shouldReduce }) {
               marginBottom: '0.6rem',
             }}
           >
-            Admission fee: ₹{plan.admissionFee}
+            Admission fee: ₹{Number(plan.admissionFee).toLocaleString('en-IN')}
           </div>
         ) : (
           <div
@@ -110,17 +118,19 @@ function PlanCard({ plan, idx, shouldReduce }) {
           </div>
         )}
 
-        <p
-          style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: '0.86rem',
-            lineHeight: 1.5,
-            color: 'var(--color-slate)',
-            margin: '0.35rem 0 0 0',
-          }}
-        >
-          {plan.description}
-        </p>
+        {plan.description && (
+          <p
+            style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '0.86rem',
+              lineHeight: 1.5,
+              color: 'var(--color-slate)',
+              margin: '0.35rem 0 0 0',
+            }}
+          >
+            {plan.description}
+          </p>
+        )}
       </div>
 
       <div style={{ marginTop: '1.75rem', paddingTop: '1rem', borderTop: '1px solid rgba(37,42,46,0.08)' }}>
@@ -146,14 +156,21 @@ function PlanCard({ plan, idx, shouldReduce }) {
   );
 }
 
-/**
- * VisualMembershipSection — Clean Membership Overview
- * No invented pricing or fake benefit matrices.
- * Direct neutral information and primary JOIN NOW CTA.
- */
 function VisualMembershipSection() {
   const shouldReduce = useReducedMotion();
   const [btnHover, setBtnHover] = useState(false);
+  const [plans, setPlans] = useState([]);
+
+  useEffect(() => {
+    getActivePlans()
+      .then((data) => {
+        if (data && data.length > 0) setPlans(data);
+        else setPlans(DEFAULT_PLANS_SEED);
+      })
+      .catch(() => {
+        setPlans(DEFAULT_PLANS_SEED);
+      });
+  }, []);
 
   return (
     <section
@@ -283,7 +300,7 @@ function VisualMembershipSection() {
           </motion.div>
         </div>
 
-        {/* 4 Clean Membership Cards */}
+        {/* Dynamic Membership Cards */}
         <div
           style={{
             display: 'grid',
@@ -291,9 +308,9 @@ function VisualMembershipSection() {
             gap: '1.5rem',
           }}
         >
-          {MEMBERSHIP_PLANS.map((plan, idx) => (
+          {plans.map((plan, idx) => (
             <PlanCard
-              key={plan.id}
+              key={plan.id || idx}
               plan={plan}
               idx={idx}
               shouldReduce={shouldReduce}

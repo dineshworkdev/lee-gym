@@ -10,6 +10,9 @@ import {
   Dumbbell,
   User,
   ChevronRight,
+  Receipt,
+  Bell,
+  Settings,
 } from 'lucide-react';
 import { useOwnerGym } from '../context/OwnerGymContext.jsx';
 
@@ -75,9 +78,12 @@ export default function OwnerLayout() {
   };
 
   const navItems = [
-    { label: 'Dashboard', path: '/owner/dashboard', icon: LayoutDashboard },
-    { label: 'Members',   path: '/owner/members',   icon: Users },
-    { label: 'Plans',     path: '/owner/plans',     icon: CreditCard },
+    { label: 'Dashboard',     path: '/owner/dashboard',     icon: LayoutDashboard },
+    { label: 'Members',       path: '/owner/members',       icon: Users },
+    { label: 'Payments',      path: '/owner/payments',      icon: Receipt },
+    { label: 'Plans',         path: '/owner/plans',         icon: CreditCard },
+    { label: 'Notifications', path: '/owner/notifications', icon: Bell },
+    { label: 'Settings',      path: '/owner/settings',      icon: Settings },
   ];
 
   return (

@@ -1,12 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { Link } from 'react-router-dom';
+import { AlertCircle, RefreshCw, CheckCircle2 } from 'lucide-react';
 import PageHero from '../../components/common/PageHero';
 import { AnimatedArrow } from '../../components/icons/AnimatedGymIcons';
-import { MEMBERSHIP_PLANS } from '../../data/gymData';
+import { getActivePlans } from '../../services/planService.js';
 
 function MembershipPlanCard({ plan, index, shouldReduce }) {
   const [isHovered, setIsHovered] = useState(false);
+
+  // Derive duration display if not explicitly provided
+  const durationLabel = plan.durationDays
+    ? (plan.durationDays >= 365
+        ? `${Math.round(plan.durationDays / 365)} Year`
+        : plan.durationDays >= 30
+        ? `${Math.round(plan.durationDays / 30)} Month${plan.durationDays >= 60 ? 's' : ''}`
+        : `${plan.durationDays} Days`)
+    : 'Custom';
 
   return (
     <motion.div
@@ -27,7 +37,7 @@ function MembershipPlanCard({ plan, index, shouldReduce }) {
         justifyContent: 'space-between',
         boxShadow: 'var(--shadow-sm)',
         borderTop: '4px solid var(--color-yellow)',
-        minHeight: '280px',
+        minHeight: '300px',
         transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
       }}
     >
@@ -57,11 +67,11 @@ function MembershipPlanCard({ plan, index, shouldReduce }) {
               borderRadius: '2px',
             }}
           >
-            {plan.duration}
+            {durationLabel}
           </span>
         </div>
 
-        {/* Real Price Display */}
+        {/* Real Live Price Display */}
         <div style={{ margin: '0.75rem 0', display: 'flex', alignItems: 'baseline', gap: '0.35rem' }}>
           <span
             style={{
@@ -72,7 +82,7 @@ function MembershipPlanCard({ plan, index, shouldReduce }) {
               color: 'var(--color-charcoal)',
             }}
           >
-            ₹{plan.price.toLocaleString('en-IN')}
+            ₹{Number(plan.price || 0).toLocaleString('en-IN')}
           </span>
         </div>
 
@@ -91,7 +101,7 @@ function MembershipPlanCard({ plan, index, shouldReduce }) {
               marginBottom: '0.75rem',
             }}
           >
-            Admission fee: ₹{plan.admissionFee}
+            Admission fee: ₹{Number(plan.admissionFee).toLocaleString('en-IN')}
           </div>
         ) : (
           <div
@@ -100,8 +110,8 @@ function MembershipPlanCard({ plan, index, shouldReduce }) {
               fontFamily: 'var(--font-body)',
               fontSize: '0.78rem',
               fontWeight: 600,
-              color: '#4B555D',
-              backgroundColor: 'rgba(75, 85, 93, 0.08)',
+              color: '#2F7D4A',
+              backgroundColor: 'rgba(47, 125, 74, 0.08)',
               padding: '0.25rem 0.55rem',
               borderRadius: '2px',
               marginBottom: '0.75rem',
@@ -111,17 +121,31 @@ function MembershipPlanCard({ plan, index, shouldReduce }) {
           </div>
         )}
 
-        <p
-          style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: '0.9rem',
-            lineHeight: 1.6,
-            color: 'var(--color-slate)',
-            margin: '0.5rem 0 0 0',
-          }}
-        >
-          {plan.description}
-        </p>
+        {plan.description && (
+          <p
+            style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '0.9rem',
+              lineHeight: 1.6,
+              color: 'var(--color-slate)',
+              margin: '0.5rem 0 0 0',
+            }}
+          >
+            {plan.description}
+          </p>
+        )}
+
+        {/* Features list if present */}
+        {Array.isArray(plan.features) && plan.features.length > 0 && (
+          <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            {plan.features.map((feat, idx) => (
+              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem', color: 'var(--color-charcoal)' }}>
+                <CheckCircle2 size={14} color="#2F7D4A" style={{ flexShrink: 0 }} />
+                <span>{feat}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div style={{ marginTop: '2rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(37,42,46,0.08)' }}>
@@ -159,6 +183,27 @@ function MembershipPlanCard({ plan, index, shouldReduce }) {
 
 function Membership() {
   const shouldReduce = useReducedMotion();
+  const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchPlans = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const livePlans = await getActivePlans();
+      setPlans(livePlans);
+    } catch (err) {
+      console.error('Failed to load membership plans from Firestore:', err);
+      setError('Unable to load current membership plans. Please check your connection or contact the gym directly.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPlans();
+  }, []);
 
   return (
     <div style={{ backgroundColor: 'var(--color-warm-bg)', minHeight: '100vh' }}>
@@ -178,24 +223,121 @@ function Membership() {
             padding: '0 clamp(1.25rem, 4vw, 2.5rem)',
           }}
         >
-          {/* Plan Cards */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-              gap: '1.5rem',
-              marginBottom: '4rem',
-            }}
-          >
-            {MEMBERSHIP_PLANS.map((plan, index) => (
-              <MembershipPlanCard
-                key={plan.id}
-                plan={plan}
-                index={index}
-                shouldReduce={shouldReduce}
+          {/* Loading State */}
+          {loading && (
+            <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
+              <RefreshCw
+                size={36}
+                className="animate-spin"
+                style={{ margin: '0 auto 1rem auto', color: 'var(--color-charcoal)' }}
               />
-            ))}
-          </div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem', color: 'var(--color-charcoal)' }}>
+                LOADING ACTIVE PLANS...
+              </div>
+              <p style={{ color: 'var(--color-slate)', fontSize: '0.9rem' }}>Fetching live rates from gym database</p>
+            </div>
+          )}
+
+          {/* Error State */}
+          {!loading && error && (
+            <div
+              style={{
+                backgroundColor: '#FDF2F2',
+                border: '2px solid #A83D3D',
+                borderRadius: '4px',
+                padding: '2rem',
+                textAlign: 'center',
+                marginBottom: '3rem',
+              }}
+            >
+              <AlertCircle size={32} color="#A83D3D" style={{ margin: '0 auto 0.75rem auto' }} />
+              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.6rem', color: '#A83D3D', margin: '0 0 0.5rem 0' }}>
+                COULD NOT LOAD PLANS
+              </h3>
+              <p style={{ color: 'var(--color-slate)', maxWidth: '500px', margin: '0 auto 1.25rem auto', fontSize: '0.92rem' }}>
+                {error}
+              </p>
+              <button
+                type="button"
+                onClick={fetchPlans}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  backgroundColor: 'var(--color-charcoal)',
+                  color: 'var(--color-white)',
+                  border: 'none',
+                  padding: '0.65rem 1.25rem',
+                  fontWeight: 700,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  borderRadius: '2px',
+                }}
+              >
+                <RefreshCw size={14} />
+                <span>Try Again</span>
+              </button>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!loading && !error && plans.length === 0 && (
+            <div
+              style={{
+                backgroundColor: 'var(--color-white)',
+                border: '1px solid rgba(37,42,46,0.1)',
+                padding: '3rem 1.5rem',
+                textAlign: 'center',
+                borderRadius: '4px',
+                marginBottom: '3rem',
+              }}
+            >
+              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem', color: 'var(--color-charcoal)', margin: '0 0 0.5rem 0' }}>
+                NO ACTIVE PLANS CURRENTLY LISTED
+              </h3>
+              <p style={{ color: 'var(--color-slate)', fontSize: '0.95rem', margin: '0 0 1.5rem 0' }}>
+                Please visit Lee Gym at Nikki Towers, Pallapalayam or reach out directly for current admissions.
+              </p>
+              <Link
+                to="/contact"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  backgroundColor: 'var(--color-yellow)',
+                  color: 'var(--color-charcoal)',
+                  padding: '0.75rem 1.5rem',
+                  fontWeight: 800,
+                  textDecoration: 'none',
+                  fontSize: '0.85rem',
+                }}
+              >
+                <span>Contact Gym</span>
+                <AnimatedArrow size={16} />
+              </Link>
+            </div>
+          )}
+
+          {/* Active Plan Cards */}
+          {!loading && !error && plans.length > 0 && (
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                gap: '1.5rem',
+                marginBottom: '4rem',
+              }}
+            >
+              {plans.map((plan, index) => (
+                <MembershipPlanCard
+                  key={plan.id}
+                  plan={plan}
+                  index={index}
+                  shouldReduce={shouldReduce}
+                />
+              ))}
+            </div>
+          )}
 
           {/* Clean Neutral Support Box */}
           <motion.div

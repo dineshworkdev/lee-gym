@@ -11,18 +11,53 @@ import {
   Receipt,
   AlertCircle,
   Plus,
+  RefreshCw,
+  Snowflake,
+  PlayCircle,
+  Archive,
+  RotateCcw,
+  Printer,
+  ShieldAlert,
 } from 'lucide-react';
-import { useOwnerGym, formatDate, CURRENT_DATE_STR } from '../../context/OwnerGymContext.jsx';
+import {
+  useOwnerGym,
+  formatDate,
+  CURRENT_DATE_STR,
+} from '../../context/OwnerGymContext.jsx';
+import ReceiptModal from '../../components/common/ReceiptModal.jsx';
+import {
+  calculateRenewalDates,
+  calculateResumeExtension,
+  calculateExpiryDate,
+} from '../../utils/membershipRules.js';
 
 export default function MemberDetail() {
   const { id } = useParams();
-  const { members, memberEvaluator, updateMember, recordPayment, getMemberPayments } = useOwnerGym();
+  const {
+    members,
+    plans,
+    isOwner,
+    memberEvaluator,
+    updateMember,
+    recordPayment,
+    renewMember,
+    freezeMember,
+    resumeMember,
+    archiveMember,
+    restoreMember,
+    getMemberPayments,
+  } = useOwnerGym();
 
   const member = members.find((m) => m.id === id || m.docId === id || m.memberId === id);
 
   // Modals state
   const [showEditModal, setShowEditModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showRenewModal, setShowRenewModal] = useState(false);
+  const [showFreezeModal, setShowFreezeModal] = useState(false);
+  const [showResumeModal, setShowResumeModal] = useState(false);
+  const [showArchiveModal, setShowArchiveModal] = useState(false);
+  const [selectedReceiptPayment, setSelectedReceiptPayment] = useState(null);
   const [feedbackMsg, setFeedbackMsg] = useState('');
 
   // Payment History State
@@ -41,7 +76,33 @@ export default function MemberDetail() {
   const [paymentModalError, setPaymentModalError] = useState('');
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
 
-  // Load payments on mount or when member changes (Always call hooks at top level)
+  // Renewal form state
+  const [renewPlanId, setRenewPlanId] = useState('');
+  const [renewStartDate, setRenewStartDate] = useState('');
+  const [renewDiscount, setRenewDiscount] = useState('0');
+  const [renewAmountCollected, setRenewAmountCollected] = useState('');
+  const [renewPaymentMode, setRenewPaymentMode] = useState('Cash');
+  const [renewPaymentDate, setRenewPaymentDate] = useState(CURRENT_DATE_STR);
+  const [renewNotes, setRenewNotes] = useState('');
+  const [renewError, setRenewError] = useState('');
+  const [isSubmittingRenew, setIsSubmittingRenew] = useState(false);
+
+  // Freeze form state
+  const [freezeStartDate, setFreezeStartDate] = useState(CURRENT_DATE_STR);
+  const [freezeExpectedEndDate, setFreezeExpectedEndDate] = useState('');
+  const [freezeReason, setFreezeReason] = useState('');
+  const [freezeError, setFreezeError] = useState('');
+  const [isSubmittingFreeze, setIsSubmittingFreeze] = useState(false);
+
+  // Resume form state
+  const [resumeDate, setResumeDate] = useState(CURRENT_DATE_STR);
+  const [isSubmittingResume, setIsSubmittingResume] = useState(false);
+
+  // Archive state
+  const [archiveReason, setArchiveReason] = useState('');
+  const [isSubmittingArchive, setIsSubmittingArchive] = useState(false);
+
+  // Load payments on mount or when member changes
   useEffect(() => {
     let isMounted = true;
     if (member && getMemberPayments) {
@@ -97,14 +158,20 @@ export default function MemberDetail() {
     );
   }
 
-  const { isDue, isActive, isExpiringToday, diff } = memberEvaluator(member);
+  const evalStatus = memberEvaluator(member);
   const currentDue = Number(member?.dueAmount !== undefined ? member.dueAmount : (member?.amountDue || 0));
   const hasDue = currentDue > 0;
 
+  const showNotice = (msg) => {
+    setFeedbackMsg(msg);
+    setTimeout(() => setFeedbackMsg(''), 4000);
+  };
+
+  // ── EDIT HANDLERS ─────────────────────────────────────────────────
   const handleOpenEdit = () => {
     setEditForm({
-      name: member.name,
-      mobile: member.mobile,
+      name: member.name || '',
+      mobile: member.mobile || '',
       gender: member.gender || 'Male',
       dobOrAge: member.dobOrAge || '',
       height: member.height || '',
@@ -114,13 +181,14 @@ export default function MemberDetail() {
     setShowEditModal(true);
   };
 
-  const handleSaveEdit = (e) => {
+  const handleSaveEdit = async (e) => {
     e.preventDefault();
-    updateMember(member.id, editForm);
+    await updateMember(member.id, editForm);
     setShowEditModal(false);
     showNotice('Member details updated successfully.');
   };
 
+  // ── RECORD PAYMENT HANDLERS ───────────────────────────────────────
   const handleOpenPayment = () => {
     if (!hasDue) return;
     setPaymentAmount(String(currentDue));
@@ -134,11 +202,6 @@ export default function MemberDetail() {
   const handleSavePayment = async (e) => {
     e.preventDefault();
     if (isSubmittingPayment) return;
-
-    if (!hasDue || currentDue <= 0) {
-      setPaymentModalError('This member has no outstanding due amount (Due: ₹0).');
-      return;
-    }
 
     const amt = Number(paymentAmount);
     if (isNaN(amt) || amt <= 0) {
@@ -167,35 +230,197 @@ export default function MemberDetail() {
 
       if (res.success) {
         if (res.payment) {
-          // Prepend newest payment to history list immediately
           setPayments((prev) => [res.payment, ...prev]);
+          setSelectedReceiptPayment(res.payment);
         }
         setShowPaymentModal(false);
-        showNotice(
-          `Payment of ₹${amt} recorded successfully. (Receipt: ${
-            res.payment?.receiptNumber || 'Created'
-          })`
-        );
+        showNotice(`Payment of ₹${amt} recorded successfully.`);
       } else {
         setPaymentModalError(res.message || 'Payment recording failed.');
       }
     } catch (err) {
       console.error('Payment submit error:', err);
-      setPaymentModalError(err.message || 'Failed to record payment. Please try again.');
+      setPaymentModalError(err.message || 'Failed to record payment.');
     } finally {
       setIsSubmittingPayment(false);
     }
   };
 
-  const showNotice = (msg) => {
-    setFeedbackMsg(msg);
-    setTimeout(() => setFeedbackMsg(''), 3500);
+  // ── RENEWAL HANDLERS ──────────────────────────────────────────────
+  const handleOpenRenew = () => {
+    const activePlans = plans.filter((p) => p.status === 'Active');
+    const defaultPlan = activePlans[0] || plans[0] || { id: 'default', name: 'Monthly', price: 1000, durationDays: 30 };
+    setRenewPlanId(defaultPlan.id);
+
+    // Calculate dates
+    const renewalDates = calculateRenewalDates(
+      member.expiryDate,
+      defaultPlan.durationDays || 30,
+      null,
+      CURRENT_DATE_STR
+    );
+    setRenewStartDate(renewalDates.startDate);
+    setRenewDiscount('0');
+    setRenewAmountCollected(String(defaultPlan.price || 1000));
+    setRenewPaymentMode('Cash');
+    setRenewPaymentDate(CURRENT_DATE_STR);
+    setRenewNotes('');
+    setRenewError('');
+    setShowRenewModal(true);
+  };
+
+  const selectedRenewPlan = plans.find((p) => p.id === renewPlanId) || plans[0] || {
+    id: 'default',
+    name: 'Monthly',
+    price: 1000,
+    durationDays: 30,
+  };
+
+  const renewDuration = Number(selectedRenewPlan.durationDays || 30);
+  const calculatedRenewExpiry = calculateExpiryDate(renewStartDate || CURRENT_DATE_STR, renewDuration);
+  const renewPriceNum = Number(selectedRenewPlan.price || 0);
+  const renewDiscountNum = Number(renewDiscount || 0);
+  const renewNetPayable = Math.max(0, renewPriceNum - renewDiscountNum);
+
+  const handleSaveRenew = async (e) => {
+    e.preventDefault();
+    if (isSubmittingRenew) return;
+
+    if (!selectedRenewPlan?.name) {
+      setRenewError('Please select a valid membership plan.');
+      return;
+    }
+
+    const collectedAmt = Number(renewAmountCollected || 0);
+    if (collectedAmt < 0) {
+      setRenewError('Amount collected cannot be negative.');
+      return;
+    }
+
+    setIsSubmittingRenew(true);
+    setRenewError('');
+
+    try {
+      const res = await renewMember({
+        memberDocId: member.docId,
+        memberId: member.memberId || member.id,
+        plan: selectedRenewPlan,
+        startDate: renewStartDate,
+        durationDays: renewDuration,
+        expiryDate: calculatedRenewExpiry,
+        planAmount: renewPriceNum,
+        discount: renewDiscountNum,
+        amountCollected: collectedAmt,
+        paymentMode: renewPaymentMode,
+        paymentDate: renewPaymentDate,
+        notes: renewNotes,
+      });
+
+      if (res.success) {
+        if (res.payment) {
+          setPayments((prev) => [res.payment, ...prev]);
+          setSelectedReceiptPayment(res.payment);
+        }
+        setShowRenewModal(false);
+        showNotice(`Membership successfully renewed under ${selectedRenewPlan.name} plan!`);
+      } else {
+        setRenewError('Renewal failed. Please check inputs.');
+      }
+    } catch (err) {
+      console.error('Renewal error:', err);
+      setRenewError(err.message || 'Failed to complete renewal.');
+    } finally {
+      setIsSubmittingRenew(false);
+    }
+  };
+
+  // ── FREEZE HANDLERS ───────────────────────────────────────────────
+  const handleOpenFreeze = () => {
+    setFreezeStartDate(CURRENT_DATE_STR);
+    setFreezeExpectedEndDate('');
+    setFreezeReason('');
+    setFreezeError('');
+    setShowFreezeModal(true);
+  };
+
+  const handleSaveFreeze = async (e) => {
+    e.preventDefault();
+    if (isSubmittingFreeze) return;
+
+    setIsSubmittingFreeze(true);
+    setFreezeError('');
+    try {
+      await freezeMember(member.id, {
+        startDate: freezeStartDate,
+        expectedEndDate: freezeExpectedEndDate,
+        reason: freezeReason || 'Medical / Personal hiatus',
+      });
+      setShowFreezeModal(false);
+      showNotice('Membership frozen successfully.');
+    } catch (err) {
+      console.error('Freeze error:', err);
+      setFreezeError(err.message || 'Failed to freeze membership.');
+    } finally {
+      setIsSubmittingFreeze(false);
+    }
+  };
+
+  // ── RESUME HANDLERS ───────────────────────────────────────────────
+  const handleOpenResume = () => {
+    setResumeDate(CURRENT_DATE_STR);
+    setShowResumeModal(true);
+  };
+
+  const handleSaveResume = async (e) => {
+    e.preventDefault();
+    if (isSubmittingResume) return;
+
+    setIsSubmittingResume(true);
+    try {
+      const res = await resumeMember(member.id, resumeDate);
+      setShowResumeModal(false);
+      showNotice(
+        `Membership resumed! Expiry extended by ${res.actualFrozenDays} days to ${formatDate(res.newExpiryDate)}.`
+      );
+    } catch (err) {
+      console.error('Resume error:', err);
+      alert(err.message || 'Failed to resume membership.');
+    } finally {
+      setIsSubmittingResume(false);
+    }
+  };
+
+  // ── ARCHIVE & RESTORE HANDLERS ────────────────────────────────────
+  const handleArchive = async (e) => {
+    e.preventDefault();
+    setIsSubmittingArchive(true);
+    try {
+      await archiveMember(member.id, archiveReason);
+      setShowArchiveModal(false);
+      showNotice('Member safely archived. Financial and renewal history preserved.');
+    } catch (err) {
+      console.error('Archive error:', err);
+      alert(err.message || 'Failed to archive member.');
+    } finally {
+      setIsSubmittingArchive(false);
+    }
+  };
+
+  const handleRestore = async () => {
+    if (!window.confirm('Restore this member back to active directory?')) return;
+    try {
+      await restoreMember(member.id);
+      showNotice('Member restored back to active directory.');
+    } catch (err) {
+      console.error('Restore error:', err);
+      alert(err.message || 'Failed to restore member.');
+    }
   };
 
   return (
-    <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+    <div style={{ maxWidth: '1150px', margin: '0 auto' }}>
       {/* ── TOP BACK NAVIGATION & NOTIFICATION ──────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <Link
           to="/owner/members"
           style={{
@@ -218,12 +443,13 @@ export default function MemberDetail() {
             style={{
               backgroundColor: '#2F7D4A',
               color: '#FFFFFF',
-              padding: '0.45rem 1rem',
-              fontSize: '0.82rem',
+              padding: '0.5rem 1.25rem',
+              fontSize: '0.85rem',
               fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
-              gap: '0.4rem',
+              gap: '0.5rem',
+              borderRadius: '2px',
             }}
           >
             <Check size={16} />
@@ -231,6 +457,103 @@ export default function MemberDetail() {
           </div>
         )}
       </div>
+
+      {/* ── FROZEN / ARCHIVED STATUS BANNER ─────────────────────────── */}
+      {evalStatus.isFrozen && (
+        <div
+          style={{
+            backgroundColor: '#E1F3F8',
+            border: '2px solid #1D6F8A',
+            padding: '1rem 1.25rem',
+            marginBottom: '1.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '1rem',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <Snowflake size={24} color="#1D6F8A" />
+            <div>
+              <div style={{ fontWeight: 800, color: '#1D6F8A', fontSize: '0.95rem' }}>
+                MEMBERSHIP IS CURRENTLY FROZEN
+              </div>
+              <div style={{ fontSize: '0.82rem', color: '#4B555D' }}>
+                Frozen since: <strong>{formatDate(member.freezeInfo?.startDate)}</strong>
+                {member.freezeInfo?.expectedEndDate && ` | Expected End: ${formatDate(member.freezeInfo?.expectedEndDate)}`}
+                {member.freezeInfo?.reason && ` | Reason: "${member.freezeInfo?.reason}"`}
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleOpenResume}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              backgroundColor: '#1D6F8A',
+              color: '#FFFFFF',
+              border: 'none',
+              padding: '0.6rem 1.2rem',
+              fontWeight: 800,
+              fontSize: '0.82rem',
+              cursor: 'pointer',
+            }}
+          >
+            <PlayCircle size={16} />
+            <span>RESUME MEMBERSHIP</span>
+          </button>
+        </div>
+      )}
+
+      {evalStatus.isArchived && (
+        <div
+          style={{
+            backgroundColor: '#F0F0F0',
+            border: '2px solid #7A8288',
+            padding: '1rem 1.25rem',
+            marginBottom: '1.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '1rem',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <Archive size={24} color="#7A8288" />
+            <div>
+              <div style={{ fontWeight: 800, color: '#252A2E', fontSize: '0.95rem' }}>
+                MEMBER ARCHIVED
+              </div>
+              <div style={{ fontSize: '0.82rem', color: '#4B555D' }}>
+                Archived on: {formatDate(member.archivedAt)} | Reason: {member.archiveReason || 'Departed'}
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleRestore}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              backgroundColor: '#252A2E',
+              color: '#FFFFFF',
+              border: 'none',
+              padding: '0.6rem 1.2rem',
+              fontWeight: 800,
+              fontSize: '0.82rem',
+              cursor: 'pointer',
+            }}
+          >
+            <RotateCcw size={16} />
+            <span>RESTORE MEMBER</span>
+          </button>
+        </div>
+      )}
 
       {/* ── MEMBER HEADER PROFILE CARD ──────────────────────────────── */}
       <div
@@ -248,7 +571,7 @@ export default function MemberDetail() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
-          {/* Large Photo / Avatar */}
+          {/* Photo Avatar */}
           <div
             style={{
               width: '84px',
@@ -262,16 +585,17 @@ export default function MemberDetail() {
               fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
               fontSize: '2.5rem',
               flexShrink: 0,
+              overflow: 'hidden',
             }}
           >
-            {member.photo ? (
+            {member.photo || member.photoUrl ? (
               <img
-                src={member.photo}
+                src={member.photo || member.photoUrl}
                 alt={member.name}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             ) : (
-              member.name.charAt(0)
+              member.name?.charAt(0) || 'L'
             )}
           </div>
 
@@ -302,6 +626,19 @@ export default function MemberDetail() {
               >
                 {member.id}
               </span>
+              <span
+                style={{
+                  backgroundColor: evalStatus.badgeBg,
+                  color: evalStatus.badgeColor,
+                  border: `1.5px solid ${evalStatus.badgeColor}`,
+                  fontWeight: 800,
+                  fontSize: '0.75rem',
+                  padding: '0.15rem 0.55rem',
+                  letterSpacing: '0.05em',
+                }}
+              >
+                {evalStatus.badgeLabel}
+              </span>
             </div>
 
             <div
@@ -327,8 +664,8 @@ export default function MemberDetail() {
           </div>
         </div>
 
-        {/* Action Buttons: [ EDIT MEMBER ] and [ RECORD PAYMENT ] */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+        {/* Action Buttons: [ EDIT ], [ RENEW ], [ FREEZE / RESUME ], [ RECORD PAYMENT ], [ ARCHIVE ] */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
           <button
             id="member-edit-btn"
             type="button"
@@ -340,20 +677,98 @@ export default function MemberDetail() {
               backgroundColor: '#FFFFFF',
               color: '#252A2E',
               border: '2px solid #252A2E',
-              padding: '0.7rem 1.25rem',
-              fontFamily: 'var(--font-body, "Inter", sans-serif)',
-              fontSize: '0.85rem',
+              padding: '0.65rem 1.1rem',
+              fontSize: '0.82rem',
               fontWeight: 800,
               letterSpacing: '0.06em',
               textTransform: 'uppercase',
-              boxShadow: '3px 3px 0px #252A2E',
+              boxShadow: '2px 2px 0px #252A2E',
               cursor: 'pointer',
             }}
           >
-            <Edit size={16} />
-            <span>EDIT MEMBER</span>
+            <Edit size={15} />
+            <span>EDIT</span>
           </button>
 
+          {/* RENEW Button */}
+          {!evalStatus.isArchived && (
+            <button
+              id="member-renew-btn"
+              type="button"
+              onClick={handleOpenRenew}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                backgroundColor: '#F4C400',
+                color: '#252A2E',
+                border: '2px solid #252A2E',
+                padding: '0.65rem 1.1rem',
+                fontSize: '0.82rem',
+                fontWeight: 800,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                boxShadow: '2px 2px 0px #252A2E',
+                cursor: 'pointer',
+              }}
+            >
+              <RefreshCw size={15} />
+              <span>RENEW</span>
+            </button>
+          )}
+
+          {/* FREEZE / RESUME Button */}
+          {!evalStatus.isArchived && (
+            evalStatus.isFrozen ? (
+              <button
+                id="member-resume-btn"
+                type="button"
+                onClick={handleOpenResume}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.45rem',
+                  backgroundColor: '#1D6F8A',
+                  color: '#FFFFFF',
+                  border: '2px solid #252A2E',
+                  padding: '0.65rem 1.1rem',
+                  fontSize: '0.82rem',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  boxShadow: '2px 2px 0px #252A2E',
+                  cursor: 'pointer',
+                }}
+              >
+                <PlayCircle size={15} />
+                <span>RESUME</span>
+              </button>
+            ) : (
+              <button
+                id="member-freeze-btn"
+                type="button"
+                onClick={handleOpenFreeze}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.45rem',
+                  backgroundColor: '#FFFFFF',
+                  color: '#1D6F8A',
+                  border: '2px solid #1D6F8A',
+                  padding: '0.65rem 1.1rem',
+                  fontSize: '0.82rem',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  boxShadow: '2px 2px 0px #252A2E',
+                  cursor: 'pointer',
+                }}
+              >
+                <Snowflake size={15} />
+                <span>FREEZE</span>
+              </button>
+            )
+          )}
+
+          {/* RECORD PAYMENT Button */}
           {hasDue && (
             <button
               id="member-record-payment-btn"
@@ -363,28 +778,52 @@ export default function MemberDetail() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.45rem',
-                backgroundColor: '#F4C400',
-                color: '#252A2E',
+                backgroundColor: '#2F7D4A',
+                color: '#FFFFFF',
                 border: '2px solid #252A2E',
-                padding: '0.7rem 1.25rem',
-                fontFamily: 'var(--font-body, "Inter", sans-serif)',
-                fontSize: '0.85rem',
+                padding: '0.65rem 1.1rem',
+                fontSize: '0.82rem',
                 fontWeight: 800,
                 letterSpacing: '0.06em',
                 textTransform: 'uppercase',
-                boxShadow: '3px 3px 0px #252A2E',
+                boxShadow: '2px 2px 0px #252A2E',
                 cursor: 'pointer',
               }}
             >
-              <DollarSign size={16} />
-              <span>RECORD PAYMENT</span>
+              <DollarSign size={15} />
+              <span>COLLECT DUE</span>
+            </button>
+          )}
+
+          {/* ARCHIVE Button (Owner only) */}
+          {isOwner && !evalStatus.isArchived && (
+            <button
+              id="member-archive-btn"
+              type="button"
+              onClick={() => setShowArchiveModal(true)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                backgroundColor: '#FFFFFF',
+                color: '#7A8288',
+                border: '1.5px solid #7A8288',
+                padding: '0.65rem 0.9rem',
+                fontSize: '0.82rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+              title="Safe member archival"
+            >
+              <Archive size={15} />
+              <span>ARCHIVE</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* ── 3 COMPREHENSIVE SECTIONS: PERSONAL, MEMBERSHIP, PAYMENT ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+      {/* ── 3 SECTIONS: PERSONAL, MEMBERSHIP, FINANCIALS ─────────────── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
         {/* 1. PERSONAL DETAILS */}
         <div
           style={{
@@ -461,16 +900,18 @@ export default function MemberDetail() {
               justifyContent: 'space-between',
             }}
           >
-            <span>MEMBERSHIP</span>
-            {isActive ? (
-              <span style={{ backgroundColor: '#2F7D4A', color: '#FFFFFF', fontSize: '0.75rem', fontWeight: 800, padding: '0.2rem 0.6rem' }}>
-                ACTIVE
-              </span>
-            ) : (
-              <span style={{ backgroundColor: '#4B555D', color: '#FFFFFF', fontSize: '0.75rem', fontWeight: 800, padding: '0.2rem 0.6rem' }}>
-                EXPIRED
-              </span>
-            )}
+            <span>CURRENT MEMBERSHIP</span>
+            <span
+              style={{
+                backgroundColor: evalStatus.badgeBg,
+                color: evalStatus.badgeColor,
+                fontSize: '0.75rem',
+                fontWeight: 800,
+                padding: '0.2rem 0.6rem',
+              }}
+            >
+              {evalStatus.badgeLabel}
+            </span>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.9rem' }}>
@@ -490,34 +931,29 @@ export default function MemberDetail() {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ color: '#4B555D' }}>Status Timeline:</span>
+              <span style={{ color: '#4B555D' }}>Timeline:</span>
               <div>
-                {isExpiringToday && (
+                {evalStatus.isExpiringToday && (
                   <span style={{ backgroundColor: '#F4C400', color: '#252A2E', fontWeight: 800, fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}>
                     EXPIRES TODAY
                   </span>
                 )}
-                {diff > 0 && !isExpiringToday && (
+                {evalStatus.daysRemaining > 0 && !evalStatus.isExpiringToday && (
                   <span style={{ color: '#2F7D4A', fontWeight: 700 }}>
-                    {diff} day{diff !== 1 ? 's' : ''} remaining
+                    {evalStatus.daysRemaining} day{evalStatus.daysRemaining !== 1 ? 's' : ''} remaining
                   </span>
                 )}
-                {diff < 0 && (
+                {evalStatus.daysRemaining < 0 && (
                   <span style={{ color: '#A83D3D', fontWeight: 700 }}>
-                    Expired {Math.abs(diff)} day{Math.abs(diff) !== 1 ? 's' : ''} ago
+                    Expired {Math.abs(evalStatus.daysRemaining)} day{Math.abs(evalStatus.daysRemaining) !== 1 ? 's' : ''} ago
                   </span>
                 )}
               </div>
             </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ color: '#4B555D' }}>WhatsApp Invoice:</span>
-              <strong style={{ color: '#252A2E' }}>{member.sendInvoice ? 'Requested' : 'Not Requested'}</strong>
-            </div>
           </div>
         </div>
 
-        {/* 3. PAYMENT */}
+        {/* 3. FINANCIALS */}
         <div
           style={{
             backgroundColor: '#FFFFFF',
@@ -540,14 +976,14 @@ export default function MemberDetail() {
               justifyContent: 'space-between',
             }}
           >
-            <span>PAYMENT</span>
-            {isDue ? (
+            <span>FINANCIAL SUMMARY</span>
+            {hasDue ? (
               <span style={{ backgroundColor: '#A83D3D', color: '#FFFFFF', fontSize: '0.75rem', fontWeight: 800, padding: '0.2rem 0.6rem' }}>
-                DUE
+                DUE: ₹{currentDue}
               </span>
             ) : (
               <span style={{ backgroundColor: '#2F7D4A', color: '#FFFFFF', fontSize: '0.75rem', fontWeight: 800, padding: '0.2rem 0.6rem' }}>
-                PAID
+                CLEAR
               </span>
             )}
           </div>
@@ -564,12 +1000,12 @@ export default function MemberDetail() {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px dashed rgba(37, 42, 46, 0.15)', paddingTop: '0.6rem' }}>
-              <span style={{ fontWeight: 700, color: '#252A2E' }}>Amount Payable:</span>
+              <span style={{ fontWeight: 700, color: '#252A2E' }}>Total Lifetime Payable:</span>
               <strong style={{ color: '#252A2E', fontSize: '1.05rem' }}>₹{member.amountPayable || 0}</strong>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ color: '#4B555D' }}>Amount Collected:</span>
+              <span style={{ color: '#4B555D' }}>Total Collected:</span>
               <span style={{ fontWeight: 700, color: '#2F7D4A' }}>₹{member.amountCollected || 0}</span>
             </div>
 
@@ -579,65 +1015,80 @@ export default function MemberDetail() {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '0.5rem 0.75rem',
-                backgroundColor: isDue ? '#FDF2F2' : '#F2F9F4',
-                border: isDue ? '1px solid #A83D3D' : '1px solid #2F7D4A',
+                backgroundColor: hasDue ? '#FDF2F2' : '#F2F9F4',
+                border: hasDue ? '1px solid #A83D3D' : '1px solid #2F7D4A',
               }}
             >
-              <span style={{ fontWeight: 800, color: isDue ? '#A83D3D' : '#2F7D4A' }}>Due Amount:</span>
-              <strong style={{ fontSize: '1.15rem', color: isDue ? '#A83D3D' : '#2F7D4A' }}>
-                ₹{member.amountDue || 0}
+              <span style={{ fontWeight: 800, color: hasDue ? '#A83D3D' : '#2F7D4A' }}>Current Due:</span>
+              <strong style={{ fontSize: '1.15rem', color: hasDue ? '#A83D3D' : '#2F7D4A' }}>
+                ₹{currentDue}
               </strong>
             </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.2rem' }}>
-              <span style={{ color: '#4B555D' }}>Payment Mode:</span>
-              <span
-                style={{
-                  backgroundColor: '#252A2E',
-                  color: '#FFFFFF',
-                  fontWeight: 700,
-                  fontSize: '0.78rem',
-                  padding: '0.2rem 0.6rem',
-                  textTransform: 'uppercase',
-                }}
-              >
-                {member.paymentMode || 'Cash'}
-              </span>
-            </div>
-
-            {hasDue && (
-              <button
-                type="button"
-                onClick={handleOpenPayment}
-                style={{
-                  marginTop: '0.6rem',
-                  width: '100%',
-                  padding: '0.65rem',
-                  backgroundColor: '#F4C400',
-                  color: '#252A2E',
-                  border: '2px solid #252A2E',
-                  fontWeight: 800,
-                  fontSize: '0.85rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.4rem',
-                  boxShadow: '2px 2px 0px #252A2E',
-                }}
-              >
-                <DollarSign size={16} />
-                <span>RECORD PAYMENT</span>
-              </button>
-            )}
           </div>
         </div>
       </div>
 
-      {/* ── 4. PAYMENT HISTORY SECTION ───────────────────────────────── */}
+      {/* ── 4. RENEWAL HISTORY SECTION ───────────────────────────────── */}
+      {Array.isArray(member.renewals) && member.renewals.length > 0 && (
+        <div
+          style={{
+            backgroundColor: '#FFFFFF',
+            border: '2px solid #252A2E',
+            boxShadow: '4px 4px 0px #252A2E',
+            padding: '1.75rem',
+            marginBottom: '2rem',
+          }}
+        >
+          <div style={{ borderBottom: '2px solid #252A2E', paddingBottom: '0.75rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <RefreshCw size={20} color="#252A2E" />
+              <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '1.6rem', margin: 0, color: '#252A2E' }}>
+                RENEWAL HISTORY
+              </h3>
+            </div>
+            <span style={{ backgroundColor: '#252A2E', color: '#F4C400', fontSize: '0.75rem', fontWeight: 800, padding: '0.2rem 0.5rem', fontFamily: 'monospace' }}>
+              {member.renewals.length} RENEWAL{member.renewals.length > 1 ? 'S' : ''}
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {member.renewals.map((ren, idx) => (
+              <div
+                key={idx}
+                style={{
+                  backgroundColor: '#FAF8F4',
+                  border: '1px solid #252A2E',
+                  padding: '0.85rem 1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: '0.75rem',
+                  fontSize: '0.85rem',
+                }}
+              >
+                <div>
+                  <strong style={{ fontSize: '0.95rem' }}>{ren.planName}</strong>
+                  <div style={{ color: '#4B555D', fontSize: '0.8rem', marginTop: '0.1rem' }}>
+                    Period: {formatDate(ren.startDate)} – {formatDate(ren.expiryDate)} ({ren.durationDays} days)
+                  </div>
+                </div>
+
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontWeight: 800, color: '#2F7D4A' }}>Paid: ₹{Number(ren.amountPaid || 0).toLocaleString('en-IN')}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#7A8288' }}>
+                    Receipt: {ren.receiptNumber || '—'} | By: {ren.renewedBy || 'Staff'}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── 5. PAYMENT HISTORY SECTION ───────────────────────────────── */}
       <div
         style={{
-          marginTop: '2rem',
           backgroundColor: '#FFFFFF',
           border: '2px solid #252A2E',
           boxShadow: '4px 4px 0px #252A2E',
@@ -696,7 +1147,6 @@ export default function MemberDetail() {
                 color: '#252A2E',
                 border: '2px solid #252A2E',
                 padding: '0.55rem 1rem',
-                fontFamily: 'var(--font-body, "Inter", sans-serif)',
                 fontSize: '0.82rem',
                 fontWeight: 800,
                 cursor: 'pointer',
@@ -737,40 +1187,12 @@ export default function MemberDetail() {
             }}
           >
             <Receipt size={36} color="#7A8288" style={{ margin: '0 auto 0.75rem auto' }} />
-            <h4
-              style={{
-                fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                fontSize: '1.35rem',
-                color: '#252A2E',
-                margin: '0 0 0.35rem 0',
-              }}
-            >
+            <h4 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '1.35rem', color: '#252A2E', margin: '0 0 0.35rem 0' }}>
               NO PAYMENT RECORDS FOUND
             </h4>
             <p style={{ color: '#4B555D', fontSize: '0.88rem', margin: '0 0 1rem 0' }}>
               No payments have been recorded for this member yet.
             </p>
-            {hasDue && (
-              <button
-                type="button"
-                onClick={handleOpenPayment}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.4rem',
-                  backgroundColor: '#252A2E',
-                  color: '#FFFFFF',
-                  border: '2px solid #252A2E',
-                  padding: '0.6rem 1.25rem',
-                  fontWeight: 800,
-                  fontSize: '0.82rem',
-                  cursor: 'pointer',
-                }}
-              >
-                <DollarSign size={15} />
-                <span>Record First Payment</span>
-              </button>
-            )}
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
@@ -839,9 +1261,9 @@ export default function MemberDetail() {
                   </div>
 
                   {/* Right: Previous Due & Remaining Due */}
-                  <div style={{ minWidth: '180px', fontSize: '0.85rem' }}>
+                  <div style={{ minWidth: '160px', fontSize: '0.85rem' }}>
                     <div style={{ color: '#4B555D', marginBottom: '0.2rem' }}>
-                      Previous Due: <strong style={{ color: '#252A2E' }}>₹{Number(p.previousDueAmount || 0).toLocaleString('en-IN')}</strong>
+                      Prev Due: <strong style={{ color: '#252A2E' }}>₹{Number(p.previousDueAmount || 0).toLocaleString('en-IN')}</strong>
                     </div>
                     <div>
                       Remaining Due:{' '}
@@ -849,11 +1271,29 @@ export default function MemberDetail() {
                         ₹{Number(p.remainingDueAmount || 0).toLocaleString('en-IN')}
                       </strong>
                     </div>
-                    {p.notes && (
-                      <div style={{ fontSize: '0.75rem', color: '#7A8288', marginTop: '0.25rem', fontStyle: 'italic' }}>
-                        Note: {p.notes}
-                      </div>
-                    )}
+                  </div>
+
+                  {/* Receipt Action Button */}
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedReceiptPayment(p)}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.4rem',
+                        backgroundColor: '#252A2E',
+                        color: '#FFFFFF',
+                        border: 'none',
+                        padding: '0.55rem 0.9rem',
+                        fontSize: '0.78rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <Printer size={14} />
+                      <span>RECEIPT</span>
+                    </button>
                   </div>
                 </div>
               );
@@ -902,7 +1342,7 @@ export default function MemberDetail() {
             <form onSubmit={handleSaveEdit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
-                  Full Name
+                  Full Name *
                 </label>
                 <input
                   type="text"
@@ -915,7 +1355,7 @@ export default function MemberDetail() {
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
-                  Mobile Number
+                  Mobile Number *
                 </label>
                 <input
                   type="tel"
@@ -983,6 +1423,462 @@ export default function MemberDetail() {
         </div>
       )}
 
+      {/* ── RENEW MEMBERSHIP MODAL ─────────────────────────────────── */}
+      {showRenewModal && (
+        <div
+          onClick={() => setShowRenewModal(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(37, 42, 46, 0.75)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '1rem',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: '#FFFFFF',
+              border: '2px solid #252A2E',
+              boxShadow: '6px 6px 0px #252A2E',
+              width: '100%',
+              maxWidth: '520px',
+              padding: '2rem',
+              maxHeight: '92vh',
+              overflowY: 'auto',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #252A2E', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
+              <div>
+                <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2rem', margin: 0 }}>
+                  RENEW MEMBERSHIP
+                </h3>
+                <div style={{ fontSize: '0.85rem', color: '#4B555D' }}>{member.name} ({member.id})</div>
+              </div>
+              <button type="button" onClick={() => setShowRenewModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                <X size={22} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveRenew} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+              {renewError && (
+                <div style={{ backgroundColor: '#FDF2F2', border: '1.5px solid #A83D3D', color: '#A83D3D', padding: '0.75rem', fontSize: '0.85rem', fontWeight: 700 }}>
+                  {renewError}
+                </div>
+              )}
+
+              {/* Plan Selector */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                  Select Membership Plan *
+                </label>
+                <select
+                  value={renewPlanId}
+                  onChange={(e) => {
+                    const pId = e.target.value;
+                    setRenewPlanId(pId);
+                    const chosen = plans.find((p) => p.id === pId);
+                    if (chosen) {
+                      setRenewAmountCollected(String(chosen.price || 0));
+                    }
+                  }}
+                  style={{ width: '100%', padding: '0.75rem', border: '1.5px solid #252A2E', fontWeight: 700, fontSize: '0.95rem' }}
+                >
+                  {plans.filter((p) => p.status === 'Active').map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} — ₹{p.price} ({p.durationDays} days)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Start Date & Calculated Expiry */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                    Start Date *
+                  </label>
+                  <input
+                    type="date"
+                    value={renewStartDate}
+                    onChange={(e) => setRenewStartDate(e.target.value)}
+                    required
+                    style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box', fontWeight: 600 }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                    New Expiry Date
+                  </label>
+                  <div style={{ padding: '0.65rem', backgroundColor: '#F0ECE1', border: '1.5px solid #252A2E', fontWeight: 800 }}>
+                    {formatDate(calculatedRenewExpiry)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Financial Calculation Box */}
+              <div style={{ backgroundColor: '#FAF8F4', border: '1.5px solid #252A2E', padding: '0.85rem 1rem', fontSize: '0.85rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                  <span>Plan Fee:</span>
+                  <strong>₹{renewPriceNum}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                  <span>Discount (₹):</span>
+                  <input
+                    type="number"
+                    min="0"
+                    max={renewPriceNum}
+                    value={renewDiscount}
+                    onChange={(e) => setRenewDiscount(e.target.value)}
+                    style={{ width: '90px', padding: '0.3rem', border: '1px solid #252A2E', textAlign: 'right', fontWeight: 700 }}
+                  />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #252A2E', paddingTop: '0.35rem', fontWeight: 800 }}>
+                  <span>Net Payable for Renewal:</span>
+                  <span style={{ color: '#2F7D4A', fontSize: '1.05rem' }}>₹{renewNetPayable}</span>
+                </div>
+              </div>
+
+              {/* Payment Recording */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                    Amount Collected (₹) *
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={renewAmountCollected}
+                    onChange={(e) => setRenewAmountCollected(e.target.value)}
+                    required
+                    style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box', fontWeight: 800, fontSize: '1.05rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                    Payment Mode
+                  </label>
+                  <select
+                    value={renewPaymentMode}
+                    onChange={(e) => setRenewPaymentMode(e.target.value)}
+                    style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box', fontWeight: 700 }}
+                  >
+                    <option value="Cash">Cash</option>
+                    <option value="UPI / Online">UPI / Online</option>
+                    <option value="Card">Card</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                  Notes / Reference (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={renewNotes}
+                  onChange={(e) => setRenewNotes(e.target.value)}
+                  placeholder="e.g. GPay ref / Cash received at desk"
+                  style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowRenewModal(false)}
+                  disabled={isSubmittingRenew}
+                  style={{ padding: '0.65rem 1.25rem', border: '1.5px solid #252A2E', background: '#FFFFFF', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingRenew}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    border: '2px solid #252A2E',
+                    background: '#F4C400',
+                    fontWeight: 800,
+                    cursor: isSubmittingRenew ? 'not-allowed' : 'pointer',
+                    boxShadow: '3px 3px 0px #252A2E',
+                  }}
+                >
+                  {isSubmittingRenew ? 'Processing Renewal...' : 'Confirm & Renew'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── FREEZE MEMBERSHIP MODAL ─────────────────────────────────── */}
+      {showFreezeModal && (
+        <div
+          onClick={() => setShowFreezeModal(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(37, 42, 46, 0.75)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '1rem',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: '#FFFFFF',
+              border: '2px solid #252A2E',
+              boxShadow: '6px 6px 0px #252A2E',
+              width: '100%',
+              maxWidth: '460px',
+              padding: '2rem',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #252A2E', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
+              <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2rem', margin: 0, color: '#1D6F8A' }}>
+                FREEZE MEMBERSHIP
+              </h3>
+              <button type="button" onClick={() => setShowFreezeModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                <X size={22} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveFreeze} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {freezeError && (
+                <div style={{ backgroundColor: '#FDF2F2', border: '1.5px solid #A83D3D', color: '#A83D3D', padding: '0.75rem', fontSize: '0.85rem' }}>
+                  {freezeError}
+                </div>
+              )}
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                  Freeze Start Date *
+                </label>
+                <input
+                  type="date"
+                  value={freezeStartDate}
+                  onChange={(e) => setFreezeStartDate(e.target.value)}
+                  required
+                  style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box', fontWeight: 600 }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                  Expected End Date (Optional)
+                </label>
+                <input
+                  type="date"
+                  value={freezeExpectedEndDate}
+                  onChange={(e) => setFreezeExpectedEndDate(e.target.value)}
+                  style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box', fontWeight: 600 }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                  Reason for Freeze *
+                </label>
+                <textarea
+                  rows="3"
+                  value={freezeReason}
+                  onChange={(e) => setFreezeReason(e.target.value)}
+                  placeholder="e.g. Travel, exam period, minor injury"
+                  required
+                  style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box' }}
+                />
+              </div>
+
+              <div style={{ fontSize: '0.8rem', color: '#4B555D', backgroundColor: '#E1F3F8', padding: '0.75rem' }}>
+                Note: When resumed, the membership expiry date will automatically be extended by the exact number of days frozen.
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowFreezeModal(false)}
+                  disabled={isSubmittingFreeze}
+                  style={{ padding: '0.65rem 1.25rem', border: '1.5px solid #252A2E', background: '#FFFFFF', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingFreeze}
+                  style={{ padding: '0.75rem 1.5rem', border: '2px solid #252A2E', background: '#1D6F8A', color: '#FFFFFF', fontWeight: 800, cursor: 'pointer' }}
+                >
+                  {isSubmittingFreeze ? 'Freezing...' : 'Confirm Freeze'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── RESUME MEMBERSHIP MODAL ─────────────────────────────────── */}
+      {showResumeModal && (
+        <div
+          onClick={() => setShowResumeModal(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(37, 42, 46, 0.75)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '1rem',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: '#FFFFFF',
+              border: '2px solid #252A2E',
+              boxShadow: '6px 6px 0px #252A2E',
+              width: '100%',
+              maxWidth: '460px',
+              padding: '2rem',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #252A2E', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
+              <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2rem', margin: 0, color: '#2F7D4A' }}>
+                RESUME MEMBERSHIP
+              </h3>
+              <button type="button" onClick={() => setShowResumeModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                <X size={22} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveResume} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                  Resume Date *
+                </label>
+                <input
+                  type="date"
+                  value={resumeDate}
+                  onChange={(e) => setResumeDate(e.target.value)}
+                  required
+                  style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box', fontWeight: 600 }}
+                />
+              </div>
+
+              {member.freezeInfo?.startDate && (
+                <div style={{ backgroundColor: '#F2F9F4', border: '1px solid #2F7D4A', padding: '0.85rem', fontSize: '0.85rem' }}>
+                  <div>Frozen Start Date: <strong>{formatDate(member.freezeInfo.startDate)}</strong></div>
+                  <div>Current Expiry Date: <strong>{formatDate(member.expiryDate)}</strong></div>
+                  <div style={{ marginTop: '0.35rem', color: '#2F7D4A', fontWeight: 700 }}>
+                    Extension: Expiry date will be extended by the actual duration frozen.
+                  </div>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowResumeModal(false)}
+                  disabled={isSubmittingResume}
+                  style={{ padding: '0.65rem 1.25rem', border: '1.5px solid #252A2E', background: '#FFFFFF', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingResume}
+                  style={{ padding: '0.75rem 1.5rem', border: '2px solid #252A2E', background: '#2F7D4A', color: '#FFFFFF', fontWeight: 800, cursor: 'pointer' }}
+                >
+                  {isSubmittingResume ? 'Resuming...' : 'Confirm Resume'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── ARCHIVE MODAL ──────────────────────────────────────────── */}
+      {showArchiveModal && (
+        <div
+          onClick={() => setShowArchiveModal(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(37, 42, 46, 0.75)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '1rem',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: '#FFFFFF',
+              border: '2px solid #252A2E',
+              boxShadow: '6px 6px 0px #252A2E',
+              width: '100%',
+              maxWidth: '460px',
+              padding: '2rem',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #252A2E', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
+              <h3 style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '2rem', margin: 0, color: '#A83D3D' }}>
+                ARCHIVE MEMBER
+              </h3>
+              <button type="button" onClick={() => setShowArchiveModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                <X size={22} />
+              </button>
+            </div>
+
+            <form onSubmit={handleArchive} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ fontSize: '0.88rem', color: '#4B555D', lineHeight: 1.5 }}>
+                Archiving removes <strong>{member.name}</strong> from active lists while preserving all payments, receipts, and audit history intact.
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                  Reason for Archival (Optional)
+                </label>
+                <textarea
+                  rows="3"
+                  value={archiveReason}
+                  onChange={(e) => setArchiveReason(e.target.value)}
+                  placeholder="e.g. Relocated to another city / Discontinued membership"
+                  style={{ width: '100%', padding: '0.65rem', border: '1.5px solid #252A2E', boxSizing: 'border-box' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowArchiveModal(false)}
+                  disabled={isSubmittingArchive}
+                  style={{ padding: '0.65rem 1.25rem', border: '1.5px solid #252A2E', background: '#FFFFFF', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingArchive}
+                  style={{ padding: '0.75rem 1.5rem', border: '2px solid #252A2E', background: '#A83D3D', color: '#FFFFFF', fontWeight: 800, cursor: 'pointer' }}
+                >
+                  {isSubmittingArchive ? 'Archiving...' : 'Confirm Archive'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* ── RECORD PAYMENT MODAL ───────────────────────────────────── */}
       {showPaymentModal && (
         <div
@@ -1022,7 +1918,6 @@ export default function MemberDetail() {
             </div>
 
             <form onSubmit={handleSavePayment} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              {/* Error banner in modal */}
               {paymentModalError && (
                 <div
                   style={{
@@ -1042,7 +1937,6 @@ export default function MemberDetail() {
                 </div>
               )}
 
-              {/* Outstanding Due Highlight */}
               <div
                 style={{
                   backgroundColor: '#FAF8F4',
@@ -1054,8 +1948,8 @@ export default function MemberDetail() {
                 }}
               >
                 <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Current Outstanding Due:</span>
-                <strong style={{ fontSize: '1.15rem', color: member.amountDue > 0 ? '#A83D3D' : '#2F7D4A' }}>
-                  ₹{member.amountDue}
+                <strong style={{ fontSize: '1.15rem', color: currentDue > 0 ? '#A83D3D' : '#2F7D4A' }}>
+                  ₹{currentDue}
                 </strong>
               </div>
 
@@ -1069,7 +1963,7 @@ export default function MemberDetail() {
                   max="100000"
                   value={paymentAmount}
                   onChange={(e) => setPaymentAmount(e.target.value)}
-                  placeholder="Enter amount (e.g. 1500)"
+                  placeholder="Enter amount"
                   required
                   style={{
                     width: '100%',
@@ -1086,37 +1980,16 @@ export default function MemberDetail() {
                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                   Payment Mode *
                 </label>
-                <div style={{ display: 'flex', gap: '0.75rem' }}>
-                  {['Cash', 'UPI / Online'].map((mode) => (
-                    <label
-                      key={mode}
-                      style={{
-                        flex: 1,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.5rem',
-                        padding: '0.75rem',
-                        border: '1.5px solid #252A2E',
-                        backgroundColor: paymentMode === mode ? '#252A2E' : '#FFFFFF',
-                        color: paymentMode === mode ? '#FFFFFF' : '#252A2E',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        fontSize: '0.85rem',
-                      }}
-                    >
-                      <input
-                        type="radio"
-                        name="paymentMode"
-                        value={mode}
-                        checked={paymentMode === mode}
-                        onChange={() => setPaymentMode(mode)}
-                        style={{ display: 'none' }}
-                      />
-                      <span>{mode}</span>
-                    </label>
-                  ))}
-                </div>
+                <select
+                  value={paymentMode}
+                  onChange={(e) => setPaymentMode(e.target.value)}
+                  style={{ width: '100%', padding: '0.75rem', border: '1.5px solid #252A2E', fontWeight: 700 }}
+                >
+                  <option value="Cash">Cash</option>
+                  <option value="UPI / Online">UPI / Online</option>
+                  <option value="Card">Card</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                </select>
               </div>
 
               <div>
@@ -1167,7 +2040,6 @@ export default function MemberDetail() {
                     background: '#FFFFFF',
                     fontWeight: 700,
                     cursor: isSubmittingPayment ? 'not-allowed' : 'pointer',
-                    opacity: isSubmittingPayment ? 0.6 : 1,
                   }}
                 >
                   Cancel
@@ -1182,7 +2054,6 @@ export default function MemberDetail() {
                     fontWeight: 800,
                     cursor: isSubmittingPayment ? 'not-allowed' : 'pointer',
                     boxShadow: '3px 3px 0px #252A2E',
-                    opacity: isSubmittingPayment ? 0.7 : 1,
                   }}
                 >
                   {isSubmittingPayment ? 'Recording...' : 'Record Payment'}
@@ -1191,6 +2062,15 @@ export default function MemberDetail() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* ── PRINTABLE RECEIPT MODAL ─────────────────────────────────── */}
+      {selectedReceiptPayment && (
+        <ReceiptModal
+          payment={selectedReceiptPayment}
+          member={member}
+          onClose={() => setSelectedReceiptPayment(null)}
+        />
       )}
     </div>
   );

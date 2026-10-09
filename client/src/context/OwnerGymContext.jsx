@@ -11,7 +11,11 @@ import {
   getMembersFromFirestore,
   addMemberToFirestore,
   updateMemberInFirestore,
-  recordPaymentInFirestore,
+  renewMemberInFirestore,
+  freezeMemberInFirestore,
+  resumeMemberInFirestore,
+  archiveMemberInFirestore,
+  restoreMemberInFirestore,
   deleteMemberFromFirestore,
   generateNextMemberId,
 } from '../services/memberService.js';
@@ -21,75 +25,83 @@ import {
   updatePlan as updatePlanInFirestore,
   deletePlan as deletePlanFromFirestore,
 } from '../services/planService.js';
-import { getMemberPayments } from '../services/paymentService.js';
+import {
+  getMemberPayments,
+  getAllPayments,
+  addPayment as recordPaymentInFirestore,
+} from '../services/paymentService.js';
+import {
+  getStaffProfile,
+  getStaffList,
+  saveStaffMember,
+  updateStaffMember as updateStaffInFirestore,
+  deleteStaffMember as deleteStaffFromFirestore,
+  OWNER_BOOTSTRAP_EMAIL,
+} from '../services/staffService.js';
+import {
+  getTodayDateStr,
+  formatDateDisplay,
+  addDaysToDate,
+  getDaysDifference,
+  evaluateMemberStatus,
+} from '../utils/membershipRules.js';
 
-// Anchor date: Real today date string in YYYY-MM-DD
-export const CURRENT_DATE_STR = new Date().toISOString().split('T')[0];
-
-// Helper to format date nicely
-export function formatDate(date) {
-  if (!date) return '';
-  const d = date?.toDate ? date.toDate() : (typeof date === 'string' ? new Date(date.includes('T') ? date : date + 'T00:00:00') : new Date(date));
-  if (isNaN(d.getTime())) return String(date);
-  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-}
-
-// Helper to add days to a date string YYYY-MM-DD
-export function addDaysToDate(dateStr, days) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr.includes('T') ? dateStr : dateStr + 'T00:00:00');
-  d.setDate(d.getDate() + Number(days));
-  return d.toISOString().split('T')[0];
-}
-
-// Calculate days difference between date and current date (midnight to midnight)
-export function getDaysDiffFromCurrent(dateVal) {
-  if (!dateVal) return -999;
-  let d;
-  if (dateVal?.toDate) {
-    d = dateVal.toDate();
-  } else if (typeof dateVal === 'string') {
-    d = new Date(dateVal.includes('T') ? dateVal : dateVal + 'T00:00:00');
-  } else {
-    d = new Date(dateVal);
-  }
-
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const target = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const diffTime = target.getTime() - today.getTime();
-  return Math.round(diffTime / (1000 * 60 * 60 * 24));
-}
+export const CURRENT_DATE_STR = getTodayDateStr();
+export const formatDate = formatDateDisplay;
+export { addDaysToDate };
 
 const OwnerGymContext = createContext(null);
 
 export function OwnerGymProvider({ children }) {
-  // ── Firebase Authentication State ─────────────────────────────────
+  // ── Authentication State ──────────────────────────────────────────
   const [currentUser, setCurrentUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [userRole, setUserRole] = useState('Owner');
 
-  // ── Real Members State from Firestore ─────────────────────────────
+  // ── Members State ─────────────────────────────────────────────────
   const [members, setMembers] = useState([]);
   const [isMembersLoading, setIsMembersLoading] = useState(false);
   const [membersError, setMembersError] = useState(null);
 
-  // ── Plans State from Firestore ────────────────────────────────────
+  // ── Plans State ───────────────────────────────────────────────────
   const [plans, setPlans] = useState([]);
   const [isPlansLoading, setIsPlansLoading] = useState(false);
   const [plansError, setPlansError] = useState(null);
 
-  // Auth observer
+  // ── Payments State (for Payments Hub & Reports) ───────────────────
+  const [payments, setPayments] = useState([]);
+  const [isPaymentsLoading, setIsPaymentsLoading] = useState(false);
+
+  // ── Staff State (RBAC) ────────────────────────────────────────────
+  const [staffList, setStaffList] = useState([]);
+  const [isStaffLoading, setIsStaffLoading] = useState(false);
+
+  // ── Auth Observer & Role Resolution ───────────────────────────────
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
+      if (user) {
+        try {
+          const profile = await getStaffProfile(user.uid, user.email);
+          setUserRole(profile?.role || (user.email === OWNER_BOOTSTRAP_EMAIL ? 'Owner' : 'Receptionist'));
+        } catch (err) {
+          console.warn('Could not resolve user role:', err);
+          setUserRole(user.email === OWNER_BOOTSTRAP_EMAIL ? 'Owner' : 'Receptionist');
+        }
+      } else {
+        setUserRole('none');
+      }
       setAuthLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
   const isAuthenticated = Boolean(currentUser);
+  const isOwner = userRole === 'Owner' || currentUser?.email === OWNER_BOOTSTRAP_EMAIL;
+  const isReceptionist = userRole === 'Receptionist';
+  const isTrainer = userRole === 'Trainer';
 
-  // Load members from Firestore (single fetch when authenticated to optimize free tier)
+  // ── Data Loaders ──────────────────────────────────────────────────
   const loadMembers = useCallback(async () => {
     if (!auth.currentUser) return;
     setIsMembersLoading(true);
@@ -105,7 +117,6 @@ export function OwnerGymProvider({ children }) {
     }
   }, []);
 
-  // Load plans from Firestore (single fetch when authenticated)
   const loadPlans = useCallback(async () => {
     if (!auth.currentUser) return;
     setIsPlansLoading(true);
@@ -121,20 +132,49 @@ export function OwnerGymProvider({ children }) {
     }
   }, []);
 
-  // Fetch members and plans once when user logs in
+  const loadPayments = useCallback(async () => {
+    if (!auth.currentUser) return;
+    setIsPaymentsLoading(true);
+    try {
+      const data = await getAllPayments(300);
+      setPayments(data);
+    } catch (err) {
+      console.error('Error fetching all payments:', err);
+    } finally {
+      setIsPaymentsLoading(false);
+    }
+  }, []);
+
+  const loadStaff = useCallback(async () => {
+    if (!auth.currentUser || !isOwner) return;
+    setIsStaffLoading(true);
+    try {
+      const data = await getStaffList();
+      setStaffList(data);
+    } catch (err) {
+      console.error('Error fetching staff list:', err);
+    } finally {
+      setIsStaffLoading(false);
+    }
+  }, [isOwner]);
+
+  // Initial load when user logs in
   useEffect(() => {
     if (currentUser) {
       loadMembers();
       loadPlans();
+      loadPayments();
+      if (isOwner) loadStaff();
     } else {
       setMembers([]);
-      setIsMembersLoading(false);
-      setMembersError(null);
       setPlans([]);
+      setPayments([]);
+      setStaffList([]);
+      setIsMembersLoading(false);
       setIsPlansLoading(false);
-      setPlansError(null);
+      setIsPaymentsLoading(false);
     }
-  }, [currentUser, loadMembers, loadPlans]);
+  }, [currentUser, isOwner, loadMembers, loadPlans, loadPayments, loadStaff]);
 
   // Derived owner profile
   const ownerProfile = useMemo(() => {
@@ -142,7 +182,7 @@ export function OwnerGymProvider({ children }) {
       return {
         name: 'Gym Owner',
         role: 'Owner',
-        email: 'leegym.website@gmail.com',
+        email: OWNER_BOOTSTRAP_EMAIL,
         gymName: 'LEE GYM',
         tagline: 'Gym located in Pappampatti Rd Pallapalayam.',
         photoURL: null,
@@ -150,23 +190,19 @@ export function OwnerGymProvider({ children }) {
       };
     }
     return {
-      name: currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : 'Gym Owner'),
-      role: 'Owner',
-      email: currentUser.email || 'leegym.website@gmail.com',
+      name: currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : 'Gym Staff'),
+      role: userRole,
+      email: currentUser.email || OWNER_BOOTSTRAP_EMAIL,
       gymName: 'LEE GYM',
       tagline: 'Gym located in Pappampatti Rd Pallapalayam.',
       photoURL: currentUser.photoURL || null,
       uid: currentUser.uid,
     };
-  }, [currentUser]);
+  }, [currentUser, userRole]);
 
-  // Plans are managed via Firestore (state declared above with members)
-
-  // Auth actions using Firebase
+  // ── Auth Actions ──────────────────────────────────────────────────
   const loginWithEmail = async (email, password) => {
-    if (!email || !password) {
-      throw new Error('Please enter both email and password.');
-    }
+    if (!email || !password) throw new Error('Please enter both email and password.');
     return await signInWithEmailAndPassword(auth, email.trim(), password);
   };
 
@@ -176,38 +212,30 @@ export function OwnerGymProvider({ children }) {
     return await signInWithPopup(auth, provider);
   };
 
-  const login = async (email, password) => {
-    return await loginWithEmail(email, password);
-  };
-
   const logout = async () => {
     return await signOut(auth);
   };
 
-  // Generate next member ID e.g. LEE001, LEE002
   const getNextMemberId = useCallback(() => {
     return generateNextMemberId(members);
   }, [members]);
 
-  // ── Real Member Operations with Firestore ─────────────────────────
-
-  // Add new member to Firestore
+  // ── Member Operations ─────────────────────────────────────────────
   const addMember = async (newMemberData, photoFile = null) => {
     const saved = await addMemberToFirestore(newMemberData, photoFile);
-    // Optimistically prepend to local state without re-fetching all members (saving reads)
     setMembers((prev) => [saved, ...prev]);
+    if (saved.initialPayment) {
+      setPayments((prev) => [saved.initialPayment, ...prev]);
+    }
     return saved;
   };
 
-  // Update existing member in Firestore
   const updateMember = async (idOrDocId, updatedFields, newPhotoFile = null) => {
-    // Find target document ID
     const target = members.find((m) => m.docId === idOrDocId || m.id === idOrDocId || m.memberId === idOrDocId);
     const docId = target?.docId || idOrDocId;
 
     const res = await updateMemberInFirestore(docId, updatedFields, newPhotoFile);
 
-    // Update in-memory state
     setMembers((prev) =>
       prev.map((m) => {
         if (m.docId === docId || m.id === idOrDocId || m.memberId === idOrDocId) {
@@ -219,7 +247,6 @@ export function OwnerGymProvider({ children }) {
     return res;
   };
 
-  // Record payment for member in Firestore (Atomic transaction)
   const recordPayment = async (
     idOrDocId,
     paymentAmount,
@@ -227,59 +254,132 @@ export function OwnerGymProvider({ children }) {
     paymentDate = null,
     notes = ''
   ) => {
-    const target = members.find(
-      (m) => m.docId === idOrDocId || m.id === idOrDocId || m.memberId === idOrDocId
-    );
-    if (!target) return { success: false, message: 'Member not found in system.' };
+    const target = members.find((m) => m.docId === idOrDocId || m.id === idOrDocId || m.memberId === idOrDocId);
+    if (!target) return { success: false, message: 'Member not found.' };
 
     const docId = target.docId || idOrDocId;
     try {
-      const res = await recordPaymentInFirestore(
-        docId,
-        target,
-        paymentAmount,
+      const res = await recordPaymentInFirestore({
+        memberDocId: docId,
+        memberId: target.memberId || target.id,
+        amount: paymentAmount,
         paymentMode,
-        paymentDate,
-        notes
-      );
+        paymentDate: paymentDate || CURRENT_DATE_STR,
+        notes,
+      });
 
-      // Update in-memory member state atomically
       setMembers((prev) =>
         prev.map((m) => {
           if (m.docId === docId || m.id === idOrDocId || m.memberId === idOrDocId) {
             return {
               ...m,
-              amountCollected: res.amountCollected,
-              dueAmount: res.dueAmount,
-              amountDue: res.dueAmount,
-              paymentMode: res.paymentMode,
-              lastPaymentDate: res.lastPaymentDate,
+              ...res.memberUpdate,
+              dueAmount: res.memberUpdate?.dueAmount,
+              amountDue: res.memberUpdate?.dueAmount,
             };
           }
           return m;
         })
       );
+
+      if (res.payment) {
+        setPayments((prev) => [res.payment, ...prev]);
+      }
+
       return { success: true, payment: res.payment };
     } catch (err) {
-      console.error('Failed to record payment in Firestore:', err);
+      console.error('Failed to record payment:', err);
       return { success: false, message: err.message || 'Payment recording failed.' };
     }
   };
 
-  // Delete member from Firestore
+  const renewMember = async (renewalInput) => {
+    const res = await renewMemberInFirestore({
+      ...renewalInput,
+      renewedBy: ownerProfile.name || 'Owner',
+    });
+
+    // Update in-memory member state
+    setMembers((prev) =>
+      prev.map((m) => {
+        if (m.docId === renewalInput.memberDocId || m.id === renewalInput.memberId) {
+          return {
+            ...m,
+            ...res.memberUpdate,
+          };
+        }
+        return m;
+      })
+    );
+
+    if (res.payment) {
+      setPayments((prev) => [res.payment, ...prev]);
+    }
+
+    return res;
+  };
+
+  const freezeMember = async (idOrDocId, freezeData) => {
+    const target = members.find((m) => m.docId === idOrDocId || m.id === idOrDocId || m.memberId === idOrDocId);
+    const docId = target?.docId || idOrDocId;
+
+    const res = await freezeMemberInFirestore(docId, {
+      ...freezeData,
+      frozenBy: ownerProfile.name || 'Owner',
+    });
+
+    setMembers((prev) =>
+      prev.map((m) => (m.docId === docId || m.id === idOrDocId ? { ...m, ...res } : m))
+    );
+    return res;
+  };
+
+  const resumeMember = async (idOrDocId, resumeDate = getTodayDateStr()) => {
+    const target = members.find((m) => m.docId === idOrDocId || m.id === idOrDocId || m.memberId === idOrDocId);
+    const docId = target?.docId || idOrDocId;
+
+    const res = await resumeMemberInFirestore(docId, target, resumeDate, ownerProfile.name || 'Owner');
+
+    setMembers((prev) =>
+      prev.map((m) => (m.docId === docId || m.id === idOrDocId ? { ...m, ...res } : m))
+    );
+    return res;
+  };
+
+  const archiveMember = async (idOrDocId, reason = '') => {
+    const target = members.find((m) => m.docId === idOrDocId || m.id === idOrDocId || m.memberId === idOrDocId);
+    const docId = target?.docId || idOrDocId;
+
+    const res = await archiveMemberInFirestore(docId, reason, ownerProfile.name || 'Owner');
+
+    setMembers((prev) =>
+      prev.map((m) => (m.docId === docId || m.id === idOrDocId ? { ...m, ...res } : m))
+    );
+    return res;
+  };
+
+  const restoreMember = async (idOrDocId) => {
+    const target = members.find((m) => m.docId === idOrDocId || m.id === idOrDocId || m.memberId === idOrDocId);
+    const docId = target?.docId || idOrDocId;
+
+    const res = await restoreMemberInFirestore(docId);
+
+    setMembers((prev) =>
+      prev.map((m) => (m.docId === docId || m.id === idOrDocId ? { ...m, ...res } : m))
+    );
+    return res;
+  };
+
   const deleteMember = async (idOrDocId) => {
     const target = members.find((m) => m.docId === idOrDocId || m.id === idOrDocId || m.memberId === idOrDocId);
     const docId = target?.docId || idOrDocId;
 
     await deleteMemberFromFirestore(docId);
-
-    // Remove from in-memory state
     setMembers((prev) => prev.filter((m) => m.docId !== docId && m.id !== idOrDocId && m.memberId !== idOrDocId));
     return { success: true };
   };
 
-  // ── Firestore Plan Operations ─────────────────────────────────────
-
+  // ── Plan Operations ───────────────────────────────────────────────
   const addPlan = async (planData) => {
     const created = await addPlanToFirestore(planData);
     setPlans((prev) => [...prev, created]);
@@ -317,82 +417,122 @@ export function OwnerGymProvider({ children }) {
     setPlans((prev) => prev.filter((p) => p.id !== id));
   };
 
-  // Intelligent Status Classifications
-  const memberEvaluator = useCallback((member) => {
-    if (!member) return {};
-    const diff = getDaysDiffFromCurrent(member.expiryDate);
-    const isExpired = diff < 0;
-    const isActive = diff >= 0;
-    const isExpiringToday = diff === 0;
-    const isExpiring1Day = diff === 1;
-    const isExpiring2Days = diff === 2;
-    const isExpiring3Days = diff === 3;
-    const isExpiring1To3 = diff >= 1 && diff <= 3;
-    const dueVal = Number(member.dueAmount !== undefined ? member.dueAmount : (member.amountDue || 0));
-    // A member needs attention if they have a financial balance OR their membership has expired
-    const isDue = dueVal > 0 || diff < 0;
+  // ── Staff Operations ──────────────────────────────────────────────
+  const saveStaff = async (staffData) => {
+    const saved = await saveStaffMember(staffData);
+    setStaffList((prev) => {
+      const exists = prev.some((s) => s.id === saved.id || s.uid === saved.uid);
+      if (exists) {
+        return prev.map((s) => (s.id === saved.id || s.uid === saved.uid ? saved : s));
+      }
+      return [...prev, saved];
+    });
+    return saved;
+  };
 
-    return {
-      isExpired,
-      isActive,
-      isExpiringToday,
-      isExpiring1Day,
-      isExpiring2Days,
-      isExpiring3Days,
-      isExpiring1To3,
-      isDue,
-      diff,
-      membershipStatus: isActive ? 'Active' : 'Expired',
-      paymentStatus: isDue ? 'Due' : 'Paid',
-    };
+  const updateStaff = async (staffId, updateData) => {
+    await updateStaffInFirestore(staffId, updateData);
+    setStaffList((prev) =>
+      prev.map((s) => (s.id === staffId || s.uid === staffId ? { ...s, ...updateData } : s))
+    );
+  };
+
+  const deleteStaff = async (staffId) => {
+    await deleteStaffFromFirestore(staffId);
+    setStaffList((prev) => prev.filter((s) => s.id !== staffId && s.uid !== staffId));
+  };
+
+  // ── Centralized Member Evaluator ──────────────────────────────────
+  const memberEvaluator = useCallback((member) => {
+    return evaluateMemberStatus(member, CURRENT_DATE_STR);
   }, []);
 
-  // Metrics calculation from real Firestore members data
+  // ── Comprehensive Dashboard Metrics ───────────────────────────────
   const dashboardMetrics = useMemo(() => {
     let dueMembers = 0;
     let expiringToday = 0;
     let expiringSoon = 0;
-    let expiring1Day = 0;
-    let expiring2Days = 0;
-    let expiring3Days = 0;
     let activeMembers = 0;
     let expiredMembers = 0;
+    let frozenMembers = 0;
+    let archivedMembers = 0;
+    let totalOutstandingDues = 0;
+
+    const planCounts = {};
+    const todayStr = CURRENT_DATE_STR;
+    const currentMonthPrefix = todayStr.slice(0, 7); // e.g. "2026-10"
 
     members.forEach((m) => {
-      const {
-        isDue,
-        isExpiringToday,
-        isExpiring1Day,
-        isExpiring2Days,
-        isExpiring3Days,
-        isExpiring1To3,
-        isActive,
-        isExpired,
-      } = memberEvaluator(m);
+      const evalResult = memberEvaluator(m);
 
-      // isDue = financial due > 0 OR expired — both require owner attention
-      if (isDue) dueMembers++;
-      if (isExpiringToday) expiringToday++;
-      if (isExpiring1Day) expiring1Day++;
-      if (isExpiring2Days) expiring2Days++;
-      if (isExpiring3Days) expiring3Days++;
-      if (isExpiring1To3) expiringSoon++;
-      if (isActive) activeMembers++;
-      if (isExpired) expiredMembers++;
+      if (evalResult.isArchived) {
+        archivedMembers++;
+        return;
+      }
+
+      if (evalResult.isFrozen) {
+        frozenMembers++;
+      } else if (evalResult.isActive) {
+        activeMembers++;
+        if (evalResult.isExpiringToday) expiringToday++;
+        else if (evalResult.isExpiringSoon) expiringSoon++;
+      } else if (evalResult.isExpired) {
+        expiredMembers++;
+      }
+
+      if (evalResult.isDue) {
+        dueMembers++;
+        totalOutstandingDues += Number(evalResult.dueAmount || 0);
+      }
+
+      const pName = m.planName || 'Unassigned';
+      planCounts[pName] = (planCounts[pName] || 0) + 1;
+    });
+
+    // Revenue calculations from actual payments
+    let totalRevenueCollected = 0;
+    let collectionsToday = 0;
+    let collectionsThisMonth = 0;
+    const paymentModeBreakdown = { Cash: 0, UPI: 0, Card: 0, Other: 0 };
+
+    payments.forEach((p) => {
+      const amt = Number(p.amountPaid || 0);
+      totalRevenueCollected += amt;
+
+      const pDateStr = p.paymentDateStr || (p.paymentDate?.toDate ? p.paymentDate.toDate().toISOString().split('T')[0] : '');
+
+      if (pDateStr === todayStr) {
+        collectionsToday += amt;
+      }
+      if (pDateStr.startsWith(currentMonthPrefix)) {
+        collectionsThisMonth += amt;
+      }
+
+      const mode = (p.paymentMode || 'Cash').toLowerCase();
+      if (mode.includes('cash')) paymentModeBreakdown.Cash += amt;
+      else if (mode.includes('upi') || mode.includes('online')) paymentModeBreakdown.UPI += amt;
+      else if (mode.includes('card')) paymentModeBreakdown.Card += amt;
+      else paymentModeBreakdown.Other += amt;
     });
 
     return {
       dueMembers,
       expiringToday,
       expiringSoon,
-      expiring1Day,
-      expiring2Days,
-      expiring3Days,
       activeMembers,
       expiredMembers,
-      totalMembers: members.length,
+      frozenMembers,
+      archivedMembers,
+      totalMembers: members.filter((m) => !m.isArchived).length,
+      allMembersCount: members.length,
+      totalOutstandingDues,
+      totalRevenueCollected,
+      collectionsToday,
+      collectionsThisMonth,
+      planCounts,
+      paymentModeBreakdown,
     };
-  }, [members, memberEvaluator]);
+  }, [members, payments, memberEvaluator]);
 
   return (
     <OwnerGymContext.Provider
@@ -400,8 +540,12 @@ export function OwnerGymProvider({ children }) {
         currentUser,
         authLoading,
         isAuthenticated,
+        userRole,
+        isOwner,
+        isReceptionist,
+        isTrainer,
         ownerProfile,
-        login,
+        login: loginWithEmail,
         loginWithEmail,
         loginWithGoogle,
         logout,
@@ -419,9 +563,23 @@ export function OwnerGymProvider({ children }) {
         refreshMembers: loadMembers,
         addMember,
         updateMember,
+        renewMember,
+        freezeMember,
+        resumeMember,
+        archiveMember,
+        restoreMember,
         deleteMember,
         recordPayment,
+        payments,
+        isPaymentsLoading,
+        refreshPayments: loadPayments,
         getMemberPayments,
+        staffList,
+        isStaffLoading,
+        refreshStaff: loadStaff,
+        saveStaff,
+        updateStaff,
+        deleteStaff,
         getNextMemberId,
         memberEvaluator,
         dashboardMetrics,

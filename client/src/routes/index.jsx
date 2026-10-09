@@ -17,11 +17,14 @@ import Members from '../pages/owner/Members.jsx';
 import MemberDetail from '../pages/owner/MemberDetail.jsx';
 import MemberNew from '../pages/owner/MemberNew.jsx';
 import Plans from '../pages/owner/Plans.jsx';
+import Payments from '../pages/owner/Payments.jsx';
+import Notifications from '../pages/owner/Notifications.jsx';
+import Settings from '../pages/owner/Settings.jsx';
 
 function AppRoutes() {
   return (
     <Routes>
-      {/* ── Public Routes (Untouched) ──────────────────────────────── */}
+      {/* ── Public Routes ───────────────────────────────────────────── */}
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
@@ -44,6 +47,9 @@ function AppRoutes() {
         <Route path="members/new" element={<MemberNew />} />
         <Route path="members/:id" element={<MemberDetail />} />
         <Route path="plans" element={<Plans />} />
+        <Route path="payments" element={<Payments />} />
+        <Route path="notifications" element={<Notifications />} />
+        <Route path="settings" element={<Settings />} />
       </Route>
 
       {/* ── Backward Compatibility / Admin Aliases ─────────────────── */}
@@ -53,6 +59,9 @@ function AppRoutes() {
       <Route path="/admin/members/new" element={<Navigate to="/owner/members/new" replace />} />
       <Route path="/admin/members/:id" element={<Navigate to="/owner/members" replace />} />
       <Route path="/admin/plans" element={<Navigate to="/owner/plans" replace />} />
+      <Route path="/admin/payments" element={<Navigate to="/owner/payments" replace />} />
+      <Route path="/admin/notifications" element={<Navigate to="/owner/notifications" replace />} />
+      <Route path="/admin/settings" element={<Navigate to="/owner/settings" replace />} />
 
       {/* Catch-all fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />

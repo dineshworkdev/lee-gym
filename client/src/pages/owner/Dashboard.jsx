@@ -11,6 +11,10 @@ import {
   CreditCard,
   ChevronRight,
   X,
+  TrendingUp,
+  IndianRupee,
+  ShieldAlert,
+  Calendar,
 } from 'lucide-react';
 import { useOwnerGym, formatDate } from '../../context/OwnerGymContext.jsx';
 
@@ -198,6 +202,176 @@ export default function Dashboard() {
           </Link>
         </div>
       </div>
+
+      {/* ── FINANCIAL OVERVIEW & REVENUE CARDS ─────────────────────── */}
+      <section style={{ marginBottom: '2.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+          <div>
+            <h2
+              style={{
+                fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
+                fontSize: '1.75rem',
+                letterSpacing: '0.04em',
+                color: '#252A2E',
+                margin: 0,
+              }}
+            >
+              FINANCIAL OVERVIEW
+            </h2>
+            <p style={{ fontSize: '0.85rem', color: '#4B555D', margin: '0.2rem 0 0' }}>
+              Real-time revenue collections and member dues from Firestore
+            </p>
+          </div>
+          <Link
+            to="/owner/payments"
+            style={{
+              fontFamily: 'var(--font-body, "Inter", sans-serif)',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              color: '#252A2E',
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+            }}
+          >
+            <span>Open Payments Ledger</span>
+            <ArrowRight size={16} />
+          </Link>
+        </div>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+            gap: '1.25rem',
+          }}
+        >
+          {/* Today's Collection */}
+          <div
+            style={{
+              backgroundColor: '#FFFFFF',
+              border: '2px solid #252A2E',
+              borderTop: '6px solid #2F7D4A',
+              padding: '1.25rem',
+              boxShadow: '4px 4px 0px #252A2E',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#4B555D', textTransform: 'uppercase' }}>
+                COLLECTED TODAY
+              </span>
+              <Calendar size={17} color="#2F7D4A" />
+            </div>
+            <div
+              style={{
+                fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
+                fontSize: '2.5rem',
+                color: '#252A2E',
+                margin: '0.3rem 0 0.1rem',
+                lineHeight: 1,
+              }}
+            >
+              ₹{dashboardMetrics.collectionsToday?.toLocaleString('en-IN') || 0}
+            </div>
+            <span style={{ fontSize: '0.75rem', color: '#2F7D4A', fontWeight: 600 }}>Active business day receipts</span>
+          </div>
+
+          {/* This Month's Collection */}
+          <div
+            style={{
+              backgroundColor: '#FFFFFF',
+              border: '2px solid #252A2E',
+              borderTop: '6px solid #F4C400',
+              padding: '1.25rem',
+              boxShadow: '4px 4px 0px #252A2E',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#4B555D', textTransform: 'uppercase' }}>
+                THIS MONTH (M-T-D)
+              </span>
+              <TrendingUp size={17} color="#B38E00" />
+            </div>
+            <div
+              style={{
+                fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
+                fontSize: '2.5rem',
+                color: '#252A2E',
+                margin: '0.3rem 0 0.1rem',
+                lineHeight: 1,
+              }}
+            >
+              ₹{dashboardMetrics.collectionsThisMonth?.toLocaleString('en-IN') || 0}
+            </div>
+            <span style={{ fontSize: '0.75rem', color: '#4B555D', fontWeight: 600 }}>Total month-to-date income</span>
+          </div>
+
+          {/* Total Lifetime Collection */}
+          <div
+            style={{
+              backgroundColor: '#FFFFFF',
+              border: '2px solid #252A2E',
+              borderTop: '6px solid #252A2E',
+              padding: '1.25rem',
+              boxShadow: '4px 4px 0px #252A2E',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#4B555D', textTransform: 'uppercase' }}>
+                TOTAL REVENUE (LIFETIME)
+              </span>
+              <IndianRupee size={17} color="#252A2E" />
+            </div>
+            <div
+              style={{
+                fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
+                fontSize: '2.5rem',
+                color: '#252A2E',
+                margin: '0.3rem 0 0.1rem',
+                lineHeight: 1,
+              }}
+            >
+              ₹{dashboardMetrics.totalRevenueCollected?.toLocaleString('en-IN') || 0}
+            </div>
+            <span style={{ fontSize: '0.75rem', color: '#4B555D', fontWeight: 600 }}>All verified payments recorded</span>
+          </div>
+
+          {/* Total Outstanding Dues */}
+          <div
+            onClick={() => navigate('/owner/payments')}
+            style={{
+              backgroundColor: '#FFFFFF',
+              border: '2px solid #252A2E',
+              borderTop: '6px solid #A83D3D',
+              padding: '1.25rem',
+              boxShadow: '4px 4px 0px #252A2E',
+              cursor: 'pointer',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#A83D3D', textTransform: 'uppercase' }}>
+                OUTSTANDING DUES
+              </span>
+              <ShieldAlert size={17} color="#A83D3D" />
+            </div>
+            <div
+              style={{
+                fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
+                fontSize: '2.5rem',
+                color: '#A83D3D',
+                margin: '0.3rem 0 0.1rem',
+                lineHeight: 1,
+              }}
+            >
+              ₹{dashboardMetrics.totalOutstandingDues?.toLocaleString('en-IN') || 0}
+            </div>
+            <span style={{ fontSize: '0.75rem', color: '#A83D3D', fontWeight: 700 }}>
+              {dashboardMetrics.dueMembers} member{dashboardMetrics.dueMembers === 1 ? '' : 's'} with due balance
+            </span>
+          </div>
+        </div>
+      </section>
 
       {/* ── KEY MEMBERSHIP METRICS ──────────────────────────────────── */}
       <section style={{ marginBottom: '3rem' }}>

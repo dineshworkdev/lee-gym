@@ -1,6 +1,7 @@
 import {
   collection,
   doc,
+  getDoc,
   getDocs,
   updateDoc,
   deleteDoc,
@@ -10,7 +11,13 @@ import {
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase.js';
-import { generateNextReceiptNumber, addPayment } from './paymentService.js';
+import { generateNextReceiptNumber } from './paymentService.js';
+import {
+  calculateExpiryDate,
+  calculateRenewalDates,
+  calculateResumeExtension,
+  getTodayDateStr,
+} from '../utils/membershipRules.js';
 
 const MEMBERS_COLLECTION = 'members';
 const PAYMENTS_COLLECTION = 'payments';
@@ -25,13 +32,11 @@ const PAYMENTS_COLLECTION = 'payments';
 export async function uploadMemberPhoto(file, memberId) {
   if (!file) return '';
 
-  // Validate file type
   const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
   if (!validTypes.includes(file.type)) {
     throw new Error('Please upload a valid image file (JPEG, PNG, or WEBP).');
   }
 
-  // Validate size (max 5MB)
   const maxSize = 5 * 1024 * 1024;
   if (file.size > maxSize) {
     throw new Error('Image size must be less than 5MB.');
@@ -50,7 +55,6 @@ export async function uploadMemberPhoto(file, memberId) {
 
 /**
  * Computes the next human-readable member ID (e.g. LEE001, LEE002...)
- * based on already loaded members list
  * @param {Array} membersList 
  * @returns {string} e.g. "LEE001"
  */
@@ -72,7 +76,7 @@ export function generateNextMemberId(membersList = []) {
 
 /**
  * Fetches all members from the Firestore members collection once
- * Designed for free-tier optimization: no infinite listeners or redundant reads
+ * Free-tier optimization: no infinite listeners or redundant reads
  * @returns {Promise<Array>}
  */
 export async function getMembersFromFirestore() {
@@ -91,7 +95,6 @@ export async function getMembersFromFirestore() {
     const amountPayable = Number(data.amountPayable || (admissionAmount + planAmount));
     const dueAmount = Number(data.dueAmount !== undefined ? data.dueAmount : Math.max(0, amountPayable - amountCollected));
 
-    // Convert expiry date string if needed
     let expiryDateStr = data.expiryDate || '';
     if (data.expiryDate?.toDate) {
       expiryDateStr = data.expiryDate.toDate().toISOString().split('T')[0];
@@ -100,7 +103,7 @@ export async function getMembersFromFirestore() {
     list.push({
       ...data,
       docId,
-      id: memberId, // For compatibility with existing components
+      id: memberId,
       memberId,
       photo: data.photoUrl || data.photo || null,
       photoUrl: data.photoUrl || '',
@@ -109,12 +112,15 @@ export async function getMembersFromFirestore() {
       amountPayable,
       amountCollected,
       dueAmount,
-      amountDue: dueAmount, // Compatibility fallback
+      amountDue: dueAmount,
       expiryDate: expiryDateStr,
+      isFrozen: Boolean(data.isFrozen),
+      isArchived: Boolean(data.isArchived),
+      renewals: Array.isArray(data.renewals) ? data.renewals : [],
+      freezeHistory: Array.isArray(data.freezeHistory) ? data.freezeHistory : [],
     });
   });
 
-  // Sort descending by memberId or creation time
   list.sort((a, b) => {
     const aId = String(a.memberId || a.id || '');
     const bId = String(b.memberId || b.id || '');
@@ -126,9 +132,10 @@ export async function getMembersFromFirestore() {
 
 /**
  * Adds a new member to Firestore and optionally uploads their profile photo
+ * Uses atomic batch commit to save member record and initial payment
  * @param {Object} memberInput 
  * @param {File|null} photoFile 
- * @returns {Promise<Object>} The created member with document ID
+ * @returns {Promise<Object>}
  */
 export async function addMemberToFirestore(memberInput, photoFile = null) {
   const memberId = memberInput.memberId || memberInput.id;
@@ -136,30 +143,27 @@ export async function addMemberToFirestore(memberInput, photoFile = null) {
     throw new Error('A unique member ID is required.');
   }
 
-  // 1. Upload photo if provided
   let photoUrl = memberInput.photoUrl || '';
   if (photoFile) {
     try {
       photoUrl = await uploadMemberPhoto(photoFile, memberId);
     } catch (uploadError) {
       console.warn('Photo upload warning:', uploadError);
-      // We don't break member creation if photo fails, but inform
     }
   }
 
-  // 2. Calculate financial amounts
   const admissionAmount = Number(memberInput.admissionAmount || 0);
   const planAmount = Number(memberInput.planAmount || 0);
-  const amountPayable = admissionAmount + planAmount;
+  const discount = Number(memberInput.discount || 0);
+  const amountPayable = Math.max(0, admissionAmount + planAmount - discount);
   const amountCollected = Number(memberInput.amountCollected || 0);
   const dueAmount = Math.max(0, amountPayable - amountCollected);
 
-  // 3. Determine status from expiryDate
-  const todayStr = new Date().toISOString().split('T')[0];
-  const expiryDate = memberInput.expiryDate || todayStr;
-  const status = expiryDate >= todayStr ? 'active' : 'expired';
+  const todayStr = getTodayDateStr();
+  const joiningDate = memberInput.joiningDate || todayStr;
+  const durationDays = Number(memberInput.durationDays || 30);
+  const expiryDate = memberInput.expiryDate || calculateExpiryDate(joiningDate, durationDays);
 
-  // 4. Build document payload matching specifications
   const memberDoc = {
     memberId,
     name: (memberInput.name || '').trim(),
@@ -172,22 +176,28 @@ export async function addMemberToFirestore(memberInput, photoFile = null) {
     height: memberInput.height ? String(memberInput.height).trim() : '',
     weight: memberInput.weight ? String(memberInput.weight).trim() : '',
     address: memberInput.address ? String(memberInput.address).trim() : '',
-    joiningDate: memberInput.joiningDate || todayStr,
+    joiningDate,
     paymentDate: memberInput.paymentDate || todayStr,
     planId: memberInput.planId || '',
     planName: memberInput.planName || '',
+    durationDays,
     admissionAmount,
     planAmount,
+    discount,
+    amountPayable,
     amountCollected,
     dueAmount,
     paymentMode: memberInput.paymentMode || 'Cash',
     expiryDate,
-    status,
+    status: expiryDate >= todayStr ? 'active' : 'expired',
+    isFrozen: false,
+    isArchived: false,
+    renewals: [],
+    freezeHistory: [],
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   };
 
-  // 5. Save to Firestore atomically with initial payment record if payment was made
   const membersRef = collection(db, MEMBERS_COLLECTION);
   const memberDocRef = doc(membersRef);
   const memberDocId = memberDocRef.id;
@@ -227,7 +237,7 @@ export async function addMemberToFirestore(memberInput, photoFile = null) {
       previousDueAmount: amountPayable,
       remainingDueAmount: dueAmount,
       admissionFee: admissionAmount,
-      notes: 'Initial admission & membership payment',
+      notes: 'Initial admission & membership registration',
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
@@ -247,7 +257,6 @@ export async function addMemberToFirestore(memberInput, photoFile = null) {
     ...memberDoc,
     docId: memberDocId,
     id: memberId,
-    amountPayable,
     amountDue: dueAmount,
     photo: photoUrl || null,
     initialPayment,
@@ -255,7 +264,7 @@ export async function addMemberToFirestore(memberInput, photoFile = null) {
 }
 
 /**
- * Updates an existing member in Firestore
+ * Updates an existing member's profile in Firestore
  * @param {string} docId 
  * @param {Object} updatedFields 
  * @param {File|null} newPhotoFile 
@@ -266,7 +275,6 @@ export async function updateMemberInFirestore(docId, updatedFields, newPhotoFile
 
   const payload = { ...updatedFields };
 
-  // Upload new photo if provided
   if (newPhotoFile && payload.memberId) {
     try {
       const url = await uploadMemberPhoto(newPhotoFile, payload.memberId);
@@ -277,11 +285,11 @@ export async function updateMemberInFirestore(docId, updatedFields, newPhotoFile
     }
   }
 
-  // Recalculate financial fields if amounts changed
-  if (payload.planAmount !== undefined || payload.admissionAmount !== undefined || payload.amountCollected !== undefined) {
+  if (payload.planAmount !== undefined || payload.admissionAmount !== undefined || payload.amountCollected !== undefined || payload.discount !== undefined) {
     const admission = Number(payload.admissionAmount || 0);
     const planFee = Number(payload.planAmount || 0);
-    const payable = admission + planFee;
+    const disc = Number(payload.discount || 0);
+    const payable = Math.max(0, admission + planFee - disc);
     const collected = Number(payload.amountCollected || 0);
     payload.amountPayable = payable;
     payload.amountCollected = collected;
@@ -289,15 +297,13 @@ export async function updateMemberInFirestore(docId, updatedFields, newPhotoFile
     payload.amountDue = payload.dueAmount;
   }
 
-  // Recalculate status if expiryDate changed
   if (payload.expiryDate) {
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = getTodayDateStr();
     payload.status = payload.expiryDate >= todayStr ? 'active' : 'expired';
   }
 
   payload.updatedAt = serverTimestamp();
 
-  // Strip local temporary fields not needed in doc update
   const firestoreData = { ...payload };
   delete firestoreData.docId;
   delete firestoreData.id;
@@ -310,36 +316,250 @@ export async function updateMemberInFirestore(docId, updatedFields, newPhotoFile
 }
 
 /**
- * Records a partial or full payment for a member using an atomic Firestore transaction.
- * @param {string} docId - Member Firestore document ID
- * @param {Object} currentMember - In-memory member object
- * @param {number|string} paymentAmount - Amount collected
- * @param {string} [paymentMode='Cash'] - Mode of payment (Cash, UPI, etc.)
- * @param {string} [paymentDate] - Date string YYYY-MM-DD
- * @param {string} [notes=''] - Optional note
+ * Executes a membership renewal atomically.
+ * Updates the member document with the new plan and extended dates,
+ * appends to the immutable renewal history, and creates a payment record.
+ *
+ * @param {Object} renewalInput
  * @returns {Promise<Object>}
  */
-export async function recordPaymentInFirestore(
-  docId,
-  currentMember,
-  paymentAmount,
-  paymentMode = 'Cash',
-  paymentDate = null,
-  notes = ''
-) {
-  const result = await addPayment({
-    memberDocId: docId,
-    memberId: currentMember.memberId || currentMember.id,
-    amount: paymentAmount,
+export async function renewMemberInFirestore(renewalInput) {
+  const {
+    memberDocId,
+    memberId,
+    plan,
+    startDate,
+    durationDays,
+    expiryDate,
+    planAmount,
+    discount = 0,
+    amountCollected = 0,
+    paymentMode = 'Cash',
+    paymentDate = getTodayDateStr(),
+    notes = '',
+    renewedBy = 'Owner',
+  } = renewalInput;
+
+  if (!memberDocId) throw new Error('Member document ID is required for renewal.');
+  if (!plan?.name) throw new Error('Active plan selection is required.');
+
+  const memberRef = doc(db, MEMBERS_COLLECTION, memberDocId);
+  const memberSnap = await getDoc(memberRef);
+  if (!memberSnap.exists()) throw new Error('Member record not found.');
+
+  const existingData = memberSnap.data();
+
+  // Financial calculations for renewal
+  const pFee = Number(planAmount || plan.price || 0);
+  const disc = Number(discount || 0);
+  const newPayable = Math.max(0, pFee - disc);
+  const collectedNow = Number(amountCollected || 0);
+
+  // Carry forward any previous unpaid balance
+  const previousUnpaidDue = Number(existingData.dueAmount || 0);
+  const totalCombinedDue = previousUnpaidDue + newPayable;
+  const remainingDue = Math.max(0, totalCombinedDue - collectedNow);
+  const totalLifetimeCollected = Number(existingData.amountCollected || 0) + collectedNow;
+
+  // Generate unique receipt number
+  let receiptNumber = null;
+  let paymentDocRef = null;
+  let paymentDoc = null;
+
+  const batch = writeBatch(db);
+
+  if (collectedNow > 0) {
+    receiptNumber = await generateNextReceiptNumber();
+    paymentDocRef = doc(collection(db, PAYMENTS_COLLECTION));
+
+    const pTimestamp = Timestamp.fromDate(
+      new Date(paymentDate.includes('T') ? paymentDate : `${paymentDate}T12:00:00`)
+    );
+
+    paymentDoc = {
+      receiptNumber,
+      memberId: existingData.memberId || memberId || memberDocId,
+      memberDocId,
+      memberName: existingData.name || '',
+      memberPhone: existingData.mobile || '',
+      memberCode: existingData.memberId || memberId,
+      amountPaid: collectedNow,
+      paymentMode,
+      paymentDate: pTimestamp,
+      paymentDateStr: paymentDate,
+      planName: plan.name,
+      planId: plan.id,
+      membershipStartDate: startDate,
+      membershipExpiryDate: expiryDate,
+      previousDueAmount: totalCombinedDue,
+      remainingDueAmount: remainingDue,
+      admissionFee: 0,
+      notes: notes || `Membership Renewal: ${plan.name}`,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
+
+    batch.set(paymentDocRef, paymentDoc);
+  }
+
+  // Renewal history record
+  const renewalRecord = {
+    planId: plan.id,
+    planName: plan.name,
+    startDate,
+    expiryDate,
+    durationDays: Number(durationDays || plan.durationDays || 30),
+    planPrice: pFee,
+    discount: disc,
+    amountPaid: collectedNow,
+    receiptNumber: receiptNumber || 'UNPAID',
     paymentMode,
-    paymentDate,
     notes,
-  });
+    renewedAt: new Date().toISOString(),
+    renewedBy,
+  };
+
+  const existingRenewals = Array.isArray(existingData.renewals) ? existingData.renewals : [];
+  const updatedRenewals = [renewalRecord, ...existingRenewals];
+
+  const todayStr = getTodayDateStr();
+  const memberUpdate = {
+    planId: plan.id,
+    planName: plan.name,
+    durationDays: Number(durationDays || plan.durationDays || 30),
+    planAmount: pFee,
+    amountPayable: Number(existingData.amountPayable || 0) + newPayable,
+    amountCollected: totalLifetimeCollected,
+    dueAmount: remainingDue,
+    amountDue: remainingDue,
+    expiryDate,
+    status: expiryDate >= todayStr ? 'active' : 'expired',
+    isFrozen: false,
+    renewals: updatedRenewals,
+    lastRenewalDate: todayStr,
+    updatedAt: serverTimestamp(),
+  };
+
+  batch.update(memberRef, memberUpdate);
+  await batch.commit();
 
   return {
-    ...result.memberUpdate,
-    payment: result.payment,
+    success: true,
+    memberUpdate: { ...memberUpdate, docId: memberDocId },
+    payment: paymentDoc ? { ...paymentDoc, id: paymentDocRef.id, docId: paymentDocRef.id } : null,
+    renewalRecord,
   };
+}
+
+/**
+ * Freezes an active membership
+ * @param {string} memberDocId 
+ * @param {Object} freezeData { startDate, expectedEndDate, reason, frozenBy }
+ */
+export async function freezeMemberInFirestore(memberDocId, freezeData) {
+  if (!memberDocId) throw new Error('Member document ID is required');
+  const memberRef = doc(db, MEMBERS_COLLECTION, memberDocId);
+
+  const payload = {
+    isFrozen: true,
+    freezeInfo: {
+      startDate: freezeData.startDate || getTodayDateStr(),
+      expectedEndDate: freezeData.expectedEndDate || '',
+      reason: freezeData.reason || 'Medical / Personal leave',
+      frozenAt: new Date().toISOString(),
+      frozenBy: freezeData.frozenBy || 'Owner',
+    },
+    updatedAt: serverTimestamp(),
+  };
+
+  await updateDoc(memberRef, payload);
+  return payload;
+}
+
+/**
+ * Resumes a frozen membership and automatically extends the expiry date
+ * @param {string} memberDocId 
+ * @param {Object} currentMember 
+ * @param {string} [resumeDate] 
+ * @param {string} [resumedBy='Owner'] 
+ */
+export async function resumeMemberInFirestore(memberDocId, currentMember, resumeDate = getTodayDateStr(), resumedBy = 'Owner') {
+  if (!memberDocId) throw new Error('Member document ID is required');
+  const memberRef = doc(db, MEMBERS_COLLECTION, memberDocId);
+
+  const freezeInfo = currentMember.freezeInfo || {};
+  const freezeStartDate = freezeInfo.startDate || getTodayDateStr();
+
+  const { actualFrozenDays, newExpiryDate } = calculateResumeExtension(
+    currentMember.expiryDate,
+    freezeStartDate,
+    resumeDate
+  );
+
+  const freezeRecord = {
+    startDate: freezeStartDate,
+    endDate: resumeDate,
+    actualFrozenDays,
+    reason: freezeInfo.reason || 'Frozen',
+    resumedBy,
+    resumedAt: new Date().toISOString(),
+  };
+
+  const existingHistory = Array.isArray(currentMember.freezeHistory) ? currentMember.freezeHistory : [];
+  const updatedHistory = [freezeRecord, ...existingHistory];
+
+  const payload = {
+    isFrozen: false,
+    freezeInfo: null,
+    expiryDate: newExpiryDate,
+    freezeHistory: updatedHistory,
+    status: newExpiryDate >= getTodayDateStr() ? 'active' : 'expired',
+    updatedAt: serverTimestamp(),
+  };
+
+  await updateDoc(memberRef, payload);
+  return { ...payload, actualFrozenDays, newExpiryDate };
+}
+
+/**
+ * Safely archives a member (preserving financial & audit history)
+ * @param {string} memberDocId 
+ * @param {string} [reason=''] 
+ * @param {string} [archivedBy='Owner'] 
+ */
+export async function archiveMemberInFirestore(memberDocId, reason = '', archivedBy = 'Owner') {
+  if (!memberDocId) throw new Error('Member document ID is required');
+  const memberRef = doc(db, MEMBERS_COLLECTION, memberDocId);
+
+  const payload = {
+    isArchived: true,
+    archivedAt: new Date().toISOString(),
+    archiveReason: reason || 'Member inactive / departed',
+    archivedBy,
+    updatedAt: serverTimestamp(),
+  };
+
+  await updateDoc(memberRef, payload);
+  return payload;
+}
+
+/**
+ * Restores an archived member back to active directory
+ * @param {string} memberDocId 
+ */
+export async function restoreMemberInFirestore(memberDocId) {
+  if (!memberDocId) throw new Error('Member document ID is required');
+  const memberRef = doc(db, MEMBERS_COLLECTION, memberDocId);
+
+  const payload = {
+    isArchived: false,
+    archivedAt: null,
+    archiveReason: null,
+    updatedAt: serverTimestamp(),
+  };
+
+  await updateDoc(memberRef, payload);
+  return payload;
 }
 
 /**

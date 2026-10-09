@@ -14,8 +14,10 @@ import {
   Send,
   User,
   ShieldCheck,
+  Printer,
 } from 'lucide-react';
 import { useOwnerGym, formatDate, addDaysToDate, CURRENT_DATE_STR } from '../../context/OwnerGymContext.jsx';
+import ReceiptModal from '../../components/common/ReceiptModal.jsx';
 
 export default function MemberNew() {
   const navigate = useNavigate();
@@ -23,6 +25,7 @@ export default function MemberNew() {
 
   // Generated Member ID
   const [memberId, setMemberId] = useState(() => getNextMemberId());
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
 
   // Step state: 1: Basic, 2: Details, 3: Membership, 4: Payment, 5: Success
   const [currentStep, setCurrentStep] = useState(1);
@@ -53,6 +56,7 @@ export default function MemberNew() {
     planId: plans[0]?.id || 'plan-1',
     // Step 4: Payment
     admissionAmount: '500',
+    discount: '0',
     amountCollected: '1500',
     paymentMode: 'Cash',
     sendInvoice: true,
@@ -79,7 +83,8 @@ export default function MemberNew() {
   // Payment Dynamic Calculations
   const admissionNum = Number(formData.admissionAmount) || 0;
   const planPriceNum = selectedPlan.price || 0;
-  const amountPayable = admissionNum + planPriceNum;
+  const discountNum = Number(formData.discount) || 0;
+  const amountPayable = Math.max(0, admissionNum + planPriceNum - discountNum);
   const amountCollectedNum = Number(formData.amountCollected) || 0;
   const dueAmount = Math.max(0, amountPayable - amountCollectedNum);
 
@@ -193,6 +198,7 @@ export default function MemberNew() {
         paymentDate: formData.paymentDate,
         admissionAmount: admissionNum,
         planAmount: planPriceNum,
+        discount: discountNum,
         amountPayable: amountPayable,
         amountCollected: amountCollectedNum,
         dueAmount: dueAmount,
@@ -792,7 +798,7 @@ export default function MemberNew() {
                     gap: '1rem',
                   }}
                 >
-                  {plans.map((p) => {
+                  {plans.filter(p => p.status === 'Active' || p.status === undefined).map((p) => {
                     const isSelected = formData.planId === p.id;
                     return (
                       <div
@@ -1005,6 +1011,28 @@ export default function MemberNew() {
                 />
               </div>
 
+              {/* Discount Amount */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.4rem' }}>
+                  SPECIAL DISCOUNT (₹)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={formData.discount}
+                  onChange={(e) => setFormData({ ...formData, discount: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1.5px solid #252A2E',
+                    fontSize: '0.95rem',
+                    boxSizing: 'border-box',
+                    outline: 'none',
+                  }}
+                />
+              </div>
+
               {/* Live Calculation: AMOUNT PAYABLE */}
               <div
                 style={{
@@ -1022,7 +1050,7 @@ export default function MemberNew() {
                     TOTAL AMOUNT PAYABLE
                   </div>
                   <div style={{ fontSize: '0.78rem', color: '#E5E7EB', marginTop: '0.15rem' }}>
-                    Admission (₹{admissionNum}) + Plan (₹{planPriceNum})
+                    Admission (₹{admissionNum}) + Plan (₹{planPriceNum}){discountNum > 0 ? ` - Discount (₹${discountNum})` : ''}
                   </div>
                 </div>
                 <div
@@ -1346,8 +1374,31 @@ export default function MemberNew() {
               )}
             </div>
 
-            {/* Action Buttons: [ VIEW MEMBER ] & [ BACK TO DASHBOARD ] */}
+            {/* Action Buttons: [ PRINT RECEIPT ] & [ VIEW MEMBER ] & [ BACK TO DASHBOARD ] */}
             <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                id="success-print-receipt-btn"
+                onClick={() => setShowReceiptModal(true)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  backgroundColor: '#2F7D4A',
+                  color: '#FFFFFF',
+                  border: '2px solid #252A2E',
+                  padding: '0.8rem 1.6rem',
+                  fontWeight: 800,
+                  fontSize: '0.88rem',
+                  textTransform: 'uppercase',
+                  cursor: 'pointer',
+                  boxShadow: '3px 3px 0px #252A2E',
+                }}
+              >
+                <Printer size={16} />
+                <span>PRINT RECEIPT</span>
+              </button>
+
               <button
                 type="button"
                 id="success-view-member-btn"
@@ -1545,6 +1596,28 @@ export default function MemberNew() {
             </form>
           </div>
         </div>
+      )}
+      {/* ── PRINTABLE RECEIPT MODAL ─────────────────────────────────── */}
+      {showReceiptModal && createdMember && (
+        <ReceiptModal
+          payment={{
+            receiptNumber: `RCP-${String(createdMember.id || createdMember.memberId).replace(/\D/g, '') || '001'}`,
+            date: createdMember.paymentDate || CURRENT_DATE_STR,
+            amount: createdMember.amountCollected || 0,
+            amountPaid: createdMember.amountCollected || 0,
+            admissionAmount: createdMember.admissionAmount || 0,
+            planAmount: createdMember.planAmount || 0,
+            discount: createdMember.discount || 0,
+            amountPayable: createdMember.amountPayable || 0,
+            paymentMode: createdMember.paymentMode || 'Cash',
+            mode: createdMember.paymentMode || 'Cash',
+            planName: createdMember.planName,
+            dueAmount: createdMember.dueAmount || 0,
+            type: 'Initial Registration',
+          }}
+          member={createdMember}
+          onClose={() => setShowReceiptModal(false)}
+        />
       )}
     </div>
   );

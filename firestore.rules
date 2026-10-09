@@ -3,30 +3,90 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper: Only authenticated users (email/password or Google) may access data.
+    // Helper: Is the user authenticated with Firebase Auth
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // ── Members collection ──────────────────────────────────────────────
-    // Only authenticated admin/owner can list, read, create, update, delete members.
-    // Unauthenticated users are completely blocked.
-    match /members/{memberId} {
-      allow read, create, update, delete: if isAuthenticated();
+    // Helper: Check if user is the root owner or has owner role
+    function isOwner() {
+      return isAuthenticated() && (
+        request.auth.token.email == 'leegym.website@gmail.com' ||
+        request.auth.token.role == 'Owner' ||
+        (exists(/databases/$(database)/documents/staff/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.role == 'Owner')
+      );
+    }
+
+    // Helper: Check if user is receptionist or owner
+    function isReceptionistOrOwner() {
+      return isAuthenticated() && (
+        isOwner() ||
+        request.auth.token.role == 'Receptionist' ||
+        (exists(/databases/$(database)/documents/staff/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.role == 'Receptionist')
+      );
+    }
+
+    // Helper: Any authorized gym staff (Owner, Receptionist, Trainer)
+    function isAuthorizedStaff() {
+      return isAuthenticated() && (
+        isOwner() ||
+        isReceptionistOrOwner() ||
+        request.auth.token.role == 'Trainer' ||
+        (exists(/databases/$(database)/documents/staff/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.status == 'Active')
+      );
     }
 
     // ── Plans collection ────────────────────────────────────────────────
-    // Read and write restricted to authenticated users only.
+    // Public visitors can view Active plans so the public website is 100% dynamic.
+    // Authorized staff can view all plans (including inactive).
+    // Only Owners can create, modify, or delete membership plans.
     match /plans/{planId} {
-      allow read, create, update, delete: if isAuthenticated();
+      allow read: if (resource == null || resource.data.status == 'Active') || isAuthorizedStaff();
+      allow write: if isOwner();
+    }
+
+    // ── Members collection ──────────────────────────────────────────────
+    // Only authorized staff can view member records.
+    // Receptionists and Owners can create and update member records.
+    // Only Owners can permanently delete or archive members.
+    match /members/{memberId} {
+      allow read: if isAuthorizedStaff();
+      allow create, update: if isReceptionistOrOwner();
+      allow delete: if isOwner();
     }
 
     // ── Payments collection ─────────────────────────────────────────────
-    // Only authenticated owner/admin can read or write payment records.
+    // Only authorized staff can read payment records.
+    // Receptionists and Owners can record legitimate payments.
+    // Updates/cancellations restricted to Owner.
     match /payments/{paymentId} {
-      allow read, create, update, delete: if isAuthenticated();
+      allow read: if isAuthorizedStaff();
+      allow create: if isReceptionistOrOwner();
+      allow update, delete: if isOwner();
     }
 
-    // Deny everything else by default (no catch-all open rule).
+    // ── Staff collection ────────────────────────────────────────────────
+    // Authorized staff can view colleagues.
+    // Only Owners can provision, update, or deactivate staff accounts.
+    match /staff/{staffId} {
+      allow read: if isAuthorizedStaff();
+      allow write: if isOwner();
+    }
+
+    // ── Notifications collection ────────────────────────────────────────
+    // Authorized staff can view alerts and notifications.
+    // Receptionist/Owner can create or acknowledge notifications.
+    match /notifications/{notificationId} {
+      allow read: if isAuthorizedStaff();
+      allow write: if isReceptionistOrOwner();
+    }
+
+    // Deny all other collections by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
   }
 }

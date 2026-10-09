@@ -19,7 +19,7 @@ const MEMBERS_COLLECTION = 'members';
 /**
  * Generates the next human-readable receipt number: e.g. "LEE-2026-0001"
  * Queries the highest existing receipt number ordered descending.
- * Uses a single-field index (default in Firestore) to avoid index creation requirements.
+ * Uses a single-field index (default in Firestore).
  *
  * @returns {Promise<string>} Next receipt number
  */
@@ -48,7 +48,6 @@ export async function generateNextReceiptNumber() {
     return `${prefix}0001`;
   } catch (err) {
     console.error('Error in generateNextReceiptNumber:', err);
-    // Unique fallback based on timestamp to avoid collision
     const timestampSuffix = String(Date.now()).slice(-4);
     return `${prefix}${timestampSuffix}`;
   }
@@ -106,7 +105,7 @@ export async function getMemberPayments(memberId, memberDocId = null) {
 
   const list = Array.from(paymentMap.values());
 
-  // Sort newest first by paymentDate, then createdAt, then receiptNumber
+  // Sort newest first
   list.sort((a, b) => {
     const getTime = (val) => {
       if (!val) return 0;
@@ -137,7 +136,7 @@ export async function getMemberPayments(memberId, memberDocId = null) {
  * @param {string} paymentInput.memberDocId - Firestore Document ID of member
  * @param {string} [paymentInput.memberId] - Human-readable member code (e.g. LEE001)
  * @param {number|string} paymentInput.amount - Amount collected
- * @param {string} [paymentInput.paymentMode='Cash'] - Mode: Cash / UPI / Online
+ * @param {string} [paymentInput.paymentMode='Cash'] - Mode: Cash / UPI / Online / Card
  * @param {string} [paymentInput.paymentDate] - Date string YYYY-MM-DD
  * @param {string} [paymentInput.notes] - Optional note/reference
  * @returns {Promise<Object>} Created payment record with receiptNumber
@@ -161,7 +160,6 @@ export async function addPayment(paymentInput) {
     throw new Error('Payment amount must be greater than zero.');
   }
 
-  // 1. Generate receipt number before transaction
   const receiptNumber = await generateNextReceiptNumber();
 
   const todayStr = new Date().toISOString().split('T')[0];
@@ -176,7 +174,6 @@ export async function addPayment(paymentInput) {
   let finalPaymentRecord = null;
   let updatedMemberData = null;
 
-  // 2. Atomic Transaction: Read member -> Validate & Compute -> Write payment & member
   await runTransaction(db, async (transaction) => {
     const memberSnap = await transaction.get(memberRef);
     if (!memberSnap.exists()) {
@@ -185,7 +182,6 @@ export async function addPayment(paymentInput) {
 
     const memberData = memberSnap.data();
 
-    // Previous due calculation
     const currentPayable = Number(
       memberData.amountPayable ||
       (Number(memberData.admissionAmount || 0) + Number(memberData.planAmount || 0))
@@ -197,7 +193,6 @@ export async function addPayment(paymentInput) {
         : Math.max(0, currentPayable - currentCollected)
     );
 
-    // Validate that payment does not exceed due amount (avoiding negative balance)
     if (previousDue > 0 && numAmount > previousDue) {
       throw new Error(
         `Payment amount (₹${numAmount}) cannot exceed current outstanding due amount (₹${previousDue}).`
@@ -210,7 +205,6 @@ export async function addPayment(paymentInput) {
     const remainingDue = Math.max(0, previousDue - numAmount);
     const newCollected = currentCollected + numAmount;
 
-    // Payment document payload (full receipt info for future PDF)
     const paymentDoc = {
       receiptNumber,
       memberId: memberData.memberId || memberId || memberDocId,
@@ -234,7 +228,6 @@ export async function addPayment(paymentInput) {
       updatedAt: serverTimestamp(),
     };
 
-    // Member update payload
     const memberUpdate = {
       amountCollected: newCollected,
       dueAmount: remainingDue,
@@ -244,7 +237,6 @@ export async function addPayment(paymentInput) {
       updatedAt: serverTimestamp(),
     };
 
-    // Atomic Writes
     transaction.set(paymentDocRef, paymentDoc);
     transaction.update(memberRef, memberUpdate);
 
@@ -282,17 +274,41 @@ export async function getPayment(paymentId) {
 
 /**
  * Fetches all payments from Firestore (newest first).
- * Intended for master reports or owner audit logs without real-time listeners.
- * @param {number} [maxCount=100] 
+ * Includes automatic index fallback to guarantee zero crashes.
+ *
+ * @param {number} [maxCount=250] 
  * @returns {Promise<Array>}
  */
-export async function getAllPayments(maxCount = 100) {
+export async function getAllPayments(maxCount = 250) {
   const paymentsRef = collection(db, PAYMENTS_COLLECTION);
-  const q = query(paymentsRef, orderBy('createdAt', 'desc'), limit(maxCount));
-  const snap = await getDocs(q);
+  let snap;
+
+  try {
+    const q = query(paymentsRef, orderBy('createdAt', 'desc'), limit(maxCount));
+    snap = await getDocs(q);
+  } catch (err) {
+    console.warn('Fallback: query payments without orderBy index:', err);
+    const qSimple = query(paymentsRef, limit(maxCount));
+    snap = await getDocs(qSimple);
+  }
+
   const list = [];
   snap.forEach((document) => {
     list.push({ id: document.id, docId: document.id, ...document.data() });
   });
+
+  // Sort in memory by paymentDate or createdAt
+  list.sort((a, b) => {
+    const getTime = (val) => {
+      if (!val) return 0;
+      if (val.toDate) return val.toDate().getTime();
+      const d = new Date(typeof val === 'string' && !val.includes('T') ? val + 'T12:00:00' : val);
+      return isNaN(d.getTime()) ? 0 : d.getTime();
+    };
+    const tA = getTime(a.paymentDate || a.createdAt);
+    const tB = getTime(b.paymentDate || b.createdAt);
+    return tB - tA;
+  });
+
   return list;
 }

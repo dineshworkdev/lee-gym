@@ -9,10 +9,9 @@ import {
   ChevronLeft,
   ChevronRight,
   AlertCircle,
-  CheckCircle2,
-  XCircle,
-  Calendar,
   X,
+  Snowflake,
+  Archive,
 } from 'lucide-react';
 import { useOwnerGym, formatDate } from '../../context/OwnerGymContext.jsx';
 
@@ -29,7 +28,7 @@ export default function Members() {
   // Sync state if query param changes
   useEffect(() => {
     const qFilter = searchParams.get('filter');
-    if (qFilter && ['all', 'active', 'expired', 'due', 'today', 'soon'].includes(qFilter)) {
+    if (qFilter && ['all', 'active', 'expired', 'due', 'today', 'soon', 'frozen', 'archived'].includes(qFilter)) {
       setActiveFilter(qFilter);
     }
   }, [searchParams]);
@@ -48,22 +47,30 @@ export default function Members() {
   // Filter and Search logic
   const filteredMembers = useMemo(() => {
     return members.filter((member) => {
-      const { isDue, isExpired, isActive, isExpiringToday, isExpiring1To3 } = memberEvaluator(member);
+      const evalStatus = memberEvaluator(member);
+
+      // Handle archive filter explicitly: hide archived by default unless 'archived' filter is active
+      if (activeFilter !== 'archived' && evalStatus.isArchived) {
+        return false;
+      }
 
       // 1. Filter match
-      if (activeFilter === 'active' && !isActive) return false;
-      if (activeFilter === 'expired' && !isExpired) return false;
-      if (activeFilter === 'due' && !isDue) return false;
-      if (activeFilter === 'today' && !isExpiringToday) return false;
-      if (activeFilter === 'soon' && !isExpiring1To3) return false;
+      if (activeFilter === 'active' && !evalStatus.isActive) return false;
+      if (activeFilter === 'expired' && !evalStatus.isExpired) return false;
+      if (activeFilter === 'due' && !evalStatus.isDue) return false;
+      if (activeFilter === 'today' && !evalStatus.isExpiringToday) return false;
+      if (activeFilter === 'soon' && !evalStatus.isExpiringSoon) return false;
+      if (activeFilter === 'frozen' && !evalStatus.isFrozen) return false;
+      if (activeFilter === 'archived' && !evalStatus.isArchived) return false;
 
-      // 2. Search match (name, mobile, member ID)
+      // 2. Search match (name, mobile, member ID, plan)
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase().trim();
         const matchesName = (member.name || '').toLowerCase().includes(query);
         const matchesMobile = (member.mobile || '').includes(query);
         const matchesId = (member.id || '').toLowerCase().includes(query);
-        if (!matchesName && !matchesMobile && !matchesId) {
+        const matchesPlan = (member.planName || '').toLowerCase().includes(query);
+        if (!matchesName && !matchesMobile && !matchesId && !matchesPlan) {
           return false;
         }
       }
@@ -74,16 +81,27 @@ export default function Members() {
 
   // Compute total counts for filter pill badges
   const filterCounts = useMemo(() => {
+    let all = 0;
     let active = 0;
     let expired = 0;
     let due = 0;
+    let frozen = 0;
+    let archived = 0;
+
     members.forEach((m) => {
-      const { isDue, isExpired, isActive } = memberEvaluator(m);
-      if (isActive) active++;
-      if (isExpired) expired++;
-      if (isDue) due++;
+      const evalStatus = memberEvaluator(m);
+      if (evalStatus.isArchived) {
+        archived++;
+        return; // Don't count archived in regular active/due/expired counts
+      }
+      all++;
+      if (evalStatus.isActive) active++;
+      if (evalStatus.isExpired) expired++;
+      if (evalStatus.isDue) due++;
+      if (evalStatus.isFrozen) frozen++;
     });
-    return { all: members.length, active, expired, due };
+
+    return { all, active, expired, due, frozen, archived };
   }, [members, memberEvaluator]);
 
   // Paginated slice
@@ -117,10 +135,10 @@ export default function Members() {
               lineHeight: 1,
             }}
           >
-            MEMBERS
+            MEMBERS DIRECTORY
           </h1>
           <p style={{ fontFamily: 'var(--font-body, "Inter", sans-serif)', fontSize: '0.88rem', color: '#4B555D', margin: '0.35rem 0 0' }}>
-            Showing {filteredMembers.length} member{filteredMembers.length !== 1 ? 's' : ''} in directory
+            Showing {filteredMembers.length} member{filteredMembers.length !== 1 ? 's' : ''} in {activeFilter.toUpperCase()} view
           </p>
         </div>
 
@@ -144,15 +162,6 @@ export default function Members() {
             textDecoration: 'none',
             boxShadow: '3px 3px 0px #252A2E',
             cursor: 'pointer',
-            transition: 'transform 100ms ease, box-shadow 100ms ease',
-          }}
-          onMouseDown={(e) => {
-            e.currentTarget.style.transform = 'translate(1px, 1px)';
-            e.currentTarget.style.boxShadow = '2px 2px 0px #252A2E';
-          }}
-          onMouseUp={(e) => {
-            e.currentTarget.style.transform = 'none';
-            e.currentTarget.style.boxShadow = '3px 3px 0px #252A2E';
           }}
         >
           <UserPlus size={18} />
@@ -234,13 +243,12 @@ export default function Members() {
         </div>
 
         {/* Filter Pills */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
           <span
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.35rem',
-              fontFamily: 'var(--font-body, "Inter", sans-serif)',
               fontSize: '0.78rem',
               fontWeight: 800,
               textTransform: 'uppercase',
@@ -257,6 +265,8 @@ export default function Members() {
             { id: 'active', label: 'Active', count: filterCounts.active },
             { id: 'due', label: 'Due', count: filterCounts.due },
             { id: 'expired', label: 'Expired', count: filterCounts.expired },
+            { id: 'frozen', label: 'Frozen', count: filterCounts.frozen },
+            { id: 'archived', label: 'Archived', count: filterCounts.archived },
           ].map((tab) => {
             const isSelected = activeFilter === tab.id;
             return (
@@ -266,17 +276,16 @@ export default function Members() {
                 type="button"
                 onClick={() => handleFilterChange(tab.id)}
                 style={{
-                  padding: '0.45rem 0.85rem',
+                  padding: '0.45rem 0.8rem',
                   border: '1.5px solid #252A2E',
                   backgroundColor: isSelected ? '#252A2E' : '#FFFFFF',
                   color: isSelected ? '#FFFFFF' : '#252A2E',
-                  fontFamily: 'var(--font-body, "Inter", sans-serif)',
                   fontSize: '0.82rem',
                   fontWeight: 700,
                   cursor: 'pointer',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '0.4rem',
+                  gap: '0.35rem',
                   transition: 'all 100ms ease',
                 }}
               >
@@ -285,9 +294,9 @@ export default function Members() {
                   style={{
                     backgroundColor: isSelected ? '#F4C400' : 'rgba(37, 42, 46, 0.1)',
                     color: '#252A2E',
-                    fontSize: '0.72rem',
+                    fontSize: '0.7rem',
                     fontWeight: 800,
-                    padding: '0.1rem 0.4rem',
+                    padding: '0.1rem 0.35rem',
                     borderRadius: '2px',
                   }}
                 >
@@ -360,13 +369,13 @@ export default function Members() {
                     Plan
                   </th>
                   <th style={{ padding: '0.9rem 1rem', fontSize: '0.78rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-                    Expiry
+                    Expiry Date
                   </th>
                   <th style={{ padding: '0.9rem 1rem', fontSize: '0.78rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                     Payment Status
                   </th>
                   <th style={{ padding: '0.9rem 1rem', fontSize: '0.78rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-                    Membership Status
+                    Status
                   </th>
                   <th style={{ padding: '0.9rem 1rem', fontSize: '0.78rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                     Action
@@ -375,7 +384,7 @@ export default function Members() {
               </thead>
               <tbody>
                 {paginatedMembers.map((member, idx) => {
-                  const { isDue, isExpired, isActive, isExpiringToday } = memberEvaluator(member);
+                  const evalStatus = memberEvaluator(member);
                   return (
                     <tr
                       key={member.id}
@@ -410,16 +419,17 @@ export default function Members() {
                             justifyContent: 'center',
                             fontWeight: 800,
                             fontSize: '0.85rem',
+                            overflow: 'hidden',
                           }}
                         >
-                          {member.photo ? (
+                          {member.photo || member.photoUrl ? (
                             <img
-                              src={member.photo}
+                              src={member.photo || member.photoUrl}
                               alt={member.name}
-                              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             />
                           ) : (
-                            member.name.charAt(0)
+                            member.name?.charAt(0) || 'L'
                           )}
                         </div>
                       </td>
@@ -447,7 +457,7 @@ export default function Members() {
                         <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#252A2E' }}>
                           {formatDate(member.expiryDate)}
                         </div>
-                        {isExpiringToday && (
+                        {evalStatus.isExpiringToday && (
                           <span
                             style={{
                               display: 'inline-block',
@@ -465,7 +475,7 @@ export default function Members() {
 
                       {/* Payment Status (Paid / Due) */}
                       <td style={{ padding: '0.85rem 1rem' }}>
-                        {isDue ? (
+                        {evalStatus.isDue ? (
                           <span
                             style={{
                               display: 'inline-flex',
@@ -479,7 +489,7 @@ export default function Members() {
                               padding: '0.25rem 0.6rem',
                             }}
                           >
-                            Due: ₹{member.amountDue}
+                            Due: ₹{evalStatus.dueAmount}
                           </span>
                         ) : (
                           <span
@@ -499,58 +509,40 @@ export default function Members() {
                         )}
                       </td>
 
-                      {/* Membership Status (Active / Expired) */}
+                      {/* Membership Status Badge */}
                       <td style={{ padding: '0.85rem 1rem' }}>
-                        {isActive ? (
-                          <span
-                            style={{
-                              display: 'inline-block',
-                              backgroundColor: '#2F7D4A',
-                              color: '#FFFFFF',
-                              fontSize: '0.75rem',
-                              fontWeight: 700,
-                              padding: '0.2rem 0.55rem',
-                              letterSpacing: '0.04em',
-                              textTransform: 'uppercase',
-                            }}
-                          >
-                            Active
-                          </span>
-                        ) : (
-                          <span
-                            style={{
-                              display: 'inline-block',
-                              backgroundColor: '#4B555D',
-                              color: '#FFFFFF',
-                              fontSize: '0.75rem',
-                              fontWeight: 700,
-                              padding: '0.2rem 0.55rem',
-                              letterSpacing: '0.04em',
-                              textTransform: 'uppercase',
-                            }}
-                          >
-                            Expired
-                          </span>
-                        )}
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            backgroundColor: evalStatus.badgeBg,
+                            color: evalStatus.badgeColor,
+                            border: `1px solid ${evalStatus.badgeColor}`,
+                            fontSize: '0.75rem',
+                            fontWeight: 800,
+                            padding: '0.2rem 0.55rem',
+                            letterSpacing: '0.04em',
+                          }}
+                        >
+                          {evalStatus.badgeLabel}
+                        </span>
                       </td>
 
-                      {/* Action */}
+                      {/* Action -> View Details */}
                       <td style={{ padding: '0.85rem 1rem' }}>
                         <Link
                           to={`/owner/members/${member.id}`}
-                          id={`view-member-${member.id}`}
+                          id={`member-view-btn-${member.id}`}
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '0.3rem',
+                            gap: '0.35rem',
                             backgroundColor: '#252A2E',
                             color: '#FFFFFF',
                             padding: '0.45rem 0.85rem',
                             fontSize: '0.8rem',
                             fontWeight: 700,
                             textDecoration: 'none',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.04em',
+                            borderRadius: '2px',
                           }}
                         >
                           <Eye size={14} />
@@ -568,161 +560,110 @@ export default function Members() {
 
       {/* ── MOBILE MEMBER CARDS ─────────────────────────────────────── */}
       <div className="flex md:hidden flex-col gap-3 mb-6">
-        {paginatedMembers.length === 0 ? (
-          <div
-            style={{
-              backgroundColor: '#FFFFFF',
-              border: '2px solid #252A2E',
-              padding: '2.5rem 1rem',
-              textAlign: 'center',
-            }}
-          >
-            <AlertCircle size={32} color="#4B555D" style={{ margin: '0 auto 0.5rem' }} />
-            <div style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)', fontSize: '1.5rem', color: '#252A2E' }}>
-              NO MEMBERS FOUND
-            </div>
-            <p style={{ fontSize: '0.85rem', color: '#4B555D', margin: '0.4rem 0 0.8rem' }}>
-              Try adjusting your search query or active filter.
-            </p>
-          </div>
-        ) : (
-          paginatedMembers.map((member) => {
-            const { isDue, isActive, isExpiringToday } = memberEvaluator(member);
-            return (
-              <div
-                key={member.id}
+        {paginatedMembers.map((member) => {
+          const evalStatus = memberEvaluator(member);
+          return (
+            <div
+              key={member.id}
+              style={{
+                backgroundColor: '#FFFFFF',
+                border: '2px solid #252A2E',
+                boxShadow: '3px 3px 0px #252A2E',
+                padding: '1.25rem',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                  <div
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      backgroundColor: '#252A2E',
+                      color: '#F4C400',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 800,
+                    }}
+                  >
+                    {member.name?.charAt(0) || 'L'}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 800, fontSize: '1rem', color: '#252A2E' }}>{member.name}</div>
+                    <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: '0.75rem', color: '#4B555D' }}>
+                      {member.id}
+                    </span>
+                  </div>
+                </div>
+
+                <span
+                  style={{
+                    backgroundColor: evalStatus.badgeBg,
+                    color: evalStatus.badgeColor,
+                    border: `1px solid ${evalStatus.badgeColor}`,
+                    fontSize: '0.72rem',
+                    fontWeight: 800,
+                    padding: '0.2rem 0.5rem',
+                  }}
+                >
+                  {evalStatus.badgeLabel}
+                </span>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.82rem', marginBottom: '1rem' }}>
+                <div>Plan: <strong>{member.planName}</strong></div>
+                <div>Expiry: <strong>{formatDate(member.expiryDate)}</strong></div>
+                <div>Phone: <strong style={{ fontFamily: 'monospace' }}>{member.mobile}</strong></div>
+                <div>
+                  Payment:{' '}
+                  {evalStatus.isDue ? (
+                    <strong style={{ color: '#A83D3D' }}>Due ₹{evalStatus.dueAmount}</strong>
+                  ) : (
+                    <strong style={{ color: '#2F7D4A' }}>Paid</strong>
+                  )}
+                </div>
+              </div>
+
+              <Link
+                to={`/owner/members/${member.id}`}
                 style={{
-                  backgroundColor: '#FFFFFF',
-                  border: '2px solid #252A2E',
-                  boxShadow: '3px 3px 0px #252A2E',
-                  padding: '1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.4rem',
+                  backgroundColor: '#252A2E',
+                  color: '#FFFFFF',
+                  padding: '0.65rem',
+                  textDecoration: 'none',
+                  fontWeight: 700,
+                  fontSize: '0.85rem',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.65rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                    <div
-                      style={{
-                        width: '36px',
-                        height: '36px',
-                        backgroundColor: '#252A2E',
-                        color: '#F4C400',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 800,
-                        fontSize: '0.9rem',
-                      }}
-                    >
-                      {member.name.charAt(0)}
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#252A2E' }}>{member.name}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#4B555D', fontFamily: 'monospace' }}>{member.id}</div>
-                    </div>
-                  </div>
-
-                  {/* Status badge */}
-                  <div>
-                    {isActive ? (
-                      <span style={{ backgroundColor: '#2F7D4A', color: '#FFFFFF', fontSize: '0.7rem', fontWeight: 800, padding: '0.2rem 0.5rem' }}>
-                        ACTIVE
-                      </span>
-                    ) : (
-                      <span style={{ backgroundColor: '#4B555D', color: '#FFFFFF', fontSize: '0.7rem', fontWeight: 800, padding: '0.2rem 0.5rem' }}>
-                        EXPIRED
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: '0.5rem',
-                    fontSize: '0.8rem',
-                    padding: '0.65rem 0',
-                    borderTop: '1px solid rgba(37, 42, 46, 0.08)',
-                    borderBottom: '1px solid rgba(37, 42, 46, 0.08)',
-                    marginBottom: '0.75rem',
-                  }}
-                >
-                  <div>
-                    <span style={{ color: '#4B555D' }}>Mobile: </span>
-                    <span style={{ fontWeight: 600, color: '#252A2E' }}>{member.mobile}</span>
-                  </div>
-                  <div>
-                    <span style={{ color: '#4B555D' }}>Plan: </span>
-                    <span style={{ fontWeight: 600, color: '#252A2E' }}>{member.planName}</span>
-                  </div>
-                  <div>
-                    <span style={{ color: '#4B555D' }}>Expiry: </span>
-                    <span style={{ fontWeight: 600, color: '#252A2E' }}>{formatDate(member.expiryDate)}</span>
-                  </div>
-                  <div>
-                    <span style={{ color: '#4B555D' }}>Payment: </span>
-                    {isDue ? (
-                      <span style={{ color: '#A83D3D', fontWeight: 800 }}>Due: ₹{member.amountDue}</span>
-                    ) : (
-                      <span style={{ color: '#2F7D4A', fontWeight: 700 }}>Paid</span>
-                    )}
-                  </div>
-                </div>
-
-                <Link
-                  to={`/owner/members/${member.id}`}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.4rem',
-                    width: '100%',
-                    backgroundColor: '#252A2E',
-                    color: '#FFFFFF',
-                    padding: '0.65rem',
-                    fontSize: '0.82rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    textDecoration: 'none',
-                  }}
-                >
-                  <Eye size={15} />
-                  <span>View Member Profile</span>
-                </Link>
-              </div>
-            );
-          })
-        )}
+                <Eye size={16} />
+                <span>View Full Profile</span>
+              </Link>
+            </div>
+          );
+        })}
       </div>
 
-      {/* ── PAGINATION CONTROLS ────────────────────────────────────── */}
-      {filteredMembers.length > itemsPerPage && (
+      {/* ── PAGINATION CONTROLS ─────────────────────────────────────── */}
+      {totalPages > 1 && (
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '1rem',
-            backgroundColor: '#FFFFFF',
-            border: '2px solid #252A2E',
-            boxShadow: '3px 3px 0px #252A2E',
             flexWrap: 'wrap',
-            gap: '0.75rem',
+            gap: '1rem',
+            padding: '1rem 0',
           }}
         >
           <div style={{ fontSize: '0.85rem', color: '#4B555D' }}>
-            Showing{' '}
-            <strong style={{ color: '#252A2E' }}>
-              {(currentPage - 1) * itemsPerPage + 1}
-            </strong>{' '}
-            to{' '}
-            <strong style={{ color: '#252A2E' }}>
-              {Math.min(currentPage * itemsPerPage, filteredMembers.length)}
-            </strong>{' '}
-            of <strong style={{ color: '#252A2E' }}>{filteredMembers.length}</strong> members
+            Page {currentPage} of {totalPages} ({filteredMembers.length} total members)
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button
               type="button"
               disabled={currentPage === 1}
@@ -730,23 +671,20 @@ export default function Members() {
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.25rem',
-                padding: '0.45rem 0.85rem',
+                gap: '0.35rem',
+                padding: '0.55rem 0.9rem',
                 border: '1.5px solid #252A2E',
-                backgroundColor: currentPage === 1 ? '#F3F4F6' : '#FFFFFF',
-                color: currentPage === 1 ? '#9CA3AF' : '#252A2E',
-                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                backgroundColor: '#FFFFFF',
+                color: '#252A2E',
                 fontWeight: 700,
                 fontSize: '0.82rem',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                opacity: currentPage === 1 ? 0.5 : 1,
               }}
             >
               <ChevronLeft size={16} />
-              <span>Prev</span>
+              <span>Previous</span>
             </button>
-
-            <span style={{ fontSize: '0.85rem', fontWeight: 700, padding: '0 0.5rem' }}>
-              {currentPage} / {totalPages}
-            </span>
 
             <button
               type="button"
@@ -755,14 +693,15 @@ export default function Members() {
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.25rem',
-                padding: '0.45rem 0.85rem',
+                gap: '0.35rem',
+                padding: '0.55rem 0.9rem',
                 border: '1.5px solid #252A2E',
-                backgroundColor: currentPage === totalPages ? '#F3F4F6' : '#FFFFFF',
-                color: currentPage === totalPages ? '#9CA3AF' : '#252A2E',
-                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                backgroundColor: '#FFFFFF',
+                color: '#252A2E',
                 fontWeight: 700,
                 fontSize: '0.82rem',
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                opacity: currentPage === totalPages ? 0.5 : 1,
               }}
             >
               <span>Next</span>
