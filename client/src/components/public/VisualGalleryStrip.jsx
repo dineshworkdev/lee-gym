@@ -124,59 +124,86 @@ function VisualGalleryStrip() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-40px' }}
               transition={{ duration: 0.45, delay: shouldReduce ? 0 : idx * 0.08, ease: [0.22, 1, 0.36, 1] }}
-              whileHover={shouldReduce ? {} : { y: -6, borderColor: 'rgba(255, 255, 255, 0.25)', boxShadow: '0 12px 28px rgba(0, 0, 0, 0.35)' }}
+              whileHover={shouldReduce ? {} : { y: -6, borderColor: 'rgba(255, 255, 255, 0.25)', boxShadow: '0 14px 32px rgba(0, 0, 0, 0.4)' }}
               whileTap={{ scale: 0.98 }}
               style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                backgroundColor: 'rgba(255, 255, 255, 0.04)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
                 borderTop: `4px solid ${item.colorAccent}`,
-                borderRadius: '3px',
-                padding: 'clamp(1.5rem, 2.5vw, 2rem)',
-                minHeight: '220px',
+                borderRadius: '4px',
+                overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 cursor: 'pointer',
                 position: 'relative',
-                overflow: 'hidden',
                 transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span
+              <div style={{ position: 'relative', width: '100%', height: '180px', overflow: 'hidden', backgroundColor: '#181b1e' }}>
+                <img
+                  src={item.src}
+                  alt={item.alt}
+                  loading="lazy"
                   style={{
-                    fontFamily: 'var(--font-body)',
-                    fontSize: '0.68rem',
-                    fontWeight: 800,
-                    letterSpacing: '0.14em',
-                    textTransform: 'uppercase',
-                    color: item.colorAccent,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    display: 'block',
                   }}
-                >
-                  {item.tag}
-                </span>
-                <Eye size={16} color="rgba(255,255,255,0.4)" />
+                />
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'linear-gradient(to bottom, rgba(37,42,46,0.2) 0%, rgba(37,42,46,0.85) 100%)',
+                    pointerEvents: 'none',
+                  }}
+                />
+                <div style={{ position: 'absolute', top: '0.75rem', left: '0.75rem', right: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 2 }}>
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-body)',
+                      fontSize: '0.68rem',
+                      fontWeight: 800,
+                      letterSpacing: '0.14em',
+                      textTransform: 'uppercase',
+                      color: 'var(--color-charcoal)',
+                      backgroundColor: item.colorAccent,
+                      padding: '0.2rem 0.55rem',
+                      borderRadius: '2px',
+                    }}
+                  >
+                    {item.tag || item.category}
+                  </span>
+                  <span style={{ backgroundColor: 'rgba(0,0,0,0.5)', padding: '0.3rem', borderRadius: '50%', display: 'flex' }}>
+                    <Eye size={14} color="#ffffff" />
+                  </span>
+                </div>
               </div>
 
-              <div>
-                <h3
-                  style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: 'clamp(1.8rem, 2.8vw, 2.3rem)',
-                    lineHeight: 1,
-                    color: 'var(--color-white)',
-                    margin: '0 0 0.5rem 0',
-                  }}
-                >
-                  {item.title}
-                </h3>
-                <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.82rem', color: '#A0AAB2', margin: 0 }}>
-                  {item.caption}
-                </p>
-              </div>
+              <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', flexGrow: 1, justifyContent: 'space-between' }}>
+                <div>
+                  <h3
+                    style={{
+                      fontFamily: 'var(--font-display)',
+                      fontSize: 'clamp(1.5rem, 2.4vw, 1.9rem)',
+                      lineHeight: 1.05,
+                      color: 'var(--color-white)',
+                      margin: '0 0 0.4rem 0',
+                    }}
+                  >
+                    {item.title}
+                  </h3>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.82rem', color: '#A0AAB2', margin: 0, lineHeight: 1.5 }}>
+                    {item.caption}
+                  </p>
+                </div>
 
-              <div style={{ fontSize: '0.75rem', color: 'var(--color-yellow)', fontWeight: 700, textTransform: 'uppercase' }}>
-                {item.stats}
+                <div style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: '0.75rem', color: 'var(--color-yellow)', fontWeight: 700, textTransform: 'uppercase', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>{item.stats}</span>
+                  <span style={{ fontSize: '0.7rem', color: '#7E8B95' }}>Inspect →</span>
+                </div>
               </div>
             </motion.div>
           ))}
@@ -196,7 +223,7 @@ function VisualGalleryStrip() {
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: 'rgba(37, 42, 46, 0.92)',
+              backgroundColor: 'rgba(25, 28, 31, 0.92)',
               backdropFilter: 'blur(8px)',
               zIndex: 9999,
               display: 'flex',
@@ -215,9 +242,11 @@ function VisualGalleryStrip() {
                 backgroundColor: 'var(--color-charcoal)',
                 color: 'var(--color-white)',
                 borderLeft: `6px solid ${selectedPhoto.colorAccent}`,
-                borderRadius: '4px',
-                padding: 'clamp(2rem, 5vw, 3rem)',
-                maxWidth: '600px',
+                borderRadius: '6px',
+                padding: 'clamp(1.5rem, 4vw, 2.25rem)',
+                maxWidth: '720px',
+                maxHeight: '90vh',
+                overflowY: 'auto',
                 width: '100%',
                 position: 'relative',
               }}
@@ -225,11 +254,12 @@ function VisualGalleryStrip() {
               <button
                 type="button"
                 onClick={() => setSelectedPhoto(null)}
+                aria-label="Close modal"
                 style={{
                   position: 'absolute',
                   top: '1.25rem',
                   right: '1.25rem',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.12)',
                   border: 'none',
                   color: 'var(--color-white)',
                   width: '36px',
@@ -239,10 +269,39 @@ function VisualGalleryStrip() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
+                  zIndex: 3,
                 }}
               >
                 <X size={18} />
               </button>
+
+              <div
+                style={{
+                  width: '100%',
+                  maxHeight: '48vh',
+                  borderRadius: '4px',
+                  overflow: 'hidden',
+                  backgroundColor: '#151719',
+                  marginBottom: '1.25rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                }}
+              >
+                <img
+                  src={selectedPhoto.src}
+                  alt={selectedPhoto.alt}
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '48vh',
+                    width: 'auto',
+                    height: 'auto',
+                    objectFit: 'contain',
+                    display: 'block',
+                  }}
+                />
+              </div>
 
               <span
                 style={{
@@ -256,25 +315,25 @@ function VisualGalleryStrip() {
                   marginBottom: '0.75rem',
                 }}
               >
-                {selectedPhoto.tag}
+                {selectedPhoto.tag || selectedPhoto.category}
               </span>
 
               <h3
                 style={{
                   fontFamily: 'var(--font-display)',
-                  fontSize: 'clamp(2.4rem, 4.5vw, 3.2rem)',
-                  lineHeight: 1,
-                  margin: '0 0 1rem 0',
+                  fontSize: 'clamp(2rem, 4vw, 2.6rem)',
+                  lineHeight: 1.05,
+                  margin: '0 0 0.75rem 0',
                 }}
               >
                 {selectedPhoto.title}
               </h3>
 
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.95rem', lineHeight: 1.6, color: '#C2CBD1', marginBottom: '1.5rem' }}>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.95rem', lineHeight: 1.6, color: '#C2CBD1', marginBottom: '1.25rem' }}>
                 {selectedPhoto.caption}
               </p>
 
-              <div style={{ padding: '0.85rem 1rem', backgroundColor: 'rgba(255, 255, 255, 0.06)', borderRadius: '2px', fontSize: '0.85rem', color: 'var(--color-yellow)', fontWeight: 700 }}>
+              <div style={{ padding: '0.75rem 1rem', backgroundColor: 'rgba(255, 255, 255, 0.06)', borderRadius: '2px', fontSize: '0.85rem', color: 'var(--color-yellow)', fontWeight: 700 }}>
                 {selectedPhoto.stats}
               </div>
             </motion.div>

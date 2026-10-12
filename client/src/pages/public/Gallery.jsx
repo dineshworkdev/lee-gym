@@ -9,7 +9,7 @@ function Gallery() {
   const [activeModalItem, setActiveModalItem] = useState(null);
   const shouldReduce = useReducedMotion();
 
-  const categories = ['All', 'Facility', 'Strength', 'Conditioning', 'Community'];
+  const categories = ['All', 'Facility', 'Strength', 'Conditioning'];
 
   const filteredItems = filter === 'All'
     ? GALLERY_ITEMS
@@ -94,12 +94,12 @@ function Gallery() {
             })}
           </div>
 
-          {/* Masonry / Dynamic Editorial Grid */}
+          {/* Dynamic Editorial Grid */}
           <div
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-              gap: '1.5rem',
+              gap: '1.75rem',
             }}
           >
             {filteredItems.map((item, idx) => (
@@ -110,105 +110,170 @@ function Gallery() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.35, delay: shouldReduce ? 0 : idx * 0.05 }}
-                whileHover={shouldReduce ? {} : { y: -6, boxShadow: '0 14px 32px rgba(0,0,0,0.35)' }}
+                whileHover={shouldReduce ? {} : { y: -6, boxShadow: '0 16px 36px rgba(0,0,0,0.35)' }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setActiveModalItem(item)}
                 style={{
                   backgroundColor: 'var(--color-charcoal)',
                   color: 'var(--color-white)',
-                  borderRadius: '4px',
+                  borderRadius: '6px',
                   overflow: 'hidden',
                   cursor: 'pointer',
                   position: 'relative',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  minHeight: '260px',
-                  padding: '2rem',
                   borderTop: `4px solid ${item.colorAccent}`,
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
                   boxShadow: 'var(--shadow-sm)',
                   transition: 'border-color 200ms ease, box-shadow 200ms ease',
                 }}
               >
-                {/* Background decorative texture pattern */}
-                <div
-                  aria-hidden="true"
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    right: 0,
-                    bottom: 0,
-                    left: 0,
-                    opacity: 0.08,
-                    pointerEvents: 'none',
-                    backgroundImage:
-                      'radial-gradient(circle, var(--color-yellow) 1px, transparent 1px)',
-                    backgroundSize: '16px 16px',
-                  }}
-                />
-
-                {/* Top Badge & Category */}
-                <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-body)',
-                      fontSize: '0.68rem',
-                      fontWeight: 800,
-                      letterSpacing: '0.16em',
-                      textTransform: 'uppercase',
-                      color: item.colorAccent,
-                      backgroundColor: 'rgba(255, 255, 255, 0.06)',
-                      padding: '0.25rem 0.6rem',
-                      borderRadius: '2px',
-                    }}
-                  >
-                    {item.category}
-                  </span>
-                  <Eye size={16} color="rgba(255,255,255,0.4)" />
-                </div>
-
-                {/* Center Content */}
-                <div style={{ position: 'relative', zIndex: 1, margin: '2rem 0' }}>
-                  <h3
-                    style={{
-                      fontFamily: 'var(--font-display)',
-                      fontSize: 'clamp(1.8rem, 2.5vw, 2.3rem)',
-                      lineHeight: 1.02,
-                      letterSpacing: '0.02em',
-                      color: 'var(--color-white)',
-                      marginBottom: '0.5rem',
-                    }}
-                  >
-                    {item.title}
-                  </h3>
-                  <p
-                    style={{
-                      fontFamily: 'var(--font-body)',
-                      fontSize: '0.85rem',
-                      lineHeight: 1.55,
-                      color: '#C2CBD1',
-                      margin: 0,
-                    }}
-                  >
-                    {item.caption}
-                  </p>
-                </div>
-
-                {/* Bottom Meta */}
+                {/* Photo Display with overlay */}
                 <div
                   style={{
                     position: 'relative',
-                    zIndex: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'flex-end',
-                    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-                    paddingTop: '0.85rem',
+                    width: '100%',
+                    height: '240px',
+                    overflow: 'hidden',
+                    backgroundColor: '#1b1e22',
                   }}
                 >
-                  <span style={{ fontSize: '0.72rem', color: '#7E8B95', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                    Click to Inspect
-                  </span>
+                  <img
+                    src={item.src}
+                    alt={item.alt}
+                    loading="lazy"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      objectPosition: 'center',
+                      display: 'block',
+                      transition: 'transform 350ms ease',
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(37,42,46,0.85) 100%)',
+                      pointerEvents: 'none',
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '1rem',
+                      left: '1rem',
+                      right: '1rem',
+                      zIndex: 2,
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-body)',
+                        fontSize: '0.68rem',
+                        fontWeight: 800,
+                        letterSpacing: '0.14em',
+                        textTransform: 'uppercase',
+                        color: 'var(--color-charcoal)',
+                        backgroundColor: item.colorAccent,
+                        padding: '0.25rem 0.65rem',
+                        borderRadius: '2px',
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                      }}
+                    >
+                      {item.category}
+                    </span>
+                    <span
+                      style={{
+                        backgroundColor: 'rgba(37, 42, 46, 0.75)',
+                        backdropFilter: 'blur(4px)',
+                        padding: '0.35rem',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'var(--color-white)',
+                      }}
+                    >
+                      <Eye size={15} />
+                    </span>
+                  </div>
+                </div>
+
+                {/* Card Content */}
+                <div
+                  style={{
+                    padding: '1.5rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    flexGrow: 1,
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <div>
+                    <h3
+                      style={{
+                        fontFamily: 'var(--font-display)',
+                        fontSize: 'clamp(1.5rem, 2.2vw, 1.85rem)',
+                        lineHeight: 1.1,
+                        letterSpacing: '0.02em',
+                        color: 'var(--color-white)',
+                        marginBottom: '0.5rem',
+                      }}
+                    >
+                      {item.title}
+                    </h3>
+                    <p
+                      style={{
+                        fontFamily: 'var(--font-body)',
+                        fontSize: '0.85rem',
+                        lineHeight: 1.55,
+                        color: '#C2CBD1',
+                        margin: 0,
+                      }}
+                    >
+                      {item.caption}
+                    </p>
+                  </div>
+
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                      paddingTop: '0.85rem',
+                      marginTop: '1.25rem',
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: '0.74rem',
+                        fontWeight: 700,
+                        color: 'var(--color-yellow)',
+                        letterSpacing: '0.06em',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      {item.stats || item.tag}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: '0.72rem',
+                        color: '#7E8B95',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.08em',
+                        fontWeight: 600,
+                      }}
+                    >
+                      View Photo →
+                    </span>
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -229,7 +294,7 @@ function Gallery() {
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: 'rgba(37, 42, 46, 0.88)',
+              backgroundColor: 'rgba(25, 28, 31, 0.92)',
               backdropFilter: 'blur(8px)',
               zIndex: 9999,
               display: 'flex',
@@ -250,8 +315,10 @@ function Gallery() {
                 color: 'var(--color-white)',
                 borderRadius: '6px',
                 width: '100%',
-                maxWidth: '680px',
-                padding: 'clamp(2rem, 5vw, 3rem)',
+                maxWidth: '780px',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                padding: 'clamp(1.5rem, 4vw, 2.25rem)',
                 position: 'relative',
                 borderLeft: `6px solid ${activeModalItem.colorAccent}`,
                 boxShadow: 'var(--shadow-lg)',
@@ -261,11 +328,12 @@ function Gallery() {
               <button
                 type="button"
                 onClick={() => setActiveModalItem(null)}
+                aria-label="Close modal"
                 style={{
                   position: 'absolute',
                   top: '1.25rem',
                   right: '1.25rem',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.12)',
                   border: 'none',
                   color: 'var(--color-white)',
                   width: '36px',
@@ -275,37 +343,81 @@ function Gallery() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
+                  zIndex: 3,
                 }}
               >
                 <X size={18} />
               </button>
 
-              <span
+              {/* Photo Display */}
+              <div
                 style={{
-                  backgroundColor: activeModalItem.colorAccent,
-                  color: 'var(--color-charcoal)',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: '0.72rem',
-                  fontWeight: 800,
-                  letterSpacing: '0.14em',
-                  textTransform: 'uppercase',
-                  padding: '0.3rem 0.75rem',
-                  borderRadius: '2px',
-                  display: 'inline-block',
-                  marginBottom: '1rem',
+                  width: '100%',
+                  maxHeight: '52vh',
+                  borderRadius: '4px',
+                  overflow: 'hidden',
+                  backgroundColor: '#151719',
+                  marginBottom: '1.5rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
                 }}
               >
-                {activeModalItem.category}
-              </span>
+                <img
+                  src={activeModalItem.src}
+                  alt={activeModalItem.alt}
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '52vh',
+                    width: 'auto',
+                    height: 'auto',
+                    objectFit: 'contain',
+                    display: 'block',
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.75rem' }}>
+                <span
+                  style={{
+                    backgroundColor: activeModalItem.colorAccent,
+                    color: 'var(--color-charcoal)',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '0.72rem',
+                    fontWeight: 800,
+                    letterSpacing: '0.14em',
+                    textTransform: 'uppercase',
+                    padding: '0.3rem 0.75rem',
+                    borderRadius: '2px',
+                    display: 'inline-block',
+                  }}
+                >
+                  {activeModalItem.category}
+                </span>
+                {activeModalItem.stats && (
+                  <span
+                    style={{
+                      color: 'var(--color-yellow)',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.08em',
+                    }}
+                  >
+                    • {activeModalItem.stats}
+                  </span>
+                )}
+              </div>
 
               <h3
                 style={{
                   fontFamily: 'var(--font-display)',
-                  fontSize: 'clamp(2.4rem, 5vw, 3.4rem)',
+                  fontSize: 'clamp(2rem, 4vw, 2.8rem)',
                   letterSpacing: '0.02em',
-                  lineHeight: 1,
+                  lineHeight: 1.05,
                   color: 'var(--color-white)',
-                  marginBottom: '1rem',
+                  marginBottom: '0.75rem',
                 }}
               >
                 {activeModalItem.title}
@@ -314,16 +426,14 @@ function Gallery() {
               <p
                 style={{
                   fontFamily: 'var(--font-body)',
-                  fontSize: '1rem',
-                  lineHeight: 1.7,
+                  fontSize: '0.95rem',
+                  lineHeight: 1.6,
                   color: '#C2CBD1',
-                  marginBottom: '1.5rem',
+                  marginBottom: '1.75rem',
                 }}
               >
                 {activeModalItem.caption}
               </p>
-
-
 
               {/* Prev / Next controls */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
