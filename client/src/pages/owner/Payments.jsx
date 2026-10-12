@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Plus,
+  X,
 } from 'lucide-react';
 import { useOwnerGym, formatDate, CURRENT_DATE_STR } from '../../context/OwnerGymContext.jsx';
 import ReceiptModal from '../../components/common/ReceiptModal.jsx';

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -21,6 +21,37 @@ export default function OwnerLayout() {
   const { logout, ownerProfile, isAuthenticated, authLoading } = useOwnerGym();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Prevent background page scrolling while the mobile drawer is open
+  useEffect(() => {
+    if (mobileDrawerOpen) {
+      const originalBodyOverflow = document.body.style.overflow;
+      const originalHtmlOverflow = document.documentElement.style.overflow;
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalBodyOverflow;
+        document.documentElement.style.overflow = originalHtmlOverflow;
+      };
+    }
+  }, [mobileDrawerOpen]);
+
+  // Handle escape key to close mobile drawer
+  useEffect(() => {
+    if (!mobileDrawerOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setMobileDrawerOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mobileDrawerOpen]);
+
+  // Close drawer on route change
+  useEffect(() => {
+    setMobileDrawerOpen(false);
+  }, [location.pathname]);
 
   if (authLoading) {
     return (
@@ -90,131 +121,145 @@ export default function OwnerLayout() {
   return (
     <div
       style={{
-        display: 'flex',
-        minHeight: '100vh',
+        minHeight: '100dvh',
         backgroundColor: '#F7F5EF',
         color: '#252A2E',
         fontFamily: 'var(--font-body, "Inter", sans-serif)',
       }}
+      className="w-full min-w-0 box-border"
     >
-      {/* ── DESKTOP SIDEBAR ────────────────────────────────────────── */}
+      {/* ── DESKTOP FIXED SIDEBAR ────────────────────────────────────── */}
       <aside
         id="owner-desktop-sidebar"
         className="hidden md:flex"
         style={{
           width: '260px',
-          flexShrink: 0,
+          height: '100dvh',
+          minHeight: '100vh',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          bottom: 0,
+          zIndex: 40,
           backgroundColor: '#252A2E',
           color: '#FFFFFF',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          borderRight: '2px solid #1A1E22',
-          position: 'sticky',
-          top: 0,
-          height: '100vh',
+          borderRight: '1px solid rgba(255, 255, 255, 0.08)',
+          boxShadow: '2px 0 16px rgba(0, 0, 0, 0.12)',
         }}
       >
         {/* Top Brand Block */}
-        <div>
+        <div
+          style={{
+            flexShrink: 0,
+            padding: '1.5rem 1.5rem 1.25rem',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+          }}
+        >
           <div
             style={{
-              padding: '1.5rem 1.5rem 1.25rem',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+              width: '36px',
+              height: '36px',
+              borderRadius: '6px',
+              backgroundColor: 'rgba(244, 196, 0, 0.15)',
+              color: '#F4C400',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.75rem',
+              justifyContent: 'center',
+              flexShrink: 0,
             }}
           >
-            <div
-              style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '6px',
-                backgroundColor: 'rgba(244, 196, 0, 0.15)',
-                color: '#F4C400',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <Dumbbell size={20} />
-            </div>
-
-            <div>
-              <div
-                style={{
-                  fontFamily: 'var(--font-display, "Bebas Neue", "Impact", sans-serif)',
-                  fontSize: '1.6rem',
-                  letterSpacing: '0.04em',
-                  lineHeight: 1,
-                  color: '#FFFFFF',
-                }}
-              >
-                LEE <span style={{ color: '#F4C400' }}>GYM</span>
-              </div>
-              <div
-                style={{
-                  fontSize: '0.68rem',
-                  fontWeight: 600,
-                  letterSpacing: '0.08em',
-                  color: 'rgba(255, 255, 255, 0.45)',
-                  textTransform: 'uppercase',
-                  marginTop: '0.2rem',
-                }}
-              >
-                Management Portal
-              </div>
-            </div>
+            <Dumbbell size={20} />
           </div>
 
-          {/* Navigation Items */}
-          <nav style={{ padding: '1.25rem 0.85rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <div>
+            <div
+              style={{
+                fontFamily: 'var(--font-display, "Bebas Neue", "Impact", sans-serif)',
+                fontSize: '1.6rem',
+                letterSpacing: '0.04em',
+                lineHeight: 1,
+                color: '#FFFFFF',
+              }}
+            >
+              LEE <span style={{ color: '#F4C400' }}>GYM</span>
+            </div>
             <div
               style={{
                 fontSize: '0.68rem',
-                fontWeight: 700,
-                letterSpacing: '0.12em',
+                fontWeight: 600,
+                letterSpacing: '0.08em',
+                color: 'rgba(255, 255, 255, 0.45)',
                 textTransform: 'uppercase',
-                color: 'rgba(255, 255, 255, 0.35)',
-                padding: '0 0.65rem 0.5rem',
+                marginTop: '0.2rem',
               }}
             >
-              Menu
+              Management Portal
             </div>
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  id={`nav-${item.label.toLowerCase()}`}
-                  style={({ isActive }) => ({
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    padding: '0.65rem 0.85rem',
-                    borderRadius: '6px',
-                    textDecoration: 'none',
-                    backgroundColor: isActive ? 'rgba(244, 196, 0, 0.12)' : 'transparent',
-                    color: isActive ? '#F4C400' : 'rgba(255, 255, 255, 0.75)',
-                    fontWeight: isActive ? 600 : 400,
-                    fontSize: '0.88rem',
-                    transition: 'all 150ms ease',
-                    borderLeft: isActive ? '3px solid #F4C400' : '3px solid transparent',
-                  })}
-                >
-                  <Icon size={18} style={{ opacity: 0.9 }} />
-                  <span>{item.label}</span>
-                </NavLink>
-              );
-            })}
-          </nav>
+          </div>
         </div>
+
+        {/* Scrollable Navigation Area */}
+        <nav
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            padding: '1.25rem 0.85rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.25rem',
+          }}
+        >
+          <div
+            style={{
+              fontSize: '0.68rem',
+              fontWeight: 700,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: 'rgba(255, 255, 255, 0.35)',
+              padding: '0 0.65rem 0.5rem',
+            }}
+          >
+            Menu
+          </div>
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                id={`nav-${item.label.toLowerCase()}`}
+                style={({ isActive }) => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  padding: '0.65rem 0.85rem',
+                  borderRadius: '6px',
+                  textDecoration: 'none',
+                  backgroundColor: isActive ? 'rgba(244, 196, 0, 0.12)' : 'transparent',
+                  color: isActive ? '#F4C400' : 'rgba(255, 255, 255, 0.75)',
+                  fontWeight: isActive ? 600 : 400,
+                  fontSize: '0.88rem',
+                  transition: 'all 150ms ease',
+                  borderLeft: isActive ? '3px solid #F4C400' : '3px solid transparent',
+                })}
+              >
+                <Icon size={18} style={{ opacity: 0.9 }} />
+                <span>{item.label}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
 
         {/* Bottom Profile & Logout */}
         <div
           style={{
+            flexShrink: 0,
             padding: '1rem',
             borderTop: '1px solid rgba(255, 255, 255, 0.08)',
             backgroundColor: 'rgba(0, 0, 0, 0.15)',
@@ -302,22 +347,20 @@ export default function OwnerLayout() {
         </div>
       </aside>
 
-      {/* ── MOBILE HEADER & DRAWER ─────────────────────────────────── */}
-      <div className="flex md:hidden flex-col w-full">
-        {/* Sticky Mobile Header */}
+      {/* ── CONTENT AREA OFFSET FOR FIXED DESKTOP SIDEBAR ──────────── */}
+      <div className="w-full md:pl-[260px] min-w-0 box-border flex flex-col min-h-screen">
+        {/* ── MOBILE HEADER (STICKY) ─────────────────────────────────── */}
         <header
+          className="flex md:hidden items-center justify-between px-4 py-3"
           style={{
             height: '60px',
             backgroundColor: '#252A2E',
             color: '#FFFFFF',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '0 1.25rem',
             position: 'sticky',
             top: 0,
-            zIndex: 90,
+            zIndex: 35,
             borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            width: '100%',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
@@ -379,7 +422,7 @@ export default function OwnerLayout() {
           </button>
         </header>
 
-        {/* Mobile Drawer Backdrop & Drawer */}
+        {/* ── MOBILE DRAWER BACKDROP & DRAWER ───────────────────────── */}
         {mobileDrawerOpen && (
           <div
             id="mobile-drawer-backdrop"
@@ -387,28 +430,130 @@ export default function OwnerLayout() {
             style={{
               position: 'fixed',
               inset: 0,
-              top: '60px',
-              backgroundColor: 'rgba(0, 0, 0, 0.6)',
-              zIndex: 95,
+              backgroundColor: 'rgba(0, 0, 0, 0.65)',
+              zIndex: 50,
               display: 'flex',
-              backdropFilter: 'blur(3px)',
+              backdropFilter: 'blur(4px)',
             }}
           >
             <div
+              id="mobile-drawer-panel"
               onClick={(e) => e.stopPropagation()}
               style={{
-                width: '270px',
-                height: '100%',
+                width: '280px',
+                maxWidth: '85vw',
+                height: '100dvh',
+                maxHeight: '100dvh',
                 backgroundColor: '#252A2E',
                 color: '#FFFFFF',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                padding: '1.25rem 1rem',
                 boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)',
+                overflow: 'hidden',
               }}
             >
-              <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              {/* Top Drawer Logo & Close Bar */}
+              <div
+                style={{
+                  flexShrink: 0,
+                  padding: '1.25rem 1.25rem 1rem',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                  <div
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '6px',
+                      backgroundColor: 'rgba(244, 196, 0, 0.15)',
+                      color: '#F4C400',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Dumbbell size={18} />
+                  </div>
+                  <div>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-display, "Bebas Neue", "Impact", sans-serif)',
+                        fontSize: '1.4rem',
+                        letterSpacing: '0.04em',
+                        lineHeight: 1,
+                        color: '#FFFFFF',
+                      }}
+                    >
+                      LEE <span style={{ color: '#F4C400' }}>GYM</span>
+                    </span>
+                    <span
+                      style={{
+                        fontSize: '0.65rem',
+                        fontWeight: 600,
+                        color: 'rgba(255, 255, 255, 0.5)',
+                        marginLeft: '0.4rem',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      Portal
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  id="mobile-drawer-close-btn"
+                  type="button"
+                  onClick={() => setMobileDrawerOpen(false)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'rgba(255, 255, 255, 0.7)',
+                    cursor: 'pointer',
+                    padding: '0.35rem',
+                    borderRadius: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                  aria-label="Close drawer"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Scrollable Navigation Area */}
+              <nav
+                id="mobile-drawer-nav"
+                style={{
+                  flex: '1 1 0%',
+                  minHeight: 0,
+                  overflowY: 'auto',
+                  overflowX: 'hidden',
+                  padding: '1rem 0.85rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.35rem',
+                  WebkitOverflowScrolling: 'touch',
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: '0.68rem',
+                    fontWeight: 700,
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(255, 255, 255, 0.35)',
+                    padding: '0 0.65rem 0.35rem',
+                  }}
+                >
+                  Menu
+                </div>
                 {navItems.map((item) => {
                   const Icon = item.icon;
                   return (
@@ -420,13 +565,15 @@ export default function OwnerLayout() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        padding: '0.75rem 0.85rem',
+                        padding: '0.7rem 0.85rem',
                         borderRadius: '6px',
                         textDecoration: 'none',
                         backgroundColor: isActive ? 'rgba(244, 196, 0, 0.15)' : 'transparent',
                         color: isActive ? '#F4C400' : 'rgba(255, 255, 255, 0.8)',
                         fontWeight: isActive ? 600 : 400,
                         fontSize: '0.9rem',
+                        transition: 'all 150ms ease',
+                        borderLeft: isActive ? '3px solid #F4C400' : '3px solid transparent',
                       })}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -439,16 +586,74 @@ export default function OwnerLayout() {
                 })}
               </nav>
 
-              <div style={{ paddingTop: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#FFFFFF', marginBottom: '0.15rem' }}>
-                  {ownerProfile.name}
+              {/* Bottom Profile & Sign-out Section */}
+              <div
+                id="mobile-drawer-bottom-section"
+                style={{
+                  flexShrink: 0,
+                  padding: '1rem',
+                  borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                  backgroundColor: 'rgba(0, 0, 0, 0.18)',
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    padding: '0.35rem 0.5rem',
+                    marginBottom: '0.75rem',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '34px',
+                      height: '34px',
+                      borderRadius: '50%',
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#FFFFFF',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <User size={16} />
+                  </div>
+                  <div style={{ overflow: 'hidden', minWidth: 0, flex: 1 }}>
+                    <div
+                      style={{
+                        fontSize: '0.85rem',
+                        fontWeight: 600,
+                        color: '#FFFFFF',
+                        whiteSpace: 'nowrap',
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {ownerProfile.name}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: '0.72rem',
+                        color: 'rgba(255, 255, 255, 0.5)',
+                        whiteSpace: 'nowrap',
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {ownerProfile.email}
+                    </div>
+                  </div>
                 </div>
-                <div style={{ fontSize: '0.72rem', color: 'rgba(255, 255, 255, 0.5)', marginBottom: '1rem' }}>
-                  {ownerProfile.email}
-                </div>
+
                 <button
+                  id="mobile-drawer-logout-btn"
                   type="button"
-                  onClick={handleLogout}
+                  onClick={() => {
+                    setMobileDrawerOpen(false);
+                    handleLogout();
+                  }}
                   style={{
                     width: '100%',
                     display: 'flex',
@@ -458,11 +663,12 @@ export default function OwnerLayout() {
                     padding: '0.65rem',
                     borderRadius: '6px',
                     backgroundColor: 'rgba(168, 61, 61, 0.15)',
-                    border: '1px solid rgba(168, 61, 61, 0.3)',
+                    border: '1px solid rgba(168, 61, 61, 0.35)',
                     color: '#FCA5A5',
-                    fontSize: '0.82rem',
+                    fontSize: '0.84rem',
                     fontWeight: 600,
                     cursor: 'pointer',
+                    transition: 'all 150ms ease',
                   }}
                 >
                   <LogOut size={15} />
@@ -473,24 +679,14 @@ export default function OwnerLayout() {
           </div>
         )}
 
-        {/* Mobile Main Content */}
-        <main style={{ flex: 1, padding: '1.25rem 1rem 3rem' }}>
+        {/* ── UNIFIED MAIN CONTENT AREA (SINGLE OUTLET) ─────────────── */}
+        <main
+          id="owner-main-content"
+          className="flex-1 w-full max-w-[1440px] mx-auto px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10 min-w-0 box-border"
+        >
           <Outlet />
         </main>
       </div>
-
-      {/* ── DESKTOP MAIN CONTENT ───────────────────────────────────── */}
-      <main
-        className="hidden md:block"
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '2rem 2.5rem 3.5rem',
-          maxWidth: '1440px',
-        }}
-      >
-        <Outlet />
-      </main>
     </div>
   );
 }

@@ -6,21 +6,20 @@ import {
   AlertTriangle,
   Clock,
   CheckCircle2,
-  ArrowRight,
   TrendingUp,
   IndianRupee,
   Calendar,
   Snowflake,
   AlertCircle,
-  FileText,
   SlidersHorizontal,
   ChevronRight,
   X,
   CreditCard,
   Receipt,
-  UserCheck,
+  PieChart,
+  ArrowUpRight,
 } from 'lucide-react';
-import { useOwnerGym, formatDate, CURRENT_DATE_STR } from '../../context/OwnerGymContext.jsx';
+import { useOwnerGym, formatDate } from '../../context/OwnerGymContext.jsx';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -50,756 +49,362 @@ export default function Dashboard() {
     })
     .slice(0, 6);
 
-  // Recent Activity derived from verified real payments and members
+  // Recent Activity derived from verified real payments
   const recentTransactions = payments.slice(0, 5);
 
+  // Real plan breakdown (excluding archived)
+  const planBreakdownEntries = Object.entries(dashboardMetrics.planCounts || {}).sort(
+    (a, b) => b[1] - a[1]
+  );
+  const totalPlanMembers = planBreakdownEntries.reduce((acc, curr) => acc + curr[1], 0) || 1;
+
+  // Real payment mode breakdown
+  const paymentModes = dashboardMetrics.paymentModeBreakdown || { Cash: 0, UPI: 0, Card: 0, Other: 0 };
+
   return (
-    <div style={{ maxWidth: '1440px', margin: '0 auto' }}>
+    <div className="dashboard-entry w-full max-w-[1440px] mx-auto min-w-0 box-border">
       {/* ── A. PAGE HEADER ──────────────────────────────────────────── */}
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '1rem',
-          marginBottom: '2rem',
-          paddingBottom: '1.25rem',
-          borderBottom: '1px solid rgba(37, 42, 46, 0.08)',
-        }}
-      >
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+      <header className="flex flex-wrap items-center justify-between gap-4 mb-6 sm:mb-8 pb-4 sm:pb-5 border-b border-[rgba(37,42,46,0.08)] w-full min-w-0">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
             <h1
               style={{
                 fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                fontSize: 'clamp(2rem, 3.5vw, 2.6rem)',
                 letterSpacing: '0.04em',
-                color: 'var(--color-charcoal, #252A2E)',
-                margin: 0,
-                lineHeight: 1,
               }}
+              className="text-3xl sm:text-4xl lg:text-5xl text-[#252A2E] m-0 leading-none"
             >
               DASHBOARD
             </h1>
-            <span
-              style={{
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                color: 'var(--color-slate, #4B555D)',
-                backgroundColor: 'rgba(37, 42, 46, 0.05)',
-                padding: '0.25rem 0.65rem',
-                borderRadius: '4px',
-              }}
-            >
+            <span className="text-xs font-semibold text-[#4B555D] bg-[rgba(37,42,46,0.05)] px-2.5 py-1 rounded border border-[rgba(37,42,46,0.08)]">
               {todayFormatted}
             </span>
           </div>
-          <p
-            style={{
-              fontFamily: 'var(--font-body, "Inter", sans-serif)',
-              fontSize: '0.88rem',
-              color: 'var(--color-slate, #4B555D)',
-              margin: '0.35rem 0 0',
-            }}
-          >
-            Your gym operations, cash flow, and membership standing at a glance.
+          <p className="text-xs sm:text-sm text-[#4B555D] mt-1 sm:mt-1.5 mb-0">
+            Gym operations, athlete membership standing, and financial performance at a glance.
           </p>
         </div>
 
         {/* Header Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
           <button
             id="dashboard-manage-btn"
             type="button"
             onClick={() => setShowManageModal(true)}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.45rem',
-              backgroundColor: '#FFFFFF',
-              color: 'var(--color-charcoal, #252A2E)',
-              border: '1px solid rgba(37, 42, 46, 0.15)',
-              padding: '0.65rem 1.15rem',
-              borderRadius: '6px',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
-              transition: 'all 150ms ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.3)';
-              e.currentTarget.style.backgroundColor = '#FAF8F4';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.15)';
-              e.currentTarget.style.backgroundColor = '#FFFFFF';
-            }}
+            className="inline-flex items-center gap-1.5 bg-white text-[#252A2E] border border-[rgba(37,42,46,0.15)] px-3 sm:px-3.5 py-2 rounded-md text-xs sm:text-sm font-semibold cursor-pointer shadow-[0_1px_3px_rgba(37,42,46,0.04)] hover:bg-[#FAF8F4] hover:border-[rgba(37,42,46,0.3)] transition-all"
           >
-            <SlidersHorizontal size={16} />
+            <SlidersHorizontal size={15} />
             <span>Manage Portal</span>
           </button>
 
           <Link
             to="/owner/members"
             id="dashboard-view-members-btn"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.45rem',
-              backgroundColor: '#FFFFFF',
-              color: 'var(--color-charcoal, #252A2E)',
-              border: '1px solid rgba(37, 42, 46, 0.15)',
-              padding: '0.65rem 1.15rem',
-              borderRadius: '6px',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-              textDecoration: 'none',
-              boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
-              transition: 'all 150ms ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.3)';
-              e.currentTarget.style.backgroundColor = '#FAF8F4';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.15)';
-              e.currentTarget.style.backgroundColor = '#FFFFFF';
-            }}
+            className="inline-flex items-center gap-1.5 bg-white text-[#252A2E] border border-[rgba(37,42,46,0.15)] px-3 sm:px-3.5 py-2 rounded-md text-xs sm:text-sm font-semibold no-underline shadow-[0_1px_3px_rgba(37,42,46,0.04)] hover:bg-[#FAF8F4] hover:border-[rgba(37,42,46,0.3)] transition-all"
           >
-            <Users size={16} />
+            <Users size={15} />
             <span>Members List</span>
           </Link>
 
           <Link
             to="/owner/members/new"
             id="dashboard-add-member-btn"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.45rem',
-              backgroundColor: 'var(--color-yellow, #F4C400)',
-              color: 'var(--color-charcoal, #252A2E)',
-              border: '1px solid rgba(212, 169, 0, 0.8)',
-              padding: '0.65rem 1.25rem',
-              borderRadius: '6px',
-              fontSize: '0.85rem',
-              fontWeight: 700,
-              textDecoration: 'none',
-              boxShadow: '0 2px 6px rgba(244, 196, 0, 0.3)',
-              transition: 'all 150ms ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#E5B800';
-              e.currentTarget.style.transform = 'translateY(-1px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#F4C400';
-              e.currentTarget.style.transform = 'none';
-            }}
+            className="inline-flex items-center gap-1.5 bg-[#F4C400] text-[#252A2E] border border-[#D4A900] px-3.5 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-bold no-underline shadow-[0_2px_6px_rgba(244,196,0,0.25)] hover:bg-[#E5B800] hover:-translate-y-0.5 transition-all"
           >
-            <UserPlus size={16} />
+            <UserPlus size={15} />
             <span>Add Member</span>
           </Link>
         </div>
-      </div>
+      </header>
 
-      {/* ── B. FINANCIAL OVERVIEW ────────────────────────────────────── */}
-      <section style={{ marginBottom: '2.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+      {/* ── B. MEMBERSHIP STATUS — FIRST ────────────────────────────── */}
+      <section className="mb-8 sm:mb-10 w-full min-w-0">
+        <div className="flex items-center justify-between mb-3.5 sm:mb-4 flex-wrap gap-2 min-w-0">
           <div>
             <h2
               style={{
                 fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                fontSize: '1.45rem',
                 letterSpacing: '0.04em',
-                color: 'var(--color-charcoal, #252A2E)',
-                margin: 0,
               }}
-            >
-              FINANCIAL PERFORMANCE
-            </h2>
-            <p style={{ fontSize: '0.82rem', color: 'var(--color-slate, #4B555D)', margin: '0.15rem 0 0' }}>
-              Real-time revenue collections and dues recorded in Firestore
-            </p>
-          </div>
-          <Link
-            to="/owner/payments"
-            style={{
-              fontSize: '0.82rem',
-              fontWeight: 600,
-              color: 'var(--color-charcoal, #252A2E)',
-              textDecoration: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-            }}
-          >
-            <span>Open Ledger</span>
-            <ChevronRight size={15} />
-          </Link>
-        </div>
-
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            gap: '1rem',
-          }}
-        >
-          {/* 1. Collected Today */}
-          <div
-            style={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid rgba(37, 42, 46, 0.08)',
-              borderRadius: '8px',
-              padding: '1.25rem 1.4rem',
-              boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
-              position: 'relative',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-slate, #4B555D)' }}>
-                Collected Today
-              </span>
-              <div
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '6px',
-                  backgroundColor: 'rgba(47, 125, 74, 0.08)',
-                  color: '#2F7D4A',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Calendar size={17} />
-              </div>
-            </div>
-            <div style={{ margin: '0.75rem 0 0.25rem' }}>
-              <div
-                style={{
-                  fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                  fontSize: '2.4rem',
-                  lineHeight: 1,
-                  color: 'var(--color-charcoal, #252A2E)',
-                }}
-              >
-                ₹{Number(dashboardMetrics.collectionsToday || 0).toLocaleString('en-IN')}
-              </div>
-            </div>
-            <span style={{ fontSize: '0.75rem', color: '#2F7D4A', fontWeight: 500 }}>
-              Active business day collections
-            </span>
-          </div>
-
-          {/* 2. Collected This Month */}
-          <div
-            style={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid rgba(37, 42, 46, 0.08)',
-              borderRadius: '8px',
-              padding: '1.25rem 1.4rem',
-              boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
-              position: 'relative',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-slate, #4B555D)' }}>
-                This Month (MTD)
-              </span>
-              <div
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '6px',
-                  backgroundColor: 'rgba(244, 196, 0, 0.15)',
-                  color: '#D4A900',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <TrendingUp size={17} />
-              </div>
-            </div>
-            <div style={{ margin: '0.75rem 0 0.25rem' }}>
-              <div
-                style={{
-                  fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                  fontSize: '2.4rem',
-                  lineHeight: 1,
-                  color: 'var(--color-charcoal, #252A2E)',
-                }}
-              >
-                ₹{Number(dashboardMetrics.collectionsThisMonth || 0).toLocaleString('en-IN')}
-              </div>
-            </div>
-            <span style={{ fontSize: '0.75rem', color: 'var(--color-slate, #4B555D)', fontWeight: 500 }}>
-              Month-to-date collections
-            </span>
-          </div>
-
-          {/* 3. Total Lifetime Revenue */}
-          <div
-            style={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid rgba(37, 42, 46, 0.08)',
-              borderRadius: '8px',
-              padding: '1.25rem 1.4rem',
-              boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
-              position: 'relative',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-slate, #4B555D)' }}>
-                Total Revenue
-              </span>
-              <div
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '6px',
-                  backgroundColor: 'rgba(37, 42, 46, 0.08)',
-                  color: 'var(--color-charcoal, #252A2E)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <IndianRupee size={17} />
-              </div>
-            </div>
-            <div style={{ margin: '0.75rem 0 0.25rem' }}>
-              <div
-                style={{
-                  fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                  fontSize: '2.4rem',
-                  lineHeight: 1,
-                  color: 'var(--color-charcoal, #252A2E)',
-                }}
-              >
-                ₹{Number(dashboardMetrics.totalRevenueCollected || 0).toLocaleString('en-IN')}
-              </div>
-            </div>
-            <span style={{ fontSize: '0.75rem', color: 'var(--color-slate, #4B555D)', fontWeight: 500 }}>
-              All verified receipts combined
-            </span>
-          </div>
-
-          {/* 4. Outstanding Dues */}
-          <div
-            onClick={() => navigate('/owner/payments')}
-            style={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid rgba(168, 61, 61, 0.15)',
-              borderRadius: '8px',
-              padding: '1.25rem 1.4rem',
-              boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
-              position: 'relative',
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              transition: 'all 150ms ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(168, 61, 61, 0.35)';
-              e.currentTarget.style.boxShadow = '0 6px 16px rgba(168, 61, 61, 0.08)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(168, 61, 61, 0.15)';
-              e.currentTarget.style.boxShadow = 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))';
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#A83D3D' }}>
-                Outstanding Dues
-              </span>
-              <div
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '6px',
-                  backgroundColor: 'rgba(168, 61, 61, 0.08)',
-                  color: '#A83D3D',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <AlertCircle size={17} />
-              </div>
-            </div>
-            <div style={{ margin: '0.75rem 0 0.25rem' }}>
-              <div
-                style={{
-                  fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                  fontSize: '2.4rem',
-                  lineHeight: 1,
-                  color: '#A83D3D',
-                }}
-              >
-                ₹{Number(dashboardMetrics.totalOutstandingDues || 0).toLocaleString('en-IN')}
-              </div>
-            </div>
-            <span style={{ fontSize: '0.75rem', color: '#A83D3D', fontWeight: 600 }}>
-              {dashboardMetrics.dueMembers} member{dashboardMetrics.dueMembers === 1 ? '' : 's'} with due balance
-            </span>
-          </div>
-        </div>
-      </section>
-
-      {/* ── C. MEMBERSHIP OVERVIEW ───────────────────────────────────── */}
-      <section style={{ marginBottom: '2.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-          <div>
-            <h2
-              style={{
-                fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                fontSize: '1.45rem',
-                letterSpacing: '0.04em',
-                color: 'var(--color-charcoal, #252A2E)',
-                margin: 0,
-              }}
+              className="text-xl sm:text-2xl text-[#252A2E] m-0"
             >
               MEMBERSHIP STATUS
             </h2>
-            <p style={{ fontSize: '0.82rem', color: 'var(--color-slate, #4B555D)', margin: '0.15rem 0 0' }}>
-              Active athletes, upcoming expirations, and status breakdown
+            <p className="text-xs sm:text-sm text-[#4B555D] mt-0.5 mb-0">
+              Athlete activity, upcoming expirations, and subscription health
             </p>
           </div>
           <Link
             to="/owner/members?filter=all"
-            style={{
-              fontSize: '0.82rem',
-              fontWeight: 600,
-              color: 'var(--color-charcoal, #252A2E)',
-              textDecoration: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-            }}
+            className="text-xs sm:text-sm font-semibold text-[#252A2E] no-underline inline-flex items-center gap-1 hover:text-[#D4A900] transition-colors"
           >
-            <span>All Members ({dashboardMetrics.totalMembers})</span>
+            <span>View All ({dashboardMetrics.totalMembers})</span>
             <ChevronRight size={15} />
           </Link>
         </div>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-            gap: '1rem',
-          }}
-        >
-          {/* Active Members */}
+        {/* 7 Responsive Membership Metric Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-3.5 w-full min-w-0">
+          {/* 1. Total Members */}
           <div
-            onClick={() => navigate('/owner/members?filter=active')}
-            style={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid rgba(37, 42, 46, 0.08)',
-              borderRadius: '8px',
-              padding: '1.15rem 1.25rem',
-              cursor: 'pointer',
-              transition: 'all 150ms ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(47, 125, 74, 0.3)';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.08)';
-              e.currentTarget.style.transform = 'none';
-            }}
+            id="metric-card-total-members"
+            className="metric-card-interactive w-full min-w-0 bg-white border border-[rgba(37,42,46,0.08)] rounded-lg p-3 sm:p-3.5 flex flex-col justify-between cursor-pointer min-h-[118px] box-border shadow-[0_1px_3px_rgba(37,42,46,0.04)]"
+            onClick={() => navigate('/owner/members?filter=all')}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#2F7D4A' }}>Active Members</span>
-              <CheckCircle2 size={16} color="#2F7D4A" />
+            <div className="flex items-center justify-between gap-1.5 min-w-0">
+              <span className="text-xs sm:text-[0.76rem] font-semibold text-[#4B555D] truncate">Total Members</span>
+              <div className="w-7 h-7 rounded-md bg-[rgba(37,42,46,0.06)] text-[#252A2E] flex items-center justify-center flex-shrink-0">
+                <Users size={14} />
+              </div>
             </div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '2.2rem', color: '#252A2E', margin: '0.4rem 0 0.1rem', lineHeight: 1 }}>
+            <div
+              style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)' }}
+              className="text-3xl sm:text-4xl text-[#252A2E] leading-none my-1 truncate"
+            >
+              {dashboardMetrics.totalMembers}
+            </div>
+            <span className="text-[0.72rem] text-[#6B7280] truncate block">
+              Registered athletes
+            </span>
+          </div>
+
+          {/* 2. Active Members */}
+          <div
+            id="metric-card-active-members"
+            className="metric-card-interactive w-full min-w-0 bg-white border border-[rgba(47,125,74,0.2)] rounded-lg p-3 sm:p-3.5 flex flex-col justify-between cursor-pointer min-h-[118px] box-border shadow-[0_1px_3px_rgba(37,42,46,0.04)]"
+            onClick={() => navigate('/owner/members?filter=active')}
+          >
+            <div className="flex items-center justify-between gap-1.5 min-w-0">
+              <span className="text-xs sm:text-[0.76rem] font-semibold text-[#2F7D4A] truncate">Active</span>
+              <div className="w-7 h-7 rounded-md bg-[rgba(47,125,74,0.08)] text-[#2F7D4A] flex items-center justify-center flex-shrink-0">
+                <CheckCircle2 size={14} />
+              </div>
+            </div>
+            <div
+              style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)' }}
+              className="text-3xl sm:text-4xl text-[#252A2E] leading-none my-1 truncate"
+            >
               {dashboardMetrics.activeMembers}
             </div>
-            <span style={{ fontSize: '0.72rem', color: 'var(--color-slate, #4B555D)' }}>Valid subscriptions</span>
+            <span className="text-[0.72rem] text-[#2F7D4A] font-medium truncate block">
+              Valid subscriptions
+            </span>
           </div>
 
-          {/* Expiring Today */}
+          {/* 3. Expiring Today */}
           <div
+            id="metric-card-expiring-today"
+            className="metric-card-interactive w-full min-w-0 bg-white border border-[rgba(212,169,0,0.25)] rounded-lg p-3 sm:p-3.5 flex flex-col justify-between cursor-pointer min-h-[118px] box-border shadow-[0_1px_3px_rgba(37,42,46,0.04)]"
             onClick={() => navigate('/owner/members?filter=today')}
-            style={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid rgba(37, 42, 46, 0.08)',
-              borderRadius: '8px',
-              padding: '1.15rem 1.25rem',
-              cursor: 'pointer',
-              transition: 'all 150ms ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(244, 196, 0, 0.5)';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.08)';
-              e.currentTarget.style.transform = 'none';
-            }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#D4A900' }}>Expiring Today</span>
-              <Clock size={16} color="#D4A900" />
+            <div className="flex items-center justify-between gap-1.5 min-w-0">
+              <span className="text-xs sm:text-[0.76rem] font-semibold text-[#997A00] truncate">Expiring Today</span>
+              <div className="w-7 h-7 rounded-md bg-[rgba(244,196,0,0.15)] text-[#997A00] flex items-center justify-center flex-shrink-0">
+                <Clock size={14} />
+              </div>
             </div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '2.2rem', color: '#252A2E', margin: '0.4rem 0 0.1rem', lineHeight: 1 }}>
+            <div
+              style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)' }}
+              className="text-3xl sm:text-4xl text-[#252A2E] leading-none my-1 truncate"
+            >
               {dashboardMetrics.expiringToday}
             </div>
-            <span style={{ fontSize: '0.72rem', color: 'var(--color-slate, #4B555D)' }}>Renewal due today</span>
+            <span className="text-[0.72rem] text-[#997A00] font-medium truncate block">
+              Renewal due today
+            </span>
           </div>
 
-          {/* Expiring Soon (1-3 Days) */}
+          {/* 4. Expiring in 1–3 Days */}
           <div
+            id="metric-card-expiring-soon"
+            className="metric-card-interactive w-full min-w-0 bg-white border border-[rgba(212,169,0,0.25)] rounded-lg p-3 sm:p-3.5 flex flex-col justify-between cursor-pointer min-h-[118px] box-border shadow-[0_1px_3px_rgba(37,42,46,0.04)]"
             onClick={() => navigate('/owner/members?filter=soon')}
-            style={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid rgba(37, 42, 46, 0.08)',
-              borderRadius: '8px',
-              padding: '1.15rem 1.25rem',
-              cursor: 'pointer',
-              transition: 'all 150ms ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(244, 196, 0, 0.5)';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.08)';
-              e.currentTarget.style.transform = 'none';
-            }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#B38E00' }}>Expiring 1–3 Days</span>
-              <Clock size={16} color="#B38E00" />
+            <div className="flex items-center justify-between gap-1.5 min-w-0">
+              <span className="text-xs sm:text-[0.76rem] font-semibold text-[#997A00] truncate">Expiring 1–3 Days</span>
+              <div className="w-7 h-7 rounded-md bg-[rgba(244,196,0,0.15)] text-[#997A00] flex items-center justify-center flex-shrink-0">
+                <Clock size={14} />
+              </div>
             </div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '2.2rem', color: '#252A2E', margin: '0.4rem 0 0.1rem', lineHeight: 1 }}>
+            <div
+              style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)' }}
+              className="text-3xl sm:text-4xl text-[#252A2E] leading-none my-1 truncate"
+            >
               {dashboardMetrics.expiringSoon}
             </div>
-            <span style={{ fontSize: '0.72rem', color: 'var(--color-slate, #4B555D)' }}>Upcoming renewals</span>
+            <span className="text-[0.72rem] text-[#997A00] font-medium truncate block">
+              Upcoming within 72h
+            </span>
           </div>
 
-          {/* Expired Members */}
+          {/* 5. Expired Members */}
           <div
+            id="metric-card-expired-members"
+            className="metric-card-interactive w-full min-w-0 bg-white border border-[rgba(168,61,61,0.2)] rounded-lg p-3 sm:p-3.5 flex flex-col justify-between cursor-pointer min-h-[118px] box-border shadow-[0_1px_3px_rgba(37,42,46,0.04)]"
             onClick={() => navigate('/owner/members?filter=expired')}
-            style={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid rgba(37, 42, 46, 0.08)',
-              borderRadius: '8px',
-              padding: '1.15rem 1.25rem',
-              cursor: 'pointer',
-              transition: 'all 150ms ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(168, 61, 61, 0.3)';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.08)';
-              e.currentTarget.style.transform = 'none';
-            }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#A83D3D' }}>Expired Members</span>
-              <AlertTriangle size={16} color="#A83D3D" />
+            <div className="flex items-center justify-between gap-1.5 min-w-0">
+              <span className="text-xs sm:text-[0.76rem] font-semibold text-[#A83D3D] truncate">Expired</span>
+              <div className="w-7 h-7 rounded-md bg-[rgba(168,61,61,0.08)] text-[#A83D3D] flex items-center justify-center flex-shrink-0">
+                <AlertTriangle size={14} />
+              </div>
             </div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '2.2rem', color: '#252A2E', margin: '0.4rem 0 0.1rem', lineHeight: 1 }}>
+            <div
+              style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)' }}
+              className="text-3xl sm:text-4xl text-[#252A2E] leading-none my-1 truncate"
+            >
               {dashboardMetrics.expiredMembers}
             </div>
-            <span style={{ fontSize: '0.72rem', color: 'var(--color-slate, #4B555D)' }}>Pending re-activation</span>
+            <span className="text-[0.72rem] text-[#A83D3D] font-medium truncate block">
+              Needs reactivation
+            </span>
           </div>
 
-          {/* Frozen Members */}
+          {/* 6. Frozen Members */}
           <div
+            id="metric-card-frozen-members"
+            className="metric-card-interactive w-full min-w-0 bg-white border border-[rgba(75,85,93,0.2)] rounded-lg p-3 sm:p-3.5 flex flex-col justify-between cursor-pointer min-h-[118px] box-border shadow-[0_1px_3px_rgba(37,42,46,0.04)]"
             onClick={() => navigate('/owner/members?filter=frozen')}
-            style={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid rgba(37, 42, 46, 0.08)',
-              borderRadius: '8px',
-              padding: '1.15rem 1.25rem',
-              cursor: 'pointer',
-              transition: 'all 150ms ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(75, 85, 93, 0.3)';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.08)';
-              e.currentTarget.style.transform = 'none';
-            }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#4B555D' }}>Frozen</span>
-              <Snowflake size={16} color="#4B555D" />
+            <div className="flex items-center justify-between gap-1.5 min-w-0">
+              <span className="text-xs sm:text-[0.76rem] font-semibold text-[#4B555D] truncate">Frozen</span>
+              <div className="w-7 h-7 rounded-md bg-[rgba(75,85,93,0.08)] text-[#4B555D] flex items-center justify-center flex-shrink-0">
+                <Snowflake size={14} />
+              </div>
             </div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '2.2rem', color: '#252A2E', margin: '0.4rem 0 0.1rem', lineHeight: 1 }}>
+            <div
+              style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)' }}
+              className="text-3xl sm:text-4xl text-[#252A2E] leading-none my-1 truncate"
+            >
               {dashboardMetrics.frozenMembers}
             </div>
-            <span style={{ fontSize: '0.72rem', color: 'var(--color-slate, #4B555D)' }}>Temporarily on pause</span>
+            <span className="text-[0.72rem] text-[#4B555D] truncate block">
+              Temporarily paused
+            </span>
+          </div>
+
+          {/* 7. Members with Outstanding Dues */}
+          <div
+            id="metric-card-due-members"
+            className="metric-card-interactive w-full min-w-0 bg-white border border-[rgba(168,61,61,0.25)] rounded-lg p-3 sm:p-3.5 flex flex-col justify-between cursor-pointer min-h-[118px] box-border shadow-[0_1px_3px_rgba(37,42,46,0.04)]"
+            onClick={() => navigate('/owner/members?filter=due')}
+          >
+            <div className="flex items-center justify-between gap-1.5 min-w-0">
+              <span className="text-xs sm:text-[0.76rem] font-semibold text-[#A83D3D] truncate">With Dues</span>
+              <div className="w-7 h-7 rounded-md bg-[rgba(168,61,61,0.08)] text-[#A83D3D] flex items-center justify-center flex-shrink-0">
+                <AlertCircle size={14} />
+              </div>
+            </div>
+            <div
+              style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)' }}
+              className="text-3xl sm:text-4xl text-[#A83D3D] leading-none my-1 truncate"
+            >
+              {dashboardMetrics.dueMembers}
+            </div>
+            <span className="text-[0.72rem] text-[#A83D3D] font-semibold truncate block">
+              ₹{Number(dashboardMetrics.totalOutstandingDues || 0).toLocaleString('en-IN')} pending
+            </span>
           </div>
         </div>
       </section>
 
-      {/* ── D & E. SPLIT SECTION: ATTENTION REQUIRED + RECENT TRANSACTIONS ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>
-        {/* D. Member Follow-ups / Needs Attention */}
-        <section
-          style={{
-            backgroundColor: '#FFFFFF',
-            border: '1px solid rgba(37, 42, 46, 0.08)',
-            borderRadius: '8px',
-            boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
-            padding: '1.5rem',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+      {/* ── C. NEEDS ATTENTION — PROMINENT FOLLOW-UPS ───────────────── */}
+      <section className="mb-8 sm:mb-10 w-full min-w-0">
+        <div className="bg-white border border-[rgba(37,42,46,0.08)] rounded-xl shadow-[0_1px_3px_rgba(37,42,46,0.04)] p-4 sm:p-5 lg:p-6 w-full min-w-0 box-border">
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2 min-w-0">
             <div>
-              <h3
-                style={{
-                  fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                  fontSize: '1.35rem',
-                  letterSpacing: '0.04em',
-                  color: 'var(--color-charcoal, #252A2E)',
-                  margin: 0,
-                }}
-              >
-                NEEDS ATTENTION
-              </h3>
-              <p style={{ fontSize: '0.8rem', color: 'var(--color-slate, #4B555D)', margin: '0.1rem 0 0' }}>
-                Urgent dues, expirations, and renewal follow-ups
+              <div className="flex items-center gap-2">
+                <h3
+                  style={{
+                    fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
+                    letterSpacing: '0.04em',
+                  }}
+                  className="text-lg sm:text-xl text-[#252A2E] m-0"
+                >
+                  NEEDS ATTENTION
+                </h3>
+                {attentionMembers.length > 0 && (
+                  <span className="text-xs font-bold text-[#A83D3D] bg-[rgba(168,61,61,0.08)] px-2 py-0.5 rounded">
+                    {attentionMembers.length} item{attentionMembers.length === 1 ? '' : 's'}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs sm:text-sm text-[#4B555D] mt-0.5 mb-0">
+                Actionable member follow-ups: today&apos;s expirations, upcoming renewals, and outstanding balances
               </p>
             </div>
+
             <Link
               to="/owner/members?filter=due"
-              style={{ fontSize: '0.8rem', color: 'var(--color-charcoal, #252A2E)', fontWeight: 600, textDecoration: 'none' }}
+              className="text-xs sm:text-sm text-[#252A2E] font-semibold no-underline inline-flex items-center gap-1 hover:text-[#D4A900] transition-colors"
             >
-              View all
+              <span>View all follow-ups</span>
+              <ChevronRight size={15} />
             </Link>
           </div>
 
           {attentionMembers.length === 0 ? (
-            <div style={{ padding: '2rem 1rem', textAlign: 'center', color: 'var(--color-slate, #4B555D)', fontSize: '0.85rem' }}>
-              <CheckCircle2 size={28} color="#2F7D4A" style={{ margin: '0 auto 0.5rem' }} />
-              All memberships and dues are fully settled.
+            <div className="p-8 sm:p-10 text-center bg-[rgba(47,125,74,0.03)] rounded-lg border border-dashed border-[rgba(47,125,74,0.25)]">
+              <CheckCircle2 size={32} color="#2F7D4A" className="mx-auto mb-2" />
+              <div className="font-semibold text-sm sm:text-base text-[#252A2E] mb-1">
+                All athlete accounts in good standing
+              </div>
+              <p className="text-xs sm:text-sm text-[#4B555D] m-0">
+                No immediate expirations or overdue balances requiring attention today.
+              </p>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 w-full min-w-0">
               {attentionMembers.map((m) => {
                 const evalStatus = memberEvaluator(m);
                 return (
                   <div
-                    key={m.id}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '0.75rem 0.85rem',
-                      borderRadius: '6px',
-                      backgroundColor: 'rgba(37, 42, 46, 0.02)',
-                      border: '1px solid rgba(37, 42, 46, 0.05)',
-                    }}
+                    key={m.id || m.docId}
+                    className="flex items-center justify-between p-3 sm:p-3.5 rounded-md bg-[rgba(37,42,46,0.02)] border border-[rgba(37,42,46,0.06)] gap-3 min-w-0 w-full box-border"
                   >
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <span style={{ fontWeight: 600, fontSize: '0.88rem', color: '#252A2E' }}>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="font-semibold text-sm text-[#252A2E] truncate">
                           {m.name}
                         </span>
-                        <span style={{ fontSize: '0.72rem', color: 'var(--color-slate, #4B555D)' }}>
+                        <span className="text-xs text-[#6B7280] flex-shrink-0">
                           ({m.memberId || m.id})
                         </span>
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--color-slate, #4B555D)', marginTop: '0.2rem' }}>
-                        {m.planName} • Exp: {formatDate(m.expiryDate)}
+                      <div className="text-xs text-[#4B555D] mt-0.5 truncate">
+                        {m.planName || 'Standard'} • Exp: {formatDate(m.expiryDate)}
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       {evalStatus.isDue ? (
-                        <span
-                          style={{
-                            fontSize: '0.75rem',
-                            fontWeight: 700,
-                            color: '#A83D3D',
-                            backgroundColor: 'rgba(168, 61, 61, 0.08)',
-                            padding: '0.2rem 0.5rem',
-                            borderRadius: '4px',
-                          }}
-                        >
+                        <span className="text-xs font-bold text-[#A83D3D] bg-[rgba(168,61,61,0.08)] px-2 py-0.5 rounded whitespace-nowrap">
                           Due: ₹{m.dueAmount || m.amountDue || 0}
                         </span>
                       ) : evalStatus.isExpiringToday ? (
-                        <span
-                          style={{
-                            fontSize: '0.72rem',
-                            fontWeight: 700,
-                            color: '#997A00',
-                            backgroundColor: 'rgba(244, 196, 0, 0.15)',
-                            padding: '0.2rem 0.5rem',
-                            borderRadius: '4px',
-                          }}
-                        >
+                        <span className="text-xs font-bold text-[#997A00] bg-[rgba(244,196,0,0.15)] px-2 py-0.5 rounded whitespace-nowrap">
                           Expires Today
                         </span>
                       ) : evalStatus.isExpiringSoon ? (
-                        <span
-                          style={{
-                            fontSize: '0.72rem',
-                            fontWeight: 600,
-                            color: '#997A00',
-                            backgroundColor: 'rgba(244, 196, 0, 0.12)',
-                            padding: '0.2rem 0.5rem',
-                            borderRadius: '4px',
-                          }}
-                        >
+                        <span className="text-xs font-semibold text-[#997A00] bg-[rgba(244,196,0,0.12)] px-2 py-0.5 rounded whitespace-nowrap">
                           Expires in {evalStatus.diff}d
                         </span>
+                      ) : evalStatus.isExpired ? (
+                        <span className="text-xs font-semibold text-[#A83D3D] bg-[rgba(168,61,61,0.08)] px-2 py-0.5 rounded whitespace-nowrap">
+                          Expired
+                        </span>
                       ) : (
-                        <span
-                          style={{
-                            fontSize: '0.72rem',
-                            fontWeight: 600,
-                            color: '#4B555D',
-                            backgroundColor: 'rgba(75, 85, 93, 0.08)',
-                            padding: '0.2rem 0.5rem',
-                            borderRadius: '4px',
-                          }}
-                        >
+                        <span className="text-xs font-semibold text-[#4B555D] bg-[rgba(75,85,93,0.08)] px-2 py-0.5 rounded whitespace-nowrap">
                           {evalStatus.badgeLabel}
                         </span>
                       )}
 
                       <Link
-                        to={`/owner/members/${m.id}`}
-                        style={{
-                          fontSize: '0.78rem',
-                          fontWeight: 600,
-                          color: '#252A2E',
-                          backgroundColor: '#FFFFFF',
-                          border: '1px solid rgba(37, 42, 46, 0.15)',
-                          padding: '0.35rem 0.65rem',
-                          borderRadius: '4px',
-                          textDecoration: 'none',
-                        }}
+                        to={`/owner/members/${m.id || m.docId}`}
+                        className="text-xs font-semibold text-[#252A2E] bg-white border border-[rgba(37,42,46,0.15)] px-2.5 py-1 rounded no-underline inline-flex items-center gap-1 hover:border-[#252A2E] hover:bg-[#FAF8F4] transition-all"
                       >
-                        Action
+                        <span>Action</span>
+                        <ArrowUpRight size={13} />
                       </Link>
                     </div>
                   </div>
@@ -807,98 +412,196 @@ export default function Dashboard() {
               })}
             </div>
           )}
-        </section>
+        </div>
+      </section>
 
+      {/* ── D. FINANCIAL OVERVIEW — SECOND ───────────────────────────── */}
+      <section className="mb-8 sm:mb-10 w-full min-w-0">
+        <div className="flex items-center justify-between mb-3.5 sm:mb-4 flex-wrap gap-2 min-w-0">
+          <div>
+            <h2
+              style={{
+                fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
+                letterSpacing: '0.04em',
+              }}
+              className="text-xl sm:text-2xl text-[#252A2E] m-0"
+            >
+              FINANCIAL OVERVIEW
+            </h2>
+            <p className="text-xs sm:text-sm text-[#4B555D] mt-0.5 mb-0">
+              Real-time revenue receipts and ledger standing recorded in Firestore
+            </p>
+          </div>
+          <Link
+            to="/owner/payments"
+            className="text-xs sm:text-sm font-semibold text-[#252A2E] no-underline inline-flex items-center gap-1 hover:text-[#D4A900] transition-colors"
+          >
+            <span>Open Payments Ledger</span>
+            <ChevronRight size={15} />
+          </Link>
+        </div>
+
+        {/* 4 Responsive Financial Cards (wraps cleanly to 2 cols on narrower desktop) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4 w-full min-w-0">
+          {/* 1. Collected Today */}
+          <div
+            id="financial-card-collected-today"
+            className="metric-card-interactive w-full min-w-0 bg-white border border-[rgba(37,42,46,0.08)] rounded-lg p-4 sm:p-5 flex flex-col justify-between min-h-[130px] box-border shadow-[0_1px_3px_rgba(37,42,46,0.04)]"
+          >
+            <div className="flex items-center justify-between gap-2 min-w-0">
+              <span className="text-xs sm:text-sm font-semibold text-[#4B555D] truncate">
+                Collected Today
+              </span>
+              <div className="w-8 h-8 rounded-md bg-[rgba(47,125,74,0.08)] text-[#2F7D4A] flex items-center justify-center flex-shrink-0">
+                <Calendar size={17} />
+              </div>
+            </div>
+            <div
+              style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)' }}
+              className="text-3xl sm:text-4xl text-[#252A2E] leading-none my-2 truncate"
+            >
+              ₹{Number(dashboardMetrics.collectionsToday || 0).toLocaleString('en-IN')}
+            </div>
+            <span className="text-xs text-[#2F7D4A] font-medium truncate block">
+              Active business day collections
+            </span>
+          </div>
+
+          {/* 2. Collected This Month */}
+          <div
+            id="financial-card-collected-month"
+            className="metric-card-interactive w-full min-w-0 bg-white border border-[rgba(37,42,46,0.08)] rounded-lg p-4 sm:p-5 flex flex-col justify-between min-h-[130px] box-border shadow-[0_1px_3px_rgba(37,42,46,0.04)]"
+          >
+            <div className="flex items-center justify-between gap-2 min-w-0">
+              <span className="text-xs sm:text-sm font-semibold text-[#4B555D] truncate">
+                This Month (MTD)
+              </span>
+              <div className="w-8 h-8 rounded-md bg-[rgba(244,196,0,0.15)] text-[#D4A900] flex items-center justify-center flex-shrink-0">
+                <TrendingUp size={17} />
+              </div>
+            </div>
+            <div
+              style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)' }}
+              className="text-3xl sm:text-4xl text-[#252A2E] leading-none my-2 truncate"
+            >
+              ₹{Number(dashboardMetrics.collectionsThisMonth || 0).toLocaleString('en-IN')}
+            </div>
+            <span className="text-xs text-[#4B555D] font-medium truncate block">
+              Current month cashflow
+            </span>
+          </div>
+
+          {/* 3. Total Lifetime Revenue */}
+          <div
+            id="financial-card-total-revenue"
+            className="metric-card-interactive w-full min-w-0 bg-white border border-[rgba(37,42,46,0.08)] rounded-lg p-4 sm:p-5 flex flex-col justify-between min-h-[130px] box-border shadow-[0_1px_3px_rgba(37,42,46,0.04)]"
+          >
+            <div className="flex items-center justify-between gap-2 min-w-0">
+              <span className="text-xs sm:text-sm font-semibold text-[#4B555D] truncate">
+                Total Revenue
+              </span>
+              <div className="w-8 h-8 rounded-md bg-[rgba(37,42,46,0.08)] text-[#252A2E] flex items-center justify-center flex-shrink-0">
+                <IndianRupee size={17} />
+              </div>
+            </div>
+            <div
+              style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)' }}
+              className="text-3xl sm:text-4xl text-[#252A2E] leading-none my-2 truncate"
+            >
+              ₹{Number(dashboardMetrics.totalRevenueCollected || 0).toLocaleString('en-IN')}
+            </div>
+            <span className="text-xs text-[#4B555D] font-medium truncate block">
+              Verified lifetime receipts
+            </span>
+          </div>
+
+          {/* 4. Outstanding Dues */}
+          <div
+            id="financial-card-outstanding-dues"
+            className="metric-card-interactive w-full min-w-0 bg-white border border-[rgba(168,61,61,0.2)] rounded-lg p-4 sm:p-5 flex flex-col justify-between cursor-pointer min-h-[130px] box-border shadow-[0_1px_3px_rgba(37,42,46,0.04)]"
+            onClick={() => navigate('/owner/payments')}
+          >
+            <div className="flex items-center justify-between gap-2 min-w-0">
+              <span className="text-xs sm:text-sm font-semibold text-[#A83D3D] truncate">
+                Outstanding Dues
+              </span>
+              <div className="w-8 h-8 rounded-md bg-[rgba(168,61,61,0.08)] text-[#A83D3D] flex items-center justify-center flex-shrink-0">
+                <AlertCircle size={17} />
+              </div>
+            </div>
+            <div
+              style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)' }}
+              className="text-3xl sm:text-4xl text-[#A83D3D] leading-none my-2 truncate"
+            >
+              ₹{Number(dashboardMetrics.totalOutstandingDues || 0).toLocaleString('en-IN')}
+            </div>
+            <span className="text-xs text-[#A83D3D] font-semibold truncate block">
+              {dashboardMetrics.dueMembers} member{dashboardMetrics.dueMembers === 1 ? '' : 's'} with due balance
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* ── E & F. SPLIT SECTION: RECENT TRANSACTIONS & REAL ANALYTICS ─ */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8 sm:mb-10 w-full min-w-0">
         {/* E. Recent Activity: Verified Collections */}
-        <section
-          style={{
-            backgroundColor: '#FFFFFF',
-            border: '1px solid rgba(37, 42, 46, 0.08)',
-            borderRadius: '8px',
-            boxShadow: 'var(--portal-card-shadow, 0 1px 3px rgba(37,42,46,0.04))',
-            padding: '1.5rem',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+        <section className="bg-white border border-[rgba(37,42,46,0.08)] rounded-xl shadow-[0_1px_3px_rgba(37,42,46,0.04)] p-4 sm:p-5 lg:p-6 flex flex-col min-w-0 w-full box-border">
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2 min-w-0">
             <div>
               <h3
                 style={{
                   fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                  fontSize: '1.35rem',
                   letterSpacing: '0.04em',
-                  color: 'var(--color-charcoal, #252A2E)',
-                  margin: 0,
                 }}
+                className="text-lg sm:text-xl text-[#252A2E] m-0"
               >
                 RECENT TRANSACTIONS
               </h3>
-              <p style={{ fontSize: '0.8rem', color: 'var(--color-slate, #4B555D)', margin: '0.1rem 0 0' }}>
+              <p className="text-xs text-[#4B555D] mt-0.5 mb-0">
                 Latest verified payment collections
               </p>
             </div>
             <Link
               to="/owner/payments"
-              style={{ fontSize: '0.8rem', color: 'var(--color-charcoal, #252A2E)', fontWeight: 600, textDecoration: 'none' }}
+              className="text-xs sm:text-sm text-[#252A2E] font-semibold no-underline inline-flex items-center gap-1 hover:text-[#D4A900] transition-colors"
             >
-              All payments
+              <span>Full Ledger</span>
+              <ChevronRight size={14} />
             </Link>
           </div>
 
           {recentTransactions.length === 0 ? (
-            <div style={{ padding: '2rem 1rem', textAlign: 'center', color: 'var(--color-slate, #4B555D)', fontSize: '0.85rem' }}>
-              <Receipt size={28} color="#4B555D" style={{ margin: '0 auto 0.5rem', opacity: 0.5 }} />
+            <div className="p-8 sm:p-10 text-center text-[#4B555D] text-xs sm:text-sm">
+              <Receipt size={28} color="#4B555D" className="mx-auto mb-2 opacity-40" />
               No transaction history recorded yet.
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div className="flex flex-col gap-2.5 w-full min-w-0">
               {recentTransactions.map((p) => (
                 <div
                   key={p.id || p.receiptNumber}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '0.75rem 0.85rem',
-                    borderRadius: '6px',
-                    backgroundColor: 'rgba(37, 42, 46, 0.02)',
-                    border: '1px solid rgba(37, 42, 46, 0.05)',
-                  }}
+                  className="flex items-center justify-between p-3 rounded-md bg-[rgba(37,42,46,0.02)] border border-[rgba(37,42,46,0.05)] gap-3 min-w-0 w-full box-border"
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div
-                      style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '6px',
-                        backgroundColor: 'rgba(47, 125, 74, 0.08)',
-                        color: '#2F7D4A',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '0.75rem',
-                        fontWeight: 700,
-                      }}
-                    >
+                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                    <div className="w-8 h-8 rounded-md bg-[rgba(47,125,74,0.08)] text-[#2F7D4A] flex items-center justify-center font-bold text-xs sm:text-sm flex-shrink-0">
                       ₹
                     </div>
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: '0.88rem', color: '#252A2E' }}>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-semibold text-xs sm:text-sm text-[#252A2E] truncate">
                         {p.memberName}
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--color-slate, #4B555D)' }}>
-                        {p.receiptNumber} • {p.paymentMode} • {formatDate(p.paymentDateStr || p.paymentDate)}
+                      <div className="text-[0.72rem] sm:text-xs text-[#4B555D] mt-0.5 truncate">
+                        {p.receiptNumber} • {p.paymentMode || 'Cash'} • {formatDate(p.paymentDateStr || p.paymentDate)}
                       </div>
                     </div>
                   </div>
 
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#2F7D4A' }}>
+                  <div className="text-right flex-shrink-0">
+                    <div className="font-bold text-xs sm:text-sm text-[#2F7D4A] whitespace-nowrap">
                       +₹{Number(p.amountPaid || 0).toLocaleString('en-IN')}
                     </div>
                     {p.remainingDueAmount > 0 && (
-                      <div style={{ fontSize: '0.7rem', color: '#A83D3D' }}>
+                      <div className="text-[0.7rem] text-[#A83D3D] font-semibold whitespace-nowrap">
                         Due: ₹{p.remainingDueAmount}
                       </div>
                     )}
@@ -908,6 +611,97 @@ export default function Dashboard() {
             </div>
           )}
         </section>
+
+        {/* F. Real Analytics: Plan Distribution & Payment Modes */}
+        <section className="bg-white border border-[rgba(37,42,46,0.08)] rounded-xl shadow-[0_1px_3px_rgba(37,42,46,0.04)] p-4 sm:p-5 lg:p-6 flex flex-col justify-between min-w-0 w-full box-border">
+          <div>
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-2 min-w-0">
+              <div>
+                <h3
+                  style={{
+                    fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
+                    letterSpacing: '0.04em',
+                  }}
+                  className="text-lg sm:text-xl text-[#252A2E] m-0"
+                >
+                  OPERATIONAL ANALYTICS
+                </h3>
+                <p className="text-xs text-[#4B555D] mt-0.5 mb-0">
+                  Live membership distribution & payment methods from verified data
+                </p>
+              </div>
+              <div className="w-8 h-8 rounded-md bg-[rgba(37,42,46,0.05)] text-[#252A2E] flex items-center justify-center flex-shrink-0">
+                <PieChart size={17} />
+              </div>
+            </div>
+
+            {/* Plan Distribution Progress Bars */}
+            <div className="mb-5 sm:mb-6 w-full min-w-0">
+              <div className="text-xs font-bold text-[#252A2E] uppercase tracking-wide mb-2.5">
+                Active Plan Distribution
+              </div>
+              {planBreakdownEntries.length === 0 ? (
+                <div className="text-xs text-[#6B7280]">No active plan data yet.</div>
+              ) : (
+                <div className="flex flex-col gap-2 w-full min-w-0">
+                  {planBreakdownEntries.slice(0, 4).map(([planName, count]) => {
+                    const percent = Math.round((count / totalPlanMembers) * 100);
+                    return (
+                      <div key={planName} className="w-full min-w-0">
+                        <div className="flex justify-between text-xs mb-1 min-w-0">
+                          <span className="font-semibold text-[#252A2E] truncate pr-2">{planName}</span>
+                          <span className="text-[#4B555D] flex-shrink-0">{count} ({percent}%)</span>
+                        </div>
+                        <div className="h-1.5 bg-[rgba(37,42,46,0.08)] rounded-full overflow-hidden w-full max-w-full">
+                          <div
+                            style={{ width: `${percent}%` }}
+                            className="h-full bg-[#F4C400] rounded-full transition-all duration-300"
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Payment Modes */}
+            <div className="w-full min-w-0">
+              <div className="text-xs font-bold text-[#252A2E] uppercase tracking-wide mb-2.5">
+                Payment Channel Breakdown
+              </div>
+              <div className="grid grid-cols-3 gap-2 sm:gap-2.5 w-full min-w-0">
+                <div className="p-2 sm:p-2.5 bg-[rgba(37,42,46,0.03)] rounded-md text-center min-w-0 overflow-hidden box-border">
+                  <div className="text-[0.68rem] sm:text-xs text-[#6B7280] uppercase font-semibold truncate">Cash</div>
+                  <div
+                    style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)' }}
+                    className="text-lg sm:text-xl text-[#252A2E] mt-0.5 truncate leading-none"
+                  >
+                    ₹{Number(paymentModes.Cash || 0).toLocaleString('en-IN')}
+                  </div>
+                </div>
+                <div className="p-2 sm:p-2.5 bg-[rgba(37,42,46,0.03)] rounded-md text-center min-w-0 overflow-hidden box-border">
+                  <div className="text-[0.68rem] sm:text-xs text-[#6B7280] uppercase font-semibold truncate">UPI</div>
+                  <div
+                    style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)' }}
+                    className="text-lg sm:text-xl text-[#252A2E] mt-0.5 truncate leading-none"
+                  >
+                    ₹{Number(paymentModes.UPI || 0).toLocaleString('en-IN')}
+                  </div>
+                </div>
+                <div className="p-2 sm:p-2.5 bg-[rgba(37,42,46,0.03)] rounded-md text-center min-w-0 overflow-hidden box-border">
+                  <div className="text-[0.68rem] sm:text-xs text-[#6B7280] uppercase font-semibold truncate">Card</div>
+                  <div
+                    style={{ fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)' }}
+                    className="text-lg sm:text-xl text-[#252A2E] mt-0.5 truncate leading-none"
+                  >
+                    ₹{Number(paymentModes.Card || 0).toLocaleString('en-IN')}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
 
       {/* ── MANAGE MODAL / ACTION DRAWER ────────────────────────────── */}
@@ -915,54 +709,25 @@ export default function Dashboard() {
         <div
           id="manage-modal-backdrop"
           onClick={() => setShowManageModal(false)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.6)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-            padding: '1rem',
-            backdropFilter: 'blur(3px)',
-          }}
+          className="fixed inset-0 bg-black/60 flex items-center justify-center z-[1000] p-4 backdrop-blur-sm"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid rgba(37, 42, 46, 0.1)',
-              borderRadius: '8px',
-              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
-              width: '100%',
-              maxWidth: '440px',
-              padding: '1.75rem',
-            }}
+            className="bg-white border border-[rgba(37,42,46,0.1)] rounded-lg shadow-2xl w-full max-w-[440px] p-5 sm:p-7 box-border"
           >
             {/* Modal Header */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                paddingBottom: '1rem',
-                borderBottom: '1px solid rgba(37, 42, 46, 0.08)',
-                marginBottom: '1.25rem',
-              }}
-            >
+            <div className="flex items-center justify-between pb-3.5 border-b border-[rgba(37,42,46,0.08)] mb-4">
               <div>
                 <h3
                   style={{
                     fontFamily: 'var(--font-display, "Bebas Neue", sans-serif)',
-                    fontSize: '1.6rem',
                     letterSpacing: '0.04em',
-                    color: 'var(--color-charcoal, #252A2E)',
-                    margin: 0,
                   }}
+                  className="text-xl sm:text-2xl text-[#252A2E] m-0"
                 >
                   MANAGE GYM
                 </h3>
-                <p style={{ fontSize: '0.8rem', color: 'var(--color-slate, #4B555D)', margin: '0.15rem 0 0' }}>
+                <p className="text-xs text-[#4B555D] mt-0.5 mb-0">
                   Quick shortcuts to primary management areas
                 </p>
               </div>
@@ -970,70 +735,35 @@ export default function Dashboard() {
               <button
                 type="button"
                 onClick={() => setShowManageModal(false)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: 'var(--color-slate, #4B555D)',
-                  padding: '0.25rem',
-                }}
+                className="bg-transparent border-0 cursor-pointer text-[#4B555D] p-1 hover:text-[#252A2E] transition-colors"
               >
                 <X size={20} />
               </button>
             </div>
 
             {/* Quick Links */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+            <div className="flex flex-col gap-2.5">
               <div
                 onClick={() => {
                   setShowManageModal(false);
                   navigate('/owner/members');
                 }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '1rem',
-                  borderRadius: '6px',
-                  border: '1px solid rgba(37, 42, 46, 0.08)',
-                  backgroundColor: '#FAF8F4',
-                  cursor: 'pointer',
-                  transition: 'all 120ms ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.25)';
-                  e.currentTarget.style.backgroundColor = '#F5EFE4';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.08)';
-                  e.currentTarget.style.backgroundColor = '#FAF8F4';
-                }}
+                className="flex items-center justify-between p-3.5 rounded-md border border-[rgba(37,42,46,0.08)] bg-[#FAF8F4] cursor-pointer hover:bg-[#F5EFE4] hover:border-[rgba(37,42,46,0.25)] transition-all"
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <div
-                    style={{
-                      width: '36px',
-                      height: '36px',
-                      borderRadius: '6px',
-                      backgroundColor: 'rgba(37, 42, 46, 0.08)',
-                      color: 'var(--color-charcoal, #252A2E)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-md bg-[rgba(37,42,46,0.08)] text-[#252A2E] flex items-center justify-center flex-shrink-0">
                     <Users size={18} />
                   </div>
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: '#252A2E' }}>
+                    <div className="font-semibold text-sm text-[#252A2E]">
                       Members Directory
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--color-slate, #4B555D)' }}>
+                    <div className="text-xs text-[#4B555D]">
                       Search, edit, freeze, renew, or archive
                     </div>
                   </div>
                 </div>
-                <ChevronRight size={16} color="var(--color-slate, #4B555D)" />
+                <ChevronRight size={16} color="#4B555D" />
               </div>
 
               <div
@@ -1041,51 +771,22 @@ export default function Dashboard() {
                   setShowManageModal(false);
                   navigate('/owner/plans');
                 }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '1rem',
-                  borderRadius: '6px',
-                  border: '1px solid rgba(37, 42, 46, 0.08)',
-                  backgroundColor: '#FAF8F4',
-                  cursor: 'pointer',
-                  transition: 'all 120ms ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.25)';
-                  e.currentTarget.style.backgroundColor = '#F5EFE4';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.08)';
-                  e.currentTarget.style.backgroundColor = '#FAF8F4';
-                }}
+                className="flex items-center justify-between p-3.5 rounded-md border border-[rgba(37,42,46,0.08)] bg-[#FAF8F4] cursor-pointer hover:bg-[#F5EFE4] hover:border-[rgba(37,42,46,0.25)] transition-all"
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <div
-                    style={{
-                      width: '36px',
-                      height: '36px',
-                      borderRadius: '6px',
-                      backgroundColor: 'rgba(37, 42, 46, 0.08)',
-                      color: 'var(--color-charcoal, #252A2E)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-md bg-[rgba(37,42,46,0.08)] text-[#252A2E] flex items-center justify-center flex-shrink-0">
                     <CreditCard size={18} />
                   </div>
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: '#252A2E' }}>
+                    <div className="font-semibold text-sm text-[#252A2E]">
                       Membership Plans
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--color-slate, #4B555D)' }}>
+                    <div className="text-xs text-[#4B555D]">
                       Manage pricing, terms, and active plans
                     </div>
                   </div>
                 </div>
-                <ChevronRight size={16} color="var(--color-slate, #4B555D)" />
+                <ChevronRight size={16} color="#4B555D" />
               </div>
 
               <div
@@ -1093,51 +794,22 @@ export default function Dashboard() {
                   setShowManageModal(false);
                   navigate('/owner/payments');
                 }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '1rem',
-                  borderRadius: '6px',
-                  border: '1px solid rgba(37, 42, 46, 0.08)',
-                  backgroundColor: '#FAF8F4',
-                  cursor: 'pointer',
-                  transition: 'all 120ms ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.25)';
-                  e.currentTarget.style.backgroundColor = '#F5EFE4';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(37, 42, 46, 0.08)';
-                  e.currentTarget.style.backgroundColor = '#FAF8F4';
-                }}
+                className="flex items-center justify-between p-3.5 rounded-md border border-[rgba(37,42,46,0.08)] bg-[#FAF8F4] cursor-pointer hover:bg-[#F5EFE4] hover:border-[rgba(37,42,46,0.25)] transition-all"
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <div
-                    style={{
-                      width: '36px',
-                      height: '36px',
-                      borderRadius: '6px',
-                      backgroundColor: 'rgba(37, 42, 46, 0.08)',
-                      color: 'var(--color-charcoal, #252A2E)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-md bg-[rgba(37,42,46,0.08)] text-[#252A2E] flex items-center justify-center flex-shrink-0">
                     <Receipt size={18} />
                   </div>
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: '#252A2E' }}>
+                    <div className="font-semibold text-sm text-[#252A2E]">
                       Payments Ledger
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--color-slate, #4B555D)' }}>
+                    <div className="text-xs text-[#4B555D]">
                       View collections, print receipts, and manage dues
                     </div>
                   </div>
                 </div>
-                <ChevronRight size={16} color="var(--color-slate, #4B555D)" />
+                <ChevronRight size={16} color="#4B555D" />
               </div>
             </div>
           </div>

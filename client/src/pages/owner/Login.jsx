@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Eye, EyeOff, Lock, Mail, ArrowRight, ShieldCheck, Dumbbell } from 'lucide-react';
 import { useOwnerGym } from '../../context/OwnerGymContext.jsx';
+import { getStaffProfile, OWNER_BOOTSTRAP_EMAIL } from '../../services/staffService.js';
 
 function getFriendlyAuthErrorMessage(error) {
   if (!error) return 'An error occurred during authentication.';
@@ -18,14 +19,19 @@ function getFriendlyAuthErrorMessage(error) {
     case 'auth/too-many-requests':
       return 'Access temporarily blocked due to repeated failed attempts. Please try again later.';
     case 'auth/network-request-failed':
-      return 'Network connection error. Please check your internet connection.';
+      return 'Network connection error. Please verify your internet connection and try again.';
     case 'auth/popup-closed-by-user':
+      return 'Sign-in was cancelled before completion. Please try again.';
     case 'auth/cancelled-popup-request':
-      return ''; // User intentionally closed or cancelled popup
+      return ''; // Duplicate popup request cancelled
     case 'auth/popup-blocked':
-      return 'Google sign-in popup was blocked by your browser. Please allow popups for this site.';
+      return 'The Google sign-in window was blocked by your browser. Please allow popups for this site and try again.';
     case 'auth/unauthorized-domain':
-      return 'Domain not authorized for OAuth in Firebase Console. Please verify authorized domains.';
+      return "Domain not authorized: 'leegym.vercel.app' is not listed in Firebase Console. Please add it under Authentication → Settings → Authorized domains.";
+    case 'auth/operation-not-allowed':
+      return 'Google sign-in is not enabled in Firebase Console. Please enable it in Authentication → Sign-in method.';
+    case 'auth/account-exists-with-different-credential':
+      return 'An account already exists with this email using a different sign-in method.';
     default:
       return error.message || 'Authentication failed. Please try again.';
   }
@@ -34,7 +40,7 @@ function getFriendlyAuthErrorMessage(error) {
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, loginWithGoogle, isAuthenticated, authLoading } = useOwnerGym();
+  const { login, loginWithGoogle, logout, isAuthenticated, authLoading } = useOwnerGym();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -43,7 +49,7 @@ export default function Login() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // If already authenticated, redirect to admin dashboard or destination
+  // If already authenticated and verified, redirect to destination
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
       const destination = location.state?.from?.pathname || '/owner/dashboard';
@@ -60,18 +66,34 @@ export default function Login() {
     const cleanPassword = password.trim();
 
     if (!cleanEmail) {
-      setError('Please enter your email or username');
+      setError('Please enter your email or username.');
       return;
     }
     if (!cleanPassword) {
-      setError('Please enter your password');
+      setError('Please enter your password.');
       return;
     }
 
     setIsLoading(true);
 
     try {
-      await login(cleanEmail, cleanPassword);
+      const cred = await login(cleanEmail, cleanPassword);
+      const user = cred?.user;
+
+      if (user) {
+        // Enforce owner / staff authorization check
+        const profile = await getStaffProfile(user.uid, user.email);
+        const isOwnerOrStaff =
+          (user.email?.toLowerCase() === OWNER_BOOTSTRAP_EMAIL.toLowerCase()) ||
+          (profile && profile.role && profile.status === 'Active');
+
+        if (!isOwnerOrStaff) {
+          await logout();
+          setError('Access denied. This account is not registered as an authorized Lee Gym owner or staff member.');
+          return;
+        }
+      }
+
       const destination = location.state?.from?.pathname || '/owner/dashboard';
       navigate(destination, { replace: true });
     } catch (err) {
@@ -91,7 +113,23 @@ export default function Login() {
     setIsGoogleLoading(true);
 
     try {
-      await loginWithGoogle();
+      const cred = await loginWithGoogle();
+      const user = cred?.user;
+
+      if (user) {
+        // Enforce owner / staff authorization check: do not treat Google auth as automatic owner authorization
+        const profile = await getStaffProfile(user.uid, user.email);
+        const isOwnerOrStaff =
+          (user.email?.toLowerCase() === OWNER_BOOTSTRAP_EMAIL.toLowerCase()) ||
+          (profile && profile.role && profile.status === 'Active');
+
+        if (!isOwnerOrStaff) {
+          await logout();
+          setError('Access denied. This Google account is not registered as an authorized Lee Gym owner or staff member.');
+          return;
+        }
+      }
+
       const destination = location.state?.from?.pathname || '/owner/dashboard';
       navigate(destination, { replace: true });
     } catch (err) {
